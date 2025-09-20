@@ -15,74 +15,156 @@ if (!GOOGLE_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
-// Enhanced system instruction for structured JSON feedback (unchanged)
+// Enhanced Bangladesh-focused system instruction
 const createSystemInstruction = (industryPreference: string, hasJobDescription: boolean) => `
-You are an expert AI career coach for university students in Bangladesh with access to real-time web search and analysis tools. Your task is to provide highly specific, actionable, and up-to-date feedback on a resume.
+You are an expert AI career coach specializing in the Bangladeshi job market with deep knowledge of local industry trends, salary expectations, and career opportunities. Your expertise covers:
+
+🇧🇩 **BANGLADESH JOB MARKET EXPERTISE:**
+- Current job market trends in Dhaka, Chittagong, Sylhet, and other major cities
+- Local salary expectations and compensation packages in Bangladeshi Taka (BDT)
+- Major employers in Bangladesh including local companies and MNCs
+- Work culture, interview processes, and hiring practices in Bangladesh
+- Government policies affecting employment and skill development
+- Educational institutions and their market reputation in Bangladesh
+- Networking opportunities and professional communities in Bangladesh
+
+**BANGLADESH-SPECIFIC CONTEXT TO CONSIDER:**
+- Local companies: Grameenphone, BRAC, Dutch-Bangla Bank, Square Group, ACI, Beximco, etc.
+- MNCs operating in Bangladesh: Unilever, Nestle, Samsung, Microsoft, Oracle, etc.
+- Growing sectors: IT, Textiles, Pharmaceuticals, Banking, Telecommunications, E-commerce
+- Emerging opportunities: Fintech, EdTech, AgriTech, Digital Marketing
+- Educational background expectations for Bangladeshi employers
+- Professional development opportunities available in Bangladesh
+- Remote work trends and freelancing market in Bangladesh
 
 Your personality:
-- Direct, insightful, and encouraging.
-- Professional and focused on practical improvements.
-- Aware of current job market trends in Bangladesh and globally.
+- Culturally aware of Bangladeshi professional norms
+- Encouraging yet realistic about local job market conditions  
+- Focused on practical, achievable improvements for Bangladesh context
+- Knowledgeable about both local and international career paths for Bangladeshi professionals
 
-IMPORTANT: When analyzing resumes, feel free to search for:
-- Current industry trends and skill demands for ${industryPreference}
-- Recent job market data in Bangladesh
-- In-demand skills and technologies
-- Salary benchmarks and career progression paths
+**CRITICAL CONTENT VALIDATION:**
+Before providing any response, you MUST validate the content:
+1. If the resume contains completely irrelevant content (like cooking recipes, random stories, or nonsense)
+2. If the content contains dangerous, harmful, inappropriate, or offensive material
+3. If the content is clearly not a resume or job-related document
+
+If ANY of these conditions are met, respond with this EXACT message:
+"⚠️ Content Validation Error: The provided content appears to be inappropriate, irrelevant, or not related to resume analysis. Please provide a proper resume containing your educational background, work experience, skills, and career objectives. Let's start fresh with appropriate professional content."
 
 The user will provide up to three pieces of information:
 1. **Industry Preference:** ${industryPreference}
 2. **Resume Content:** The user's resume text.
 ${hasJobDescription ? "3. **Job Description:** A specific job description they are targeting." : ""}
 
-When analyzing the resume for the FIRST TIME, you MUST respond with a JSON object in the following format. This is critical for proper parsing:
+When analyzing a VALID resume for the FIRST TIME, you MUST respond with a JSON object in the following format:
 
 {
-  "summary": "A brief, encouraging paragraph summarizing the candidate's overall profile and potential",
+  "summary": "A brief paragraph highlighting the candidate's potential in the Bangladesh job market context, mentioning relevant local opportunities",
   "strengths": {
-    "technical": ["List of strong technical skills", "Another technical strength", "..."],
-    "soft": ["List of strong soft skills", "Communication abilities", "..."],
-    "experience": ["Notable experience highlights", "Relevant project work", "..."],
-    "education": ["Educational achievements", "Relevant coursework", "..."]
+    "technical": ["List technical skills relevant to Bangladesh market", "Technologies in demand locally", "..."],
+    "soft": ["Communication skills valued by Bangladeshi employers", "Leadership qualities", "..."],
+    "experience": ["Relevant experience for Bangladesh context", "Project work applicable locally", "..."],
+    "education": ["Educational achievements valued in Bangladesh", "Institution reputation in local market", "..."]
   },
   "weaknesses": {
-    "technical": ["Technical skills that need improvement", "Missing technologies", "..."],
-    "soft": ["Soft skills to develop", "Areas for growth", "..."],
-    "experience": ["Experience gaps", "Missing relevant projects", "..."],
-    "education": ["Educational areas to strengthen", "Certifications needed", "..."]
+    "technical": ["Technical skills gaps for Bangladesh market", "Missing local technology requirements", "..."],
+    "soft": ["Soft skills to develop for local workplace culture", "Areas for improvement", "..."],
+    "experience": ["Experience gaps for Bangladesh job market", "Missing industry exposure", "..."],
+    "education": ["Additional qualifications valued in Bangladesh", "Professional certifications needed", "..."]
   },
   "recommendations": {
-    "skillsToDevelop": ["Specific skills to learn", "Programming languages", "Tools to master", "..."],
-    "experienceToGain": ["Types of projects to work on", "Internship suggestions", "..."],
-    "formattingTips": ["Resume layout improvements", "Section restructuring", "..."],
-    "actionableSteps": ["Immediate next steps", "Long-term goals", "..."]
+    "skillsToDevelop": ["Skills in high demand in Bangladesh", "Technologies used by local companies", "Language skills if needed", "..."],
+    "experienceToGain": ["Internship opportunities in Bangladesh", "Projects relevant to local market", "Volunteer work options", "..."],
+    "formattingTips": ["Resume format preferences of Bangladeshi employers", "Cultural considerations for CV presentation", "..."],
+    "actionableSteps": ["Immediate steps for Bangladesh job market", "Networking opportunities in Bangladesh", "Professional development paths", "..."]
   },
-  "additionalSkillRequired": ["Industry-specific skills needed", "Emerging technologies", "Certifications to pursue", "..."],
+  "additionalSkillRequired": ["Industry-specific skills for Bangladesh market", "Language requirements", "Professional certifications valued locally", "Digital skills for Bangladesh context", "..."],
   "suggestedCourses": [
     {
-      "title": "Course Name 1",
-      "description": "Why this course is beneficial for their career goals",
+      "title": "Course Name (Available in Bangladesh or Online)",
+      "description": "How this course helps in Bangladesh job market with specific local relevance",
       "priority": "High"
     },
     {
-      "title": "Course Name 2", 
-      "description": "How this course fills skill gaps",
+      "title": "Professional Development Program",
+      "description": "Benefits for career growth in Bangladesh context",
       "priority": "Medium"
     }
   ],
   "confidenceScore": 7.5,
   "marketInsights": [
-    "Current trend 1 in ${industryPreference}",
-    "In-demand skill insight",
-    "Job market observation for Bangladesh"
+    "Current ${industryPreference} trends in Bangladesh",
+    "Salary expectations in BDT for this role level",
+    "Major employers in Bangladesh for this field",
+    "Growth opportunities in Bangladesh market",
+    "Networking and professional communities in Bangladesh"
   ]
 }
 
-CRITICAL: For the initial analysis, respond ONLY with valid JSON. Do not add any text before or after the JSON.
-For follow-up questions after the initial analysis, respond in conversational format with helpful advice while maintaining context from the JSON feedback provided earlier.
+**RESPONSE RULES:**
+1. FIRST: Check content validity - if inappropriate/irrelevant, return the validation error message
+2. For VALID initial analysis: respond ONLY with valid JSON (no extra text)
+3. For follow-up questions: respond conversationally with Bangladesh-focused advice
+4. Always provide context relevant to Bangladesh job market
+5. Include salary ranges in BDT when relevant
+6. Mention specific Bangladesh companies and opportunities
+7. Consider cultural and professional norms of Bangladesh
 `;
 
-// CORRECTED: Your original three-tier model strategy
+// Content validation function
+const validateResumeContent = (content: string): { isValid: boolean; reason?: string } => {
+  const lowerContent = content.toLowerCase();
+  
+  // Check for completely irrelevant content
+  const irrelevantKeywords = [
+    'recipe', 'cooking', 'food preparation', 'ingredients',
+    'once upon a time', 'fairy tale', 'story telling',
+    'lorem ipsum', 'dolor sit amet', 'consectetur adipiscing',
+    'asdfg', 'qwerty', '12345', 'test test test',
+    'random text', 'nonsense', 'gibberish'
+  ];
+  
+  // Check for dangerous/inappropriate content
+  const dangerousKeywords = [
+    'suicide', 'self harm', 'violence', 'weapon', 'bomb',
+    'illegal drugs', 'terrorism', 'hate speech',
+    'explicit sexual', 'pornography', 'abuse'
+  ];
+  
+  // Check for resume-related keywords (should have at least 2)
+  const resumeKeywords = [
+    'experience', 'education', 'skill', 'university', 'college',
+    'work', 'job', 'intern', 'project', 'degree',
+    'bachelor', 'master', 'diploma', 'certificate',
+    'responsibility', 'achievement', 'objective'
+  ];
+  
+  // Check for irrelevant content
+  if (irrelevantKeywords.some(keyword => lowerContent.includes(keyword))) {
+    return { isValid: false, reason: 'irrelevant_content' };
+  }
+  
+  // Check for dangerous content
+  if (dangerousKeywords.some(keyword => lowerContent.includes(keyword))) {
+    return { isValid: false, reason: 'inappropriate_content' };
+  }
+  
+  // Check if content has resume-like keywords
+  const resumeKeywordCount = resumeKeywords.filter(keyword => lowerContent.includes(keyword)).length;
+  if (content.length > 50 && resumeKeywordCount < 2) {
+    return { isValid: false, reason: 'not_resume_content' };
+  }
+  
+  // Check if content is too short or nonsensical
+  if (content.length < 20 || /^[a-zA-Z]{1,3}(\s[a-zA-Z]{1,3})*$/.test(content.trim())) {
+    return { isValid: false, reason: 'insufficient_content' };
+  }
+  
+  return { isValid: true };
+};
+
+// Your original three-tier model strategy (unchanged)
 const groqCompoundModels = [
   "groq/compound",
   "groq/compound-mini"
@@ -112,7 +194,7 @@ async function tryGroqCompoundAPI(messages: {role: string, content: string}[], i
 
   for (const model of groqCompoundModels) {
     try {
-      console.log(`🚀 Attempting Groq COMPOUND with model: ${model}...`);
+      console.log(`🇧🇩 Attempting Groq COMPOUND (Bangladesh-focused) with model: ${model}...`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -126,7 +208,7 @@ async function tryGroqCompoundAPI(messages: {role: string, content: string}[], i
         body: JSON.stringify({ 
           model, 
           messages: messagesForApi,
-          max_tokens: 2000,
+          max_tokens: 2500, // Increased for Bangladesh context
           temperature: 0.3
         }),
         signal: controller.signal,
@@ -145,7 +227,7 @@ async function tryGroqCompoundAPI(messages: {role: string, content: string}[], i
         continue;
       }
 
-      console.log(`✅ Groq COMPOUND successful with model: ${model}`);
+      console.log(`✅ Groq COMPOUND successful with Bangladesh context: ${model}`);
       return { success: true, content: data.choices[0].message.content };
 
     } catch (error: any) {
@@ -170,7 +252,7 @@ async function tryGroqLlamaAPI(messages: {role: string, content: string}[], indu
 
   for (const model of groqLlamaModels) {
     try {
-      console.log(`🔄 Attempting Groq LLAMA with model: ${model}...`);
+      console.log(`🇧🇩 Attempting Groq LLAMA (Bangladesh-focused) with model: ${model}...`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -184,7 +266,7 @@ async function tryGroqLlamaAPI(messages: {role: string, content: string}[], indu
         body: JSON.stringify({ 
           model, 
           messages: messagesForApi,
-          max_tokens: 2000,
+          max_tokens: 2500, // Increased for Bangladesh context
           temperature: 0.3
         }),
         signal: controller.signal,
@@ -203,7 +285,7 @@ async function tryGroqLlamaAPI(messages: {role: string, content: string}[], indu
         continue;
       }
 
-      console.log(`✅ Groq LLAMA successful with model: ${model}`);
+      console.log(`✅ Groq LLAMA successful with Bangladesh context: ${model}`);
       return { success: true, content: data.choices[0].message.content };
 
     } catch (error: any) {
@@ -216,13 +298,16 @@ async function tryGroqLlamaAPI(messages: {role: string, content: string}[], indu
 
 // STRATEGY 3: Use Google Gemini as the final fallback
 async function useGeminiAPI(messages: {role: string, content: string}[], industryPreference: string, hasJobDescription: boolean): Promise<string> {
-  console.log('🔄 Final fallback to Google Gemini...');
+  console.log('🇧🇩 Final fallback to Google Gemini (Bangladesh-focused)...');
   
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction: createSystemInstruction(industryPreference, hasJobDescription),
     safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
     ],
   });
 
@@ -234,7 +319,7 @@ async function useGeminiAPI(messages: {role: string, content: string}[], industr
   const chat = model.startChat({ 
     history,
     generationConfig: {
-      maxOutputTokens: 1500,
+      maxOutputTokens: 2000,
       temperature: 0.3,
     }
   });
@@ -242,11 +327,11 @@ async function useGeminiAPI(messages: {role: string, content: string}[], industr
   const latestMessage = messages[messages.length - 1]?.content || '';
   const result = await chat.sendMessage(latestMessage);
   
-  console.log('✅ Google Gemini successful');
+  console.log('✅ Google Gemini successful with Bangladesh context');
   return result.response.text();
 }
 
-// Environment-aware timeout configuration
+// Environment-aware timeout configuration (unchanged)
 const getTimeouts = () => {
   const isVercel = process.env.VERCEL === '1';
   
@@ -265,12 +350,24 @@ const getTimeouts = () => {
   };
 };
 
-// Input validation
+// Enhanced input validation with content checking
 const validateInputs = (body: any) => {
   const { resumeText, jobDescription } = body;
   
-  if (resumeText && (typeof resumeText !== 'string' || resumeText.length > 15000)) {
-    return { isValid: false, error: 'Resume text is invalid or too long (max 15,000 characters)' };
+  if (resumeText) {
+    if (typeof resumeText !== 'string' || resumeText.length > 15000) {
+      return { isValid: false, error: 'Resume text is invalid or too long (max 15,000 characters)' };
+    }
+    
+    // Validate resume content
+    const contentValidation = validateResumeContent(resumeText);
+    if (!contentValidation.isValid) {
+      return { 
+        isValid: false, 
+        error: 'inappropriate_content',
+        validationMessage: '⚠️ Content Validation Error: The provided content appears to be inappropriate, irrelevant, or not related to resume analysis. Please provide a proper resume containing your educational background, work experience, skills, and career objectives. Let\'s start fresh with appropriate professional content.'
+      };
+    }
   }
   
   if (jobDescription && (typeof jobDescription !== 'string' || jobDescription.length > 8000)) {
@@ -289,16 +386,25 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     
-    // Input validation
+    // Enhanced input validation with content checking
     const validation = validateInputs(body);
     if (!validation.isValid) {
+      // Special handling for inappropriate content - return validation message directly
+      if (validation.error === 'inappropriate_content') {
+        return NextResponse.json({ 
+          feedback: validation.validationMessage,
+          isInitialAnalysis: true,
+          providerInfo: 'Content Validation System',
+          contentReset: true // Signal to frontend to reset flow
+        });
+      }
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
     
     const { 
       messages = [], 
       resumeText = null, 
-      industryPreference = 'a general entry-level position',
+      industryPreference = 'a general entry-level position in Bangladesh',
       jobDescription = null 
     } = body;
 
@@ -306,10 +412,12 @@ export async function POST(req: NextRequest) {
     const isInitialAnalysis = !!resumeText;
 
     if (isInitialAnalysis) {
-      let prompt = `Please analyze this resume for a student interested in the ${industryPreference} industry.\n\n**Resume Content:**\n${resumeText}`;
+      let prompt = `Please analyze this resume for a student/professional interested in the ${industryPreference} industry in Bangladesh.\n\n**Resume Content:**\n${resumeText}`;
       if (jobDescription) {
         prompt += `\n\n**Target Job Description:**\n${jobDescription}`;
       }
+      prompt += `\n\n**Focus Areas:** Please provide insights specific to Bangladesh job market including local company opportunities, salary expectations in BDT, cultural considerations, and networking opportunities in Bangladesh.`;
+      
       apiMessages = [{ role: 'user', content: prompt }];
     } else {
       apiMessages = messages.map((msg: any) => ({
@@ -325,10 +433,10 @@ export async function POST(req: NextRequest) {
     let feedback = '';
     const timeouts = getTimeouts();
 
-    // THREE-TIER STRATEGY: Groq Compound → Groq LLAMA → Gemini
+    // THREE-TIER STRATEGY: Groq Compound → Groq LLAMA → Gemini (with Bangladesh focus)
     try {
       // STRATEGY 1: Try Groq COMPOUND models first
-      console.log('🚀 Step 1: Trying Groq COMPOUND models...');
+      console.log('🇧🇩 Step 1: Trying Groq COMPOUND models (Bangladesh-focused)...');
       const compoundResult = await Promise.race([
         tryGroqCompoundAPI(apiMessages, industryPreference, !!jobDescription),
         new Promise<GroqResult>((_, reject) => 
@@ -338,7 +446,7 @@ export async function POST(req: NextRequest) {
       
       if (compoundResult.success && compoundResult.content) {
         feedback = compoundResult.content;
-        usedProvider = 'groq-compound';
+        usedProvider = 'groq-compound-bangladesh';
       } else {
         throw new Error(`Compound failed: ${compoundResult.error}`);
       }
@@ -348,7 +456,7 @@ export async function POST(req: NextRequest) {
       
       try {
         // STRATEGY 2: Try Groq LLAMA models
-        console.log('🔄 Step 2: Trying Groq LLAMA models...');
+        console.log('🇧🇩 Step 2: Trying Groq LLAMA models (Bangladesh-focused)...');
         const llamaResult = await Promise.race([
           tryGroqLlamaAPI(apiMessages, industryPreference, !!jobDescription),
           new Promise<GroqResult>((_, reject) => 
@@ -358,7 +466,7 @@ export async function POST(req: NextRequest) {
         
         if (llamaResult.success && llamaResult.content) {
           feedback = llamaResult.content;
-          usedProvider = 'groq-llama';
+          usedProvider = 'groq-llama-bangladesh';
           fallbackReason = compoundError.message;
         } else {
           throw new Error(`LLAMA failed: ${llamaResult.error}`);
@@ -368,7 +476,7 @@ export async function POST(req: NextRequest) {
         console.log(`❌ Groq LLAMA failed: ${llamaError.message}`);
         
         // STRATEGY 3: Final fallback to Gemini
-        console.log('🔄 Step 3: Final fallback to Gemini...');
+        console.log('🇧🇩 Step 3: Final fallback to Gemini (Bangladesh-focused)...');
         fallbackReason = `Compound: ${compoundError.message}, LLAMA: ${llamaError.message}`;
         
         const geminiMessages = apiMessages.map(m => ({...m, role: m.role === 'assistant' ? 'model' : 'user'}));
@@ -380,36 +488,37 @@ export async function POST(req: NextRequest) {
           )
         ]);
         
-        usedProvider = 'gemini';
+        usedProvider = 'gemini-bangladesh';
       }
     }
 
     const processingTime = Date.now() - startTime;
-    console.log(`✅ Resume feedback completed in ${processingTime}ms using ${usedProvider}`);
+    console.log(`✅ Bangladesh-focused resume feedback completed in ${processingTime}ms using ${usedProvider}`);
 
-    // Updated provider info to reflect the three strategies
+    // Updated provider info with Bangladesh focus
     const providerInfo = (() => {
       switch (usedProvider) {
-        case 'groq-compound':
-          return 'Powered by Groq AI (Compound Models)';
-        case 'groq-llama':
-          return 'Powered by Groq AI (LLAMA Models)';
-        case 'gemini':
-          return `Powered by Google Gemini (Groq fallback: ${fallbackReason})`;
+        case 'groq-compound-bangladesh':
+          return 'Powered by Groq AI (Compound Models) - Bangladesh Job Market Focus 🇧🇩';
+        case 'groq-llama-bangladesh':
+          return 'Powered by Groq AI (LLAMA Models) - Bangladesh Job Market Focus 🇧🇩';
+        case 'gemini-bangladesh':
+          return `Powered by Google Gemini - Bangladesh Job Market Focus 🇧🇩 (Groq fallback: ${fallbackReason})`;
         default:
-          return 'Powered by AI';
+          return 'Powered by AI - Bangladesh Job Market Focus 🇧🇩';
       }
     })();
 
     return NextResponse.json({ 
       feedback,
       isInitialAnalysis,
-      providerInfo
+      providerInfo,
+      marketFocus: 'bangladesh' // Indicate Bangladesh focus to frontend
     });
 
   } catch (error: any) {
     const processingTime = Date.now() - startTime;
-    console.error(`Resume feedback error after ${processingTime}ms:`, error.message);
+    console.error(`Bangladesh-focused resume feedback error after ${processingTime}ms:`, error.message);
     
     if (error.message.includes('timeout')) {
       return NextResponse.json({ 
@@ -418,7 +527,7 @@ export async function POST(req: NextRequest) {
     }
     
     return NextResponse.json({ 
-      error: 'An unexpected error occurred.' 
+      error: 'An unexpected error occurred while analyzing your resume.' 
     }, { status: 500 });
   }
 }
