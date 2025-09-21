@@ -1,97 +1,34 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import HiringHeader from '../../../components/hiring/HiringHeader';
 
-const MailIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
-    </svg>
-);
+// Lazy load heavy components for better initial page load
+const ContactForm = dynamic(() => import('../../../components/hiring/ContactForm'), {
+  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl" />
+});
+
+const BenefitsSection = dynamic(() => import('../../../components/hiring/BenefitsSection'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
+
+const ComingSoonFeatures = dynamic(() => import('../../../components/hiring/ComingSoonFeatures'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
 
 export default function HiringPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
-      {/* Header with Back Button */}
-      <div className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <Link href="/opportunities" className="inline-flex items-center bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-blue-200 dark:border-blue-800">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="text-lg">Back to Opportunities</span>
-            </Link>
-          </div>
-
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Hirer's <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Portal</span>
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Connect with skilled talent and find the perfect candidates for your team.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <HiringHeader />
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-          
-          {/* Contact Section */}
-          <div className="px-8 py-12 text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              Ready to Post a Job?
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
-              Send us your job requirements and we'll help you find the perfect candidates from our talented community.
-            </p>
-
-            {/* Big Contact Button */}
-            <a
-              href="mailto:alshahoriar.hossain@gmail.com?subject=Job Posting Request - SkillDash&body=Hi SkillDash Team,%0D%0A%0D%0AI would like to post a job opportunity on your platform.%0D%0A%0D%0AJob Details:%0D%0APosition: [Enter position name]%0D%0ACompany: [Enter company name]%0D%0ALocation: [Enter location]%0D%0ARequirements: [Enter requirements]%0D%0A%0D%0APlease let me know the next steps.%0D%0A%0D%0AThank you!"
-              className="group relative inline-flex items-center justify-center bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800 text-white font-bold py-6 px-12 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg"
-            >
-              {/* Button glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl"></div>
-              
-              <MailIcon />
-              <span className="ml-3 relative z-10">Contact Us to Post Jobs</span>
-            </a>
-          </div>
-
-          {/* Features Preview */}
-          <div className="bg-gray-50 dark:bg-gray-800/30 px-8 py-8 border-t border-gray-200 dark:border-gray-700">
-            <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              Coming Soon Features
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">📝</span>
-                </div>
-                <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Easy Job Posting</h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Simple form to post job requirements</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">👥</span>
-                </div>
-                <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Talent Pool</h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Access to verified skilled candidates</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Quick Matching</h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400">AI-powered candidate recommendations</p>
-              </div>
-            </div>
-          </div>
+          <ContactForm />
+          <BenefitsSection />
+          <ComingSoonFeatures />
         </div>
       </div>
     </div>
