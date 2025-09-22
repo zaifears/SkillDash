@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import TypingAnimation from './TypingAnimation';
 
 const TypingHeroSection = () => {
   return (
@@ -29,31 +28,18 @@ const TypingHeroSection = () => {
         </Link>
       </div>
 
-      {/* Fixed typing animation section */}
-      <div className="relative">
-        {/* Background glow - visible in both modes */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 blur-2xl rounded-2xl" />
-        
-        {/* Container with better contrast */}
-        <div className="relative bg-white/10 dark:bg-slate-800/20 backdrop-blur-sm rounded-2xl py-8 px-6 border border-gray-300/30 dark:border-slate-700/30">
-          <div className="flex items-center justify-center gap-4">
-            {/* Left side text - Fixed contrast */}
-            <span className="text-xl md:text-3xl text-gray-700 dark:text-slate-300 font-light">
-              Unlock your
-            </span>
-            
-            {/* Right side - Typing animation */}
-            <div className="text-xl md:text-3xl lg:text-4xl font-bold">
-              <TypingAnimation />
-            </div>
-          </div>
-          
-          {/* Subtitle - Fixed contrast */}
-          <p className="text-sm md:text-base text-gray-600 dark:text-slate-400 mt-4 max-w-md mx-auto">
-            Let AI discover your hidden potential
-          </p>
-        </div>
+      {/* Static text section - removed animation box */}
+      <div className="text-xl md:text-3xl text-gray-700 dark:text-slate-300 font-light">
+        <span>Unlock your </span>
+        <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent font-bold">
+          Digital Potential
+        </span>
       </div>
+      
+      {/* Subtitle */}
+      <p className="text-sm md:text-base text-gray-600 dark:text-slate-400 mt-4 max-w-md mx-auto">
+        Let AI discover your hidden potential
+      </p>
     </section>
   );
 };
