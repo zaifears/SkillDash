@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import { AuthProvider } from "../contexts/AuthContext";
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import ClickSpark from "../components/ClickSpark";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,14 +24,23 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      {/* Remove the forced bg classes to allow dark mode to work */}
       <body className={`${inter.className} antialiased`}>
-        <AuthProvider>
-          <Navbar />
-          <main>
-            {children}
-          </main>
-        </AuthProvider>
+        <ClickSpark
+          sparkColor="#3B82F6"
+          sparkSize={12}
+          sparkRadius={20}
+          sparkCount={10}
+          duration={500}
+          easing="ease-out"
+          extraScale={1.2}
+        >
+          <AuthProvider>
+            <Navbar />
+            <main>
+              {children}
+            </main>
+          </AuthProvider>
+        </ClickSpark>
         <SpeedInsights />
         <Analytics />
       </body>
