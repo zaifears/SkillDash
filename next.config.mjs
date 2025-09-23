@@ -39,12 +39,10 @@ const nextConfig = {
   // Enable compression
   compress: true,
   
-  // Enable experimental features for Next.js 15
-  experimental: {
-    optimizeCss: true,
-    turbo: {
-      resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
-    },
+  // REMOVED: optimizeCss (causes critters dependency issue)
+  // Enable Turbopack for faster builds (Next.js 15)
+  turbo: {
+    resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
   },
   
   // Add performance headers
