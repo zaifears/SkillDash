@@ -39,7 +39,27 @@ const nextConfig = {
   // Enable compression
   compress: true,
   
-  // REMOVED: optimizeCss (causes critters dependency issue)
+  // ✅ NEW: Bundle optimization settings
+  experimental: {
+    // Enable modern bundling features
+    optimizePackageImports: ['react-icons', 'react-markdown'],
+    // Tree shake unused code more aggressively
+    optimizeServerReact: true,
+  },
+  
+  // ✅ NEW: Production optimizations
+  ...(process.env.NODE_ENV === 'production' && {
+    // Enable SWC minification for better performance
+    swcMinify: true,
+    
+    // Remove console logs in production
+    compiler: {
+      removeConsole: {
+        exclude: ['error'],
+      },
+    },
+  }),
+  
   // Enable Turbopack for faster builds (Next.js 15)
   turbo: {
     resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
@@ -76,7 +96,7 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
-      // ✅ NEW: Service worker headers
+      // Service worker headers
       {
         source: '/sw.js',
         headers: [
@@ -93,14 +113,64 @@ const nextConfig = {
     ]
   },
   
-  // Bundle analyzer for monitoring (run with ANALYZE=true npm run build)
-  webpack: (config, { isServer }) => {
+  // ✅ ENHANCED: Bundle analyzer + advanced webpack optimizations
+  webpack: (config, { isServer, dev }) => {
+    // Bundle analyzer for monitoring
     if (process.env.ANALYZE === 'true') {
       const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
       config.plugins.push(new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         openAnalyzer: false,
       }))
+    }
+    
+    // ✅ NEW: Advanced bundle optimizations
+    if (!dev && !isServer) {
+      // Optimize imports for better tree shaking
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Replace heavy libraries with lighter alternatives
+        'react-icons/fa': 'react-icons/fa/index.esm.js',
+        'react-icons/md': 'react-icons/md/index.esm.js',
+        'react-icons/hi': 'react-icons/hi/index.esm.js',
+      };
+
+      // ✅ NEW: Better chunk splitting
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // Vendor chunk for stable third-party libraries
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          // Separate chunk for large libraries
+          firebase: {
+            test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
+            name: 'firebase',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // Separate chunk for AI libraries
+          ai: {
+            test: /[\\/]node_modules[\\/](@google|google-generative-ai|contentful)[\\/]/,
+            name: 'ai-libs',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // Common components
+          common: {
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+
+      // ✅ NEW: Module concatenation for smaller bundles
+      config.optimization.concatenateModules = true;
     }
     
     // Optimize bundle splitting
