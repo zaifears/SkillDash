@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile } from '../../lib/firebase'
+import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile, signInAsGuest } from '../../lib/firebase'
 import { useRouter } from 'next/navigation'
 import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
 import OptimizedImage from '../../components/shared/OptimizedImage'
@@ -51,6 +51,21 @@ export default function AuthPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
     setError('') // Clear error on input change
   }, [])
+
+  // Guest login handler
+  const handleGuestLogin = async () => {
+    setIsLoading(true)
+    setError('')
+    
+    try {
+      await signInAsGuest()
+      setMessage('Signed in as Guest! Welcome to SkillDash.')
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSignUp = async () => {
     // Rate limiting
@@ -171,6 +186,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
+        
         <div className="text-center">
           {/* OPTIMIZED: Replaced img tag with OptimizedImage component */}
           <OptimizedImage
@@ -188,6 +204,41 @@ export default function AuthPage() {
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             {isSignUp ? 'Join SkillDash to start your journey.' : 'Sign in to access your dashboard.'}
           </p>
+        </div>
+
+        {/* GPFutureMaker Badge - Only above guest login */}
+        <div className="relative">
+          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+            GPFutureMaker
+          </div>
+          
+          {/* Guest Login Button */}
+          <div className="pt-4">
+            <button
+              onClick={handleGuestLogin}
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <span className="text-orange-500 text-lg">👤</span>
+              </span>
+              {isLoading ? 'Signing in...' : 'Continue as Guest'}
+            </button>
+            
+            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+              Quick access to explore all features
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
+          </div>
         </div>
 
         {/* Redirect Message */}
