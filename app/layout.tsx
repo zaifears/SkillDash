@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '../components/Navbar'
-import { AuthProvider } from '../contexts/AuthContext'  // ✅ FIXED: Named import, not default
+import { AuthProvider } from '../contexts/AuthContext'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/react'
+import ServiceWorkerRegistration from '../components/ServiceWorkerRegistration'  // ✅ ONLY NEW LINE ADDED
 
 // ✅ OPTIMIZED: Enhanced font loading with display swap and subset optimization
 const inter = Inter({
@@ -48,6 +49,7 @@ export default function RootLayout({
             {children}
           </main>
         </AuthProvider>
+        <ServiceWorkerRegistration />  {/* ✅ ONLY NEW COMPONENT ADDED */}
         <SpeedInsights />
         <Analytics />
       </body>

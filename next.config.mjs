@@ -45,7 +45,17 @@ const nextConfig = {
     resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
   },
   
-  // Add performance headers
+  // ✅ NEW: Enable service worker support
+  async rewrites() {
+    return [
+      {
+        source: '/sw.js',
+        destination: '/sw.js',
+      },
+    ];
+  },
+  
+  // ✅ UPDATED: Add performance headers + service worker headers
   async headers() {
     return [
       {
@@ -64,6 +74,20 @@ const nextConfig = {
         source: '/_next/static',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      // ✅ NEW: Service worker headers
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/',
+          },
         ],
       },
     ]
