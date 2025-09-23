@@ -1,20 +1,19 @@
-"use client"
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import OptimizedImage from './shared/OptimizedImage'
-import AuthStatus from './AuthStatus'
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import AuthStatus from './AuthStatus';
 
 const ModernNavbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const pathname = usePathname()
+  const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navItems = [
     { name: 'Discover', href: '/discover', hasIcon: true },
@@ -22,140 +21,134 @@ const ModernNavbar = () => {
     { name: 'Resume Feedback', href: '/resume-feedback', hasIcon: true },
     { name: 'Opportunities', href: '/opportunities', hasIcon: false },
     { name: 'About Us', href: '/about-us', hasIcon: false },
-  ]
+  ];
 
-  const isActive = (href) => pathname === href
+  const isActive = (href) => pathname === href;
 
   return (
     <>
-      {/* Spacer for the fixed navbar */}
-      <div className="h-20"></div>
-      <nav className="fixed top-4 left-4 right-4 z-50 transition-all duration-300" style={{
-        top: isScrolled ? '8px' : '16px'
-      }}>
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-full shadow-lg px-4 py-3 lg:px-8 lg:py-3 max-w-6xl mx-auto">
+      {/* ✅ FIXED: Reduced spacer to match actual visual navbar position */}
+      <div className="h-24"></div>
+      
+      <nav className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
+        isScrolled ? 'top-2' : 'top-4'
+      } w-full max-w-6xl px-4`}>
+        
+        {/* Main Navbar Container */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full shadow-xl px-6 py-4">
+          
           <div className="flex items-center justify-between">
             
-            {/* Logo - Always visible with both icon and text */}
-            <Link 
-              href="/" 
-              className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
-            >
-              <OptimizedImage
-                src="/skilldash-logo.png"
-                alt="SkillDash"
-                width={28}
-                height={28}
-                className="flex-shrink-0"
-                priority={true}
-                sizes="28px"
-              />
-              <span className="block">SkillDash</span>
+            {/* Logo - Always show SkillDash text */}
+            <Link href="/" className="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
+              <img src="/skilldash-logo.png" alt="SkillDash" className="h-8 w-8" />
+              <span>SkillDash</span>
             </Link>
 
-            {/* Desktop Navigation Items - CENTERED */}
-            <div className="hidden lg:flex items-center justify-center gap-4 flex-1">
-              {navItems.map((item) => (
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-2">
+              {navItems.map(item => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     isActive(item.href)
                       ? 'bg-blue-500 text-white shadow-md'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400'
                   }`}
                 >
                   {item.hasIcon && (
-                    <OptimizedImage
-                      src="/homepage/ai-icon.png"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="flex-shrink-0"
-                      sizes="16px"
-                    />
+                    <img src="/homepage/ai-icon.png" alt="" className="h-4 w-4 flex-shrink-0" />
                   )}
                   <span>{item.name}</span>
                 </Link>
               ))}
             </div>
 
-            {/* Mobile Auth + Hamburger */}
-            <div className="flex items-center gap-2 lg:hidden">
-              {/* Auth Status - Always visible on mobile */}
-              <div className="scale-90">
+            {/* Right Side - Always show Join + Menu on mobile */}
+            <div className="flex items-center gap-3">
+              
+              {/* Desktop Auth Status */}
+              <div className="hidden lg:flex">
                 <AuthStatus />
               </div>
-              
-              {/* Mobile Menu Button */}
-              <MobileMenu navItems={navItems} pathname={pathname} />
-            </div>
 
-            {/* Desktop Auth Status */}
-            <div className="hidden lg:flex items-center">
-              <AuthStatus />
+              {/* Mobile - Always show Join button + Menu */}
+              <div className="lg:hidden flex items-center gap-2">
+                <Link
+                  href="/auth"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                >
+                  Join
+                </Link>
+                <MobileMenuButton navItems={navItems} pathname={pathname} />
+              </div>
+              
             </div>
           </div>
         </div>
       </nav>
     </>
-  )
-}
+  );
+};
 
-// Mobile Menu Component
-const MobileMenu = ({ navItems, pathname }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const isActive = (href) => pathname === href
+// Mobile Menu Button Component
+const MobileMenuButton = ({ navItems, pathname }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Close menu when clicking outside - but without backdrop
+  const isActive = (href) => pathname === href;
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpen && !event.target.closest('.mobile-menu-container')) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
+    };
+
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
     }
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [isOpen])
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <div className="relative mobile-menu-container">
-      {/* Mobile menu button */}
+      
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         aria-label="Menu"
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
-          <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : 'mb-1'}`}></div>
-          <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`}></div>
+          <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ${
+            isOpen ? 'rotate-45 translate-y-1' : 'mb-1'
+          }`} />
+          <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-300 transition-all duration-300 ${
+            isOpen ? '-rotate-45 -translate-y-1' : ''
+          }`} />
         </div>
       </button>
 
-      {/* Mobile dropdown - NO BACKDROP */}
+      {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-14 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 min-w-[240px] max-w-[280px] z-60">
+        <div className="absolute top-14 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-4 min-w-[200px] z-60">
           <div className="flex flex-col gap-1">
-            {navItems.map((item) => (
+            {navItems.map(item => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-4 py-4 rounded-xl text-base font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
                   isActive(item.href)
                     ? 'bg-blue-500 text-white shadow-md'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
                 {item.hasIcon && (
-                  <OptimizedImage
-                    src="/homepage/ai-icon.png"
-                    alt=""
-                    width={20}
-                    height={20}
-                    className="flex-shrink-0"
-                    sizes="20px"
-                  />
+                  <img src="/homepage/ai-icon.png" alt="" className="h-5 w-5 flex-shrink-0" />
                 )}
                 <span>{item.name}</span>
               </Link>
@@ -164,7 +157,7 @@ const MobileMenu = ({ navItems, pathname }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ModernNavbar
+export default ModernNavbar;
