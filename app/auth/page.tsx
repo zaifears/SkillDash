@@ -1,160 +1,187 @@
-'use client';
-import React, { useState, useEffect, useCallback } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile } from '../../lib/firebase';
-import { useRouter } from 'next/navigation';
-import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils';
-import AuthForm from '../../components/AuthForm';
-import SocialAuth from '../../components/SocialAuth';
+"use client"
+
+import React, { useState, useEffect, useCallback } from 'react'
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile } from '../../lib/firebase'
+import { useRouter } from 'next/navigation'
+import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
+import OptimizedImage from '../../components/shared/OptimizedImage'
+import AuthForm from '../../components/AuthForm'
+import SocialAuth from '../../components/SocialAuth'
 
 export default function AuthPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false)
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', age: '', status: '', password: '', confirmPassword: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const router = useRouter();
+    name: '',
+    email: '',
+    phone: '',
+    age: '',
+    status: '',
+    password: '',
+    confirmPassword: ''
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
+  const [redirectMessage, setRedirectMessage] = useState<string | null>(null)
+  const router = useRouter()
 
-  // Secure auth state management
   useEffect(() => {
+    // Handle redirect message
+    const msg = sessionStorage.getItem('redirectMessage')
+    if (msg) {
+      setRedirectMessage(msg)
+      sessionStorage.removeItem('redirectMessage')
+    }
+
+    // Secure auth state management
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile';
-        sessionStorage.removeItem('redirectAfterLogin');
-        router.push(redirectPath);
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile'
+        sessionStorage.removeItem('redirectAfterLogin')
+        router.push(redirectPath)
       }
-    });
-    return unsubscribe;
-  }, [router]);
+    })
+
+    return () => unsubscribe()
+  }, [router])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError(''); // Clear error on input change
-  }, []);
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    setError('') // Clear error on input change
+  }, [])
 
   const handleSignUp = async () => {
     // Rate limiting
-    if (!rateLimit(`signup_${formData.email}`)) {
-      setError('Too many signup attempts. Please try again later.');
-      return;
+    if (!rateLimit(`signup:${formData.email}`)) {
+      setError('Too many signup attempts. Please try again later.')
+      return
     }
 
     // Client-side validation
     if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address.');
-      return;
+      setError('Please enter a valid email address.')
+      return
     }
 
-    const passwordValidation = validatePassword(formData.password);
+    const passwordValidation = validatePassword(formData.password)
     if (!passwordValidation.isValid) {
-      setError(passwordValidation.message);
-      return;
+      setError(passwordValidation.message)
+      return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
+      setError('Passwords do not match.')
+      return
     }
 
     if (!formData.name?.trim() || formData.name.length < 2) {
-      setError('Please enter a valid name (at least 2 characters).');
-      return;
+      setError('Please enter a valid name (at least 2 characters).')
+      return
     }
 
-    setIsLoading(true);
-    setError('');
-    
+    setIsLoading(true)
+    setError('')
+
     try {
       const profileData = {
         email: formData.email.trim().toLowerCase(),
         name: formData.name.trim(),
         age: formData.age ? Math.max(13, Math.min(100, parseInt(formData.age, 10))) : null,
         status: formData.status,
-        phone: formData.phone?.trim() || ''
-      };
-      
-      await signUpWithEmailPasswordAndProfile(profileData, formData.password);
-      setMessage('Account created! Please check your email for verification.');
+        phone: formData.phone?.trim()
+      }
+
+      await signUpWithEmailPasswordAndProfile(profileData, formData.password)
+      setMessage('Account created! Please check your email for verification.')
     } catch (err: any) {
-      setError(sanitizeError(err));
+      setError(sanitizeError(err))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSignIn = async () => {
     // Rate limiting
-    if (!rateLimit(`signin_${formData.email}`)) {
-      setError('Too many login attempts. Please try again later.');
-      return;
+    if (!rateLimit(`signin:${formData.email}`)) {
+      setError('Too many login attempts. Please try again later.')
+      return
     }
 
     if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address.');
-      return;
+      setError('Please enter a valid email address.')
+      return
     }
 
-    setIsLoading(true);
-    setError('');
-    
+    setIsLoading(true)
+    setError('')
+
     try {
-      await signInWithEmailAndPassword(auth, formData.email.trim().toLowerCase(), formData.password);
+      await signInWithEmailAndPassword(auth, formData.email.trim().toLowerCase(), formData.password)
     } catch (err: any) {
-      setError(sanitizeError(err));
+      setError(sanitizeError(err))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGoogleSignIn = async () => {
-    if (!rateLimit('google_signin')) {
-      setError('Too many attempts. Please try again later.');
-      return;
+    if (!rateLimit('google:signin')) {
+      setError('Too many attempts. Please try again later.')
+      return
     }
 
-    setIsLoading(true);
-    setError('');
-    
+    setIsLoading(true)
+    setError('')
+
     try {
-      await signInWithSocialProviderAndCreateProfile(googleProvider);
+      await signInWithSocialProviderAndCreateProfile(googleProvider)
     } catch (err: any) {
-      setError(sanitizeError(err));
+      setError(sanitizeError(err))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGitHubSignIn = async () => {
-    if (!rateLimit('github_signin')) {
-      setError('Too many attempts. Please try again later.');
-      return;
+    if (!rateLimit('github:signin')) {
+      setError('Too many attempts. Please try again later.')
+      return
     }
 
-    setIsLoading(true);
-    setError('');
-    
+    setIsLoading(true)
+    setError('')
+
     try {
-      await signInWithSocialProviderAndCreateProfile(githubProvider);
+      await signInWithSocialProviderAndCreateProfile(githubProvider)
     } catch (err: any) {
-      setError(sanitizeError(err));
+      setError(sanitizeError(err))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) return;
-    isSignUp ? handleSignUp() : handleSignIn();
-  };
+    e.preventDefault()
+    if (isLoading) return
+    isSignUp ? handleSignUp() : handleSignIn()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl">
-        <div>
+      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
+        <div className="text-center">
+          {/* OPTIMIZED: Replaced img tag with OptimizedImage component */}
+          <OptimizedImage
+            src="/skilldash-logo.png"
+            alt="SkillDash Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-4"
+            priority={true}
+            sizes="64px"
+          />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             {isSignUp ? 'Create an Account' : 'Welcome Back'}
           </h2>
@@ -162,6 +189,13 @@ export default function AuthPage() {
             {isSignUp ? 'Join SkillDash to start your journey.' : 'Sign in to access your dashboard.'}
           </p>
         </div>
+
+        {/* Redirect Message */}
+        {redirectMessage && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 mb-4 rounded-md border border-blue-200 dark:border-blue-700">
+            <p className="text-blue-700 dark:text-blue-300 text-sm text-center">{redirectMessage}</p>
+          </div>
+        )}
 
         <SocialAuth 
           handleGoogleSignIn={handleGoogleSignIn}
@@ -174,7 +208,7 @@ export default function AuthPage() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400">OR</span>
+            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
           </div>
         </div>
 
@@ -192,9 +226,9 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError('');
-              setMessage('');
+              setIsSignUp(!isSignUp)
+              setError('')
+              setMessage('')
             }}
             className="text-violet-600 dark:text-violet-400 hover:text-violet-500 font-medium"
           >
@@ -203,5 +237,5 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

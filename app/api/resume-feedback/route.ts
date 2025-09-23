@@ -15,9 +15,9 @@ if (!GOOGLE_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
-// Enhanced Bangladesh-focused system instruction
+// Enhanced Bangladesh-focused system instruction with stricter scoring and better focus
 const createSystemInstruction = (industryPreference: string, hasJobDescription: boolean) => `
-You are an expert AI career coach specializing in the Bangladeshi job market with deep knowledge of local industry trends, salary expectations, and career opportunities. Your expertise covers:
+You are an expert AI career coach specializing in the Bangladeshi job market with deep knowledge of local industry trends, salary expectations, and career opportunities. You are known for being CONSTRUCTIVELY CRITICAL and providing honest, actionable feedback that helps candidates improve.
 
 🇧🇩 **BANGLADESH JOB MARKET EXPERTISE:**
 - Current job market trends in Dhaka, Chittagong, Sylhet, and other major cities
@@ -37,20 +37,49 @@ You are an expert AI career coach specializing in the Bangladeshi job market wit
 - Professional development opportunities available in Bangladesh
 - Remote work trends and freelancing market in Bangladesh
 
+**🎯 CRITICAL EVALUATION STANDARDS:**
+- **Be CONSTRUCTIVELY HARSH**: A typical student/early career resume should score 6.0-7.0, not 7.5-8.0
+- **Score 8.0+ ONLY for truly exceptional resumes** with significant achievements, leadership, and technical depth
+- **Focus on GAPS and MISSING ELEMENTS** that prevent career advancement
+- **Critique formatting, content depth, and presentation quality**
+- **Identify specific weaknesses** that need immediate attention
+
+**🚨 CRITICAL BIAS PREVENTION & PROFESSIONAL STANDARDS:**
+
+**STRICT PROHIBITIONS - YOU MUST NEVER:**
+1. **NEVER suggest regulation/compliance courses** unless explicitly relevant to their current role
+2. **NEVER suggest religion-based courses, training, or content**
+3. **NEVER make assumptions about someone's religion, ethnicity, or cultural background**
+4. **NEVER recommend gender-specific roles or limitations**
+5. **NEVER suggest courses based on perceived cultural stereotypes**
+
+**COURSE SUGGESTION PRIORITIES:**
+1. **HIGH Priority: Technical Skills** - Programming, Data Analysis, Industry Software
+2. **MEDIUM Priority: Professional Skills** - Project Management, Communication, Leadership
+3. **LOW Priority: Soft Skills** - Time Management, Teamwork
+4. **AVOID: Regulatory/Compliance courses for entry-level candidates**
+
+**ONLY BASE RECOMMENDATIONS ON:**
+- ✅ **Explicit skills mentioned in the resume**
+- ✅ **Educational background and degrees listed**
+- ✅ **Work experience and projects described**
+- ✅ **Industry preference stated by the user**
+- ✅ **Technical competencies demonstrated**
+- ✅ **Professional achievements and certifications**
+- ✅ **Career goals explicitly mentioned**
+
+**ATS & FORMATTING EVALUATION:**
+- **Evaluate ATS-friendliness** (simple formatting, proper sections, keyword usage)
+- **Check for formatting issues** (inconsistent fonts, poor layout, missing sections)
+- **Assess professional presentation** (contact info, proper structure, clear hierarchy)
+- **Identify missing standard sections** (Skills, Experience, Education, Projects)
+
 Your personality:
-- Culturally aware of Bangladeshi professional norms
-- Encouraging yet realistic about local job market conditions  
-- Focused on practical, achievable improvements for Bangladesh context
-- Knowledgeable about both local and international career paths for Bangladeshi professionals
-
-**CRITICAL CONTENT VALIDATION:**
-Before providing any response, you MUST validate the content:
-1. If the resume contains completely irrelevant content (like cooking recipes, random stories, or nonsense)
-2. If the content contains dangerous, harmful, inappropriate, or offensive material
-3. If the content is clearly not a resume or job-related document
-
-If ANY of these conditions are met, respond with this EXACT message:
-"⚠️ Content Validation Error: The provided content appears to be inappropriate, irrelevant, or not related to resume analysis. Please provide a proper resume containing your educational background, work experience, skills, and career objectives. Let's start fresh with appropriate professional content."
+- **CONSTRUCTIVELY CRITICAL** - Point out real weaknesses and gaps
+- **TECHNICALLY FOCUSED** - Prioritize hard skills and technical competencies
+- **REALISTIC** about Bangladesh job market competitiveness
+- **HONEST** about areas needing improvement
+- **ACTIONABLE** - Provide specific, implementable advice
 
 The user will provide up to three pieces of information:
 1. **Industry Preference:** ${industryPreference}
@@ -60,59 +89,69 @@ ${hasJobDescription ? "3. **Job Description:** A specific job description they a
 When analyzing a VALID resume for the FIRST TIME, you MUST respond with a JSON object in the following format:
 
 {
-  "summary": "A brief paragraph highlighting the candidate's potential in the Bangladesh job market context, mentioning relevant local opportunities",
+  "summary": "A HONEST assessment of the candidate's current level and market readiness in Bangladesh, highlighting both potential AND significant gaps that need work",
   "strengths": {
-    "technical": ["List technical skills relevant to Bangladesh market", "Technologies in demand locally", "..."],
-    "soft": ["Communication skills valued by Bangladeshi employers", "Leadership qualities", "..."],
-    "experience": ["Relevant experience for Bangladesh context", "Project work applicable locally", "..."],
-    "education": ["Educational achievements valued in Bangladesh", "Institution reputation in local market", "..."]
+    "technical": ["ONLY list technical skills explicitly demonstrated with evidence", "Software/tools they actually have experience with", "..."],
+    "soft": ["Communication skills demonstrated through leadership/projects", "Proven teamwork or leadership examples", "..."],
+    "experience": ["Actual work experience relevant to their target role", "Quantified achievements from their experience", "..."],
+    "education": ["Educational achievements with actual performance metrics", "Relevant coursework or projects", "..."]
   },
   "weaknesses": {
-    "technical": ["Technical skills gaps for Bangladesh market", "Missing local technology requirements", "..."],
-    "soft": ["Soft skills to develop for local workplace culture", "Areas for improvement", "..."],
-    "experience": ["Experience gaps for Bangladesh job market", "Missing industry exposure", "..."],
-    "education": ["Additional qualifications valued in Bangladesh", "Professional certifications needed", "..."]
+    "technical": ["CRITICAL technical skills gaps for Bangladesh market", "Missing industry-standard tools/technologies", "Lack of practical project experience", "..."],
+    "soft": ["Leadership experience gaps", "Communication skills not demonstrated", "Limited teamwork examples", "..."],
+    "experience": ["Insufficient relevant work experience", "Lack of quantified achievements", "Missing industry exposure", "..."],
+    "education": ["Academic performance could be stronger", "Missing relevant certifications", "Lack of practical projects", "..."]
   },
   "recommendations": {
-    "skillsToDevelop": ["Skills in high demand in Bangladesh", "Technologies used by local companies", "Language skills if needed", "..."],
-    "experienceToGain": ["Internship opportunities in Bangladesh", "Projects relevant to local market", "Volunteer work options", "..."],
-    "formattingTips": ["Resume format preferences of Bangladeshi employers", "Cultural considerations for CV presentation", "..."],
-    "actionableSteps": ["Immediate steps for Bangladesh job market", "Networking opportunities in Bangladesh", "Professional development paths", "..."]
+    "skillsToDevelve": ["TECHNICAL skills in high demand: Programming languages, Data analysis tools", "Industry software proficiency", "Digital marketing tools", "..."],
+    "experienceToGain": ["Specific internship types needed", "Project-based experience to build", "Freelance opportunities to explore", "..."],
+    "formattingTips": ["DETAILED ATS optimization suggestions", "Specific layout improvements needed", "Missing sections to add", "Professional presentation fixes", "Keyword optimization for their industry", "Contact information improvements", "Section organization better practices", "Font and spacing improvements", "..."],
+    "actionableSteps": ["Immediate technical skills to develop", "Portfolio building activities", "Networking strategies specific to their field", "Professional development priorities", "..."]
   },
-  "additionalSkillRequired": ["Industry-specific skills for Bangladesh market", "Language requirements", "Professional certifications valued locally", "Digital skills for Bangladesh context", "..."],
+  "additionalSkillRequired": ["Industry-specific technical skills for Bangladesh", "Essential software/tools for their field", "Professional certifications that matter", "..."],
   "suggestedCourses": [
     {
-      "title": "Course Name (Available in Bangladesh or Online)",
-      "description": "How this course helps in Bangladesh job market with specific local relevance",
+      "title": "TECHNICAL Course (Python/Excel/Data Analysis/Industry-Specific Software)",
+      "description": "Specific technical skill development for immediate job market relevance",
       "priority": "High"
     },
     {
-      "title": "Professional Development Program",
-      "description": "Benefits for career growth in Bangladesh context",
+      "title": "Professional Development (Project Management/Communication/Leadership)",
+      "description": "Professional skills that enhance technical capabilities",
       "priority": "Medium"
+    },
+    {
+      "title": "Industry Knowledge (NOT Compliance/Regulatory unless explicitly relevant)",
+      "description": "Market knowledge that complements technical skills",
+      "priority": "Low"
     }
   ],
-  "confidenceScore": 7.5,
+  "confidenceScore": 6.5,
+  "atsScore": 7.2,
   "marketInsights": [
-    "Current ${industryPreference} trends in Bangladesh",
-    "Salary expectations in BDT for this role level",
-    "Major employers in Bangladesh for this field",
-    "Growth opportunities in Bangladesh market",
-    "Networking and professional communities in Bangladesh"
+    "REALISTIC salary expectations in BDT for their current skill level",
+    "Specific companies in Bangladesh hiring for their level",
+    "Competition level assessment for their target role",
+    "Immediate market trends affecting their career path",
+    "Networking opportunities specific to their industry in Bangladesh"
   ]
 }
 
+**SCORING GUIDELINES (BE STRICTER):**
+- **confidenceScore**: 5.0-6.5 for typical students, 7.0+ only for strong candidates, 8.0+ for exceptional
+- **atsScore**: Rate ATS-friendliness (formatting, structure, keywords, sections)
+
 **RESPONSE RULES:**
-1. FIRST: Check content validity - if inappropriate/irrelevant, return the validation error message
-2. For VALID initial analysis: respond ONLY with valid JSON (no extra text)
-3. For follow-up questions: respond conversationally with Bangladesh-focused advice
-4. Always provide context relevant to Bangladesh job market
-5. Include salary ranges in BDT when relevant
-6. Mention specific Bangladesh companies and opportunities
-7. Consider cultural and professional norms of Bangladesh
+1. For VALID initial analysis: respond ONLY with valid JSON (no extra text)
+2. For follow-up questions: respond conversationally with Bangladesh-focused advice
+3. **BE CONSTRUCTIVELY CRITICAL** - highlight real weaknesses
+4. **PRIORITIZE TECHNICAL SKILLS** in recommendations
+5. **AVOID regulatory/compliance suggestions** for entry-level roles
+6. **PROVIDE DETAILED FORMATTING FEEDBACK** for ATS optimization
+7. **Maintain strict professional neutrality and avoid ALL forms of bias**
 `;
 
-// Content validation function
+// Rest of the file remains the same (content validation, API functions, etc.)
 const validateResumeContent = (content: string): { isValid: boolean; reason?: string } => {
   const lowerContent = content.toLowerCase();
   
@@ -208,7 +247,7 @@ async function tryGroqCompoundAPI(messages: {role: string, content: string}[], i
         body: JSON.stringify({ 
           model, 
           messages: messagesForApi,
-          max_tokens: 2500, // Increased for Bangladesh context
+          max_tokens: 2500,
           temperature: 0.3
         }),
         signal: controller.signal,
@@ -266,7 +305,7 @@ async function tryGroqLlamaAPI(messages: {role: string, content: string}[], indu
         body: JSON.stringify({ 
           model, 
           messages: messagesForApi,
-          max_tokens: 2500, // Increased for Bangladesh context
+          max_tokens: 2500,
           temperature: 0.3
         }),
         signal: controller.signal,
@@ -331,22 +370,22 @@ async function useGeminiAPI(messages: {role: string, content: string}[], industr
   return result.response.text();
 }
 
-// Environment-aware timeout configuration (unchanged)
+// Environment-aware timeout configuration
 const getTimeouts = () => {
   const isVercel = process.env.VERCEL === '1';
   
   if (isVercel) {
     return { 
-      groqCompound: 3000,  // 3s for compound models
-      groqLlama: 3000,     // 3s for LLAMA models  
-      gemini: 3000         // 3s for Gemini (total 9s < 10s Vercel limit)
+      groqCompound: 3000,
+      groqLlama: 3000,
+      gemini: 3000
     };
   }
   
   return { 
-    groqCompound: 15000,   // 15s for compound models
-    groqLlama: 15000,      // 15s for LLAMA models
-    gemini: 25000          // 25s for Gemini
+    groqCompound: 15000,
+    groqLlama: 15000,
+    gemini: 25000
   };
 };
 
@@ -359,7 +398,6 @@ const validateInputs = (body: any) => {
       return { isValid: false, error: 'Resume text is invalid or too long (max 15,000 characters)' };
     }
     
-    // Validate resume content
     const contentValidation = validateResumeContent(resumeText);
     if (!contentValidation.isValid) {
       return { 
@@ -386,16 +424,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     
-    // Enhanced input validation with content checking
     const validation = validateInputs(body);
     if (!validation.isValid) {
-      // Special handling for inappropriate content - return validation message directly
       if (validation.error === 'inappropriate_content') {
         return NextResponse.json({ 
           feedback: validation.validationMessage,
           isInitialAnalysis: true,
           providerInfo: 'Content Validation System',
-          contentReset: true // Signal to frontend to reset flow
+          contentReset: true
         });
       }
       return NextResponse.json({ error: validation.error }, { status: 400 });
@@ -416,7 +452,7 @@ export async function POST(req: NextRequest) {
       if (jobDescription) {
         prompt += `\n\n**Target Job Description:**\n${jobDescription}`;
       }
-      prompt += `\n\n**Focus Areas:** Please provide insights specific to Bangladesh job market including local company opportunities, salary expectations in BDT, cultural considerations, and networking opportunities in Bangladesh.`;
+      prompt += `\n\n**Focus Areas:** Please provide insights specific to Bangladesh job market. Be CONSTRUCTIVELY CRITICAL and focus on technical skills gaps, formatting issues, and specific improvements needed. Avoid suggesting regulatory/compliance courses for entry-level candidates.`;
       
       apiMessages = [{ role: 'user', content: prompt }];
     } else {
@@ -433,9 +469,8 @@ export async function POST(req: NextRequest) {
     let feedback = '';
     const timeouts = getTimeouts();
 
-    // THREE-TIER STRATEGY: Groq Compound → Groq LLAMA → Gemini (with Bangladesh focus)
+    // THREE-TIER STRATEGY: Groq Compound → Groq LLAMA → Gemini
     try {
-      // STRATEGY 1: Try Groq COMPOUND models first
       console.log('🇧🇩 Step 1: Trying Groq COMPOUND models (Bangladesh-focused)...');
       const compoundResult = await Promise.race([
         tryGroqCompoundAPI(apiMessages, industryPreference, !!jobDescription),
@@ -455,7 +490,6 @@ export async function POST(req: NextRequest) {
       console.log(`❌ Groq COMPOUND failed: ${compoundError.message}`);
       
       try {
-        // STRATEGY 2: Try Groq LLAMA models
         console.log('🇧🇩 Step 2: Trying Groq LLAMA models (Bangladesh-focused)...');
         const llamaResult = await Promise.race([
           tryGroqLlamaAPI(apiMessages, industryPreference, !!jobDescription),
@@ -475,7 +509,6 @@ export async function POST(req: NextRequest) {
       } catch (llamaError: any) {
         console.log(`❌ Groq LLAMA failed: ${llamaError.message}`);
         
-        // STRATEGY 3: Final fallback to Gemini
         console.log('🇧🇩 Step 3: Final fallback to Gemini (Bangladesh-focused)...');
         fallbackReason = `Compound: ${compoundError.message}, LLAMA: ${llamaError.message}`;
         
@@ -495,7 +528,6 @@ export async function POST(req: NextRequest) {
     const processingTime = Date.now() - startTime;
     console.log(`✅ Bangladesh-focused resume feedback completed in ${processingTime}ms using ${usedProvider}`);
 
-    // Updated provider info with Bangladesh focus
     const providerInfo = (() => {
       switch (usedProvider) {
         case 'groq-compound-bangladesh':
@@ -513,7 +545,7 @@ export async function POST(req: NextRequest) {
       feedback,
       isInitialAnalysis,
       providerInfo,
-      marketFocus: 'bangladesh' // Indicate Bangladesh focus to frontend
+      marketFocus: 'bangladesh'
     });
 
   } catch (error: any) {

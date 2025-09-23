@@ -33,8 +33,8 @@ const ModernNavbar = () => {
       <nav className="fixed top-4 left-4 right-4 z-50 transition-all duration-300" style={{
         top: isScrolled ? '8px' : '16px'
       }}>
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-full shadow-lg px-4 py-3 lg:px-8 lg:py-3">
-          <div className="flex items-center justify-between lg:justify-start lg:gap-6">
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-full shadow-lg px-4 py-3 lg:px-8 lg:py-3 max-w-6xl mx-auto">
+          <div className="flex items-center justify-between">
             
             {/* Logo - Always visible with both icon and text */}
             <Link 
@@ -53,8 +53,8 @@ const ModernNavbar = () => {
               <span className="block">SkillDash</span>
             </Link>
 
-            {/* Desktop Navigation Items */}
-            <div className="hidden lg:flex items-center gap-4">
+            {/* Desktop Navigation Items - CENTERED */}
+            <div className="hidden lg:flex items-center justify-center gap-4 flex-1">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
