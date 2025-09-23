@@ -9,12 +9,12 @@ const client = createClient({
   space: spaceId,
   environment: 'master',
   accessToken: accessToken,
-  // Add timeout and retry settings for better performance
-  timeout: 10000, // 10 seconds timeout
-  retryLimit: 3,
+  // ✅ OPTIMIZED: Reduced timeout for faster failures
+  timeout: 8000, // 8 seconds instead of 10
+  retryLimit: 2, // 2 retries instead of 3
 });
 
-// ✅ In-memory cache with TTL
+// ✅ OPTIMIZED: Enhanced cache with hit/miss tracking
 interface CacheItem<T> {
   data: T;
   timestamp: number;
@@ -23,7 +23,9 @@ interface CacheItem<T> {
 
 class SimpleCache {
   private cache = new Map<string, CacheItem<any>>();
-  private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly DEFAULT_TTL = 15 * 60 * 1000; // ✅ OPTIMIZED: 15 minutes instead of 5
+  private hitCount = 0;
+  private missCount = 0;
 
   set<T>(key: string, data: T, ttl = this.DEFAULT_TTL): void {
     this.cache.set(key, {
@@ -35,19 +37,36 @@ class SimpleCache {
 
   get<T>(key: string): T | null {
     const item = this.cache.get(key);
-    if (!item) return null;
+    if (!item) {
+      this.missCount++;
+      return null;
+    }
 
     const isExpired = Date.now() - item.timestamp > item.ttl;
     if (isExpired) {
       this.cache.delete(key);
+      this.missCount++;
       return null;
     }
 
+    this.hitCount++;
     return item.data as T;
+  }
+
+  // ✅ OPTIMIZED: Add cache stats for monitoring
+  getStats() {
+    return {
+      size: this.cache.size,
+      hitRate: this.hitCount / (this.hitCount + this.missCount) || 0,
+      hits: this.hitCount,
+      misses: this.missCount
+    };
   }
 
   clear(): void {
     this.cache.clear();
+    this.hitCount = 0;
+    this.missCount = 0;
   }
 }
 
@@ -108,8 +127,8 @@ export interface FormattedJobOpportunity {
   };
 }
 
-// ✅ Optimized function with caching and pagination
-export async function getJobOpportunities(limit = 100): Promise<JobOpportunity[]> {
+// ✅ OPTIMIZED: Reduce initial fetch for faster page loads
+export async function getJobOpportunities(limit = 20): Promise<JobOpportunity[]> { // ✅ OPTIMIZED: 20 instead of 100
   const cacheKey = `jobs_${limit}`;
   
   // Check cache first
@@ -119,23 +138,21 @@ export async function getJobOpportunities(limit = 100): Promise<JobOpportunity[]
   }
 
   try {
-    // Use Promise.race for timeout handling
+    // ✅ OPTIMIZED: Reduce timeout for faster failures
     const fetchPromise = client.getEntries<JobOpportunitySkeleton>({
       content_type: 'SkillDashJobs',
       order: ['-sys.createdAt'],
       limit
-      // Note: Removed select parameter due to TypeScript compatibility issues
-      // The performance benefits from caching and timeouts are more important
     });
 
     const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Request timeout')), 8000)
+      setTimeout(() => reject(new Error('Request timeout')), 6000) // ✅ OPTIMIZED: 6 seconds instead of 8
     );
 
     const entries = await Promise.race([fetchPromise, timeoutPromise]);
     
-    // Cache the result
-    cache.set(cacheKey, entries.items);
+    // ✅ OPTIMIZED: Longer cache for job listings
+    cache.set(cacheKey, entries.items, 15 * 60 * 1000); // 15 minutes
     
     return entries.items;
   } catch (error) {
@@ -159,13 +176,13 @@ export async function getJobOpportunityById(id: string): Promise<JobOpportunity 
   try {
     const fetchPromise = client.getEntry<JobOpportunitySkeleton>(id);
     const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Request timeout')), 8000)
+      setTimeout(() => reject(new Error('Request timeout')), 6000) // ✅ OPTIMIZED: 6 seconds instead of 8
     );
 
     const entry = await Promise.race([fetchPromise, timeoutPromise]);
     
-    // Cache with shorter TTL for individual entries (2 minutes)
-    cache.set(cacheKey, entry, 2 * 60 * 1000);
+    // ✅ OPTIMIZED: Longer cache for individual entries (5 minutes instead of 2)
+    cache.set(cacheKey, entry, 5 * 60 * 1000);
     
     return entry;
   } catch (error) {
@@ -179,8 +196,9 @@ function getJobField<T>(job: JobOpportunity, fieldName: string): T {
   return (job.fields as any)[fieldName] as T;
 }
 
-// ✅ Memoized date formatting
+// ✅ OPTIMIZED: Enhanced memoized date formatting with larger cache
 const dateFormatCache = new Map<string, string>();
+const MAX_DATE_CACHE_SIZE = 1000; // Prevent memory leaks
 
 export function formatDeadline(dateString: string): string {
   if (dateFormatCache.has(dateString)) {
@@ -195,6 +213,12 @@ export function formatDeadline(dateString: string): string {
       year: 'numeric'
     });
     
+    // ✅ OPTIMIZED: Prevent cache from growing too large
+    if (dateFormatCache.size >= MAX_DATE_CACHE_SIZE) {
+      const firstKey = dateFormatCache.keys().next().value;
+      dateFormatCache.delete(firstKey);
+    }
+    
     dateFormatCache.set(dateString, formatted);
     return formatted;
   } catch (error) {
@@ -203,8 +227,9 @@ export function formatDeadline(dateString: string): string {
   }
 }
 
-// ✅ Memoized deadline checking
+// ✅ OPTIMIZED: Enhanced memoized deadline checking
 const deadlineCache = new Map<string, boolean>();
+const MAX_DEADLINE_CACHE_SIZE = 1000;
 
 export function isDeadlinePassed(dateString: string): boolean {
   const cacheKey = `${dateString}_${new Date().toDateString()}`;
@@ -217,6 +242,12 @@ export function isDeadlinePassed(dateString: string): boolean {
     const deadline = new Date(dateString);
     const now = new Date();
     const isPassed = deadline < now;
+    
+    // ✅ OPTIMIZED: Prevent cache from growing too large
+    if (deadlineCache.size >= MAX_DEADLINE_CACHE_SIZE) {
+      const firstKey = deadlineCache.keys().next().value;
+      deadlineCache.delete(firstKey);
+    }
     
     deadlineCache.set(cacheKey, isPassed);
     return isPassed;
@@ -287,9 +318,18 @@ export function formatJobOpportunity(job: JobOpportunity): FormattedJobOpportuni
   };
 }
 
-// ✅ Utility function to clear cache (useful for development)
+// ✅ OPTIMIZED: Enhanced cache management
 export function clearCache(): void {
   cache.clear();
   dateFormatCache.clear();
   deadlineCache.clear();
+}
+
+// ✅ OPTIMIZED: Add cache monitoring (useful for development)
+export function getCacheStats() {
+  return {
+    contentful: cache.getStats(),
+    dateFormat: { size: dateFormatCache.size },
+    deadline: { size: deadlineCache.size }
+  };
 }
