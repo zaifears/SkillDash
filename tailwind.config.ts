@@ -6,17 +6,21 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'media', // This enables automatic dark mode based on device preference
+  darkMode: 'class',
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      // ✅ OPTIMIZED: Use CSS variables for fonts
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
+      // ✅ OPTIMIZED: Font display utilities
+      fontDisplay: {
+        'swap': 'swap',
+        'fallback': 'fallback',
+        'optional': 'optional',
+      }
     },
   },
   plugins: [],
 }
-
 export default config
