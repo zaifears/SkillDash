@@ -194,7 +194,8 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-gray-50 dark:bg-black font-sans antialiased pt-20">      {/* Header */}
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-gray-50 dark:bg-black font-sans antialiased pt-20">
+      {/* Header */}
       <header className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-b border-black/5 p-4 sticky top-0 z-10">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -210,7 +211,7 @@ export default function DiscoverPage() {
       </header>
 
       {/* Main Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-6 chat-container">
+      <main className="flex-1 overflow-y-auto p-4 md:p-6 chat-container pb-20">
         <div className="max-w-3xl mx-auto">
           <div className="space-y-6">
             {messages.map((msg) => (
@@ -235,8 +236,8 @@ export default function DiscoverPage() {
         </div>
       </main>
 
-      {/* Input Footer */}
-      <footer className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-t border-black/5 p-2 sticky bottom-0">
+      {/* FIXED: Input Footer - LOWEST POSSIBLE POSITION */}
+      <footer className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-t border-black/5 p-2 fixed bottom-0 left-0 right-0 z-20">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="flex items-center space-x-2">
             <div className="flex-1 relative">
@@ -267,7 +268,7 @@ export default function DiscoverPage() {
             </button>
           </form>
           {!suggestions && !conversationEnded && (
-            <div className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
+            <div className="mt-1 text-center text-xs text-gray-400 dark:text-gray-500">
               💭 The more you share, the better I can help you discover your unique strengths!
             </div>
           )}
