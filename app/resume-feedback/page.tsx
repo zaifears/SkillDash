@@ -771,11 +771,34 @@ export default function ResumeFeedbackPage() {
     startAnalysis(jobDescription);
   }, [jobDescription, startAnalysis]);
 
+  // 🔧 CRITICAL FIX: Handle security blocks and content reset properly
   const displayInitialFeedback = useCallback((data: any) => {
     try {
       let parsedFeedback: ResumeFeedback;
       
-      if (typeof data.feedback === 'string') {
+      // ✅ Check for security blocks and content reset FIRST
+      if (data.blocked || data.contentReset) {
+        // Don't try to parse JSON for security responses
+        const formattedFeedback = (
+          <div className="prose prose-blue dark:prose-invert max-w-none">
+            <ReactMarkdown>{data.feedback}</ReactMarkdown>
+            {data.providerInfo && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                {data.providerInfo}
+              </div>
+            )}
+          </div>
+        );
+
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: formattedFeedback
+        }]);
+        return; // Exit early for security responses
+      }
+      
+      // ✅ Original JSON parsing logic for valid resumes
+      if (data.isInitialAnalysis && typeof data.feedback === 'string') {
         const jsonMatch = data.feedback.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           parsedFeedback = JSON.parse(jsonMatch[0]);
@@ -1009,7 +1032,8 @@ export default function ResumeFeedbackPage() {
   if (loading || !user) return <AuthLoadingScreen />;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black font-sans pt-20">      {/* Header */}
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black font-sans pt-20">
+      {/* Header */}
       <header className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-b border-black/5 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>

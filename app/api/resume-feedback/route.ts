@@ -113,7 +113,7 @@ THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
 - **Identify formatting issues, inconsistencies, and unprofessional elements**
 - **Point out missing quantifiable achievements and metrics**
 
-**WORD CHOICE CRITIQUE (NEW FOCUS):**
+**WORD CHOICE CRITIQUE (FOCUS AREA):**
 - **Weak action verbs**: "helped", "worked on", "was responsible for"
 - **Better alternatives**: "led", "developed", "implemented", "optimized", "achieved"
 - **Vague descriptions**: "many", "various", "several" 
@@ -316,7 +316,7 @@ async function tryGroqCompoundAPI(messages: {role: string, content: string}[], i
           model, 
           messages: messagesForApi,
           max_tokens: 2500,
-          temperature: 0.2  // Lower temperature for more consistent harsh critique
+          temperature: 0.2
         }),
         signal: controller.signal,
       });
@@ -517,11 +517,11 @@ export async function POST(req: NextRequest) {
     
     const validation = validateInputs(body);
     if (!validation.isValid) {
-      // Handle silent blocks (injection attempts)
+      // 🔧 FIXED: Handle silent blocks without JSON parsing errors
       if (validation.silentBlock) {
         return NextResponse.json({ 
           feedback: validation.redirectMessage,
-          isInitialAnalysis: false,
+          isInitialAnalysis: false, // This prevents JSON parsing attempt
           providerInfo: 'Security System',
           blocked: true
         });
@@ -530,7 +530,7 @@ export async function POST(req: NextRequest) {
       if (validation.error === 'inappropriate_content') {
         return NextResponse.json({ 
           feedback: validation.validationMessage,
-          isInitialAnalysis: true,
+          isInitialAnalysis: false, // This prevents JSON parsing attempt
           providerInfo: 'Content Validation System',
           contentReset: true
         });
