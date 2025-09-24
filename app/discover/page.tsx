@@ -194,8 +194,7 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-gray-50 dark:bg-black font-sans antialiased">
-      {/* Header */}
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-gray-50 dark:bg-black font-sans antialiased pt-20">      {/* Header */}
       <header className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-b border-black/5 p-4 sticky top-0 z-10">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -237,9 +236,9 @@ export default function DiscoverPage() {
       </main>
 
       {/* Input Footer */}
-      <footer className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-t border-black/5 p-4 sticky bottom-0">
+      <footer className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-t border-black/5 p-2 sticky bottom-0">
         <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="flex items-center space-x-3">
+          <form onSubmit={handleSubmit} className="flex items-center space-x-2">
             <div className="flex-1 relative">
               <input
                 ref={inputRef}
@@ -247,7 +246,7 @@ export default function DiscoverPage() {
                 value={userInput}
                 onChange={handleInputChange}
                 placeholder={getPlaceholder()}
-                className="w-full px-5 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow pr-12"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow pr-12"
                 disabled={isLoading || !!suggestions || conversationEnded}
                 maxLength={500}
               />

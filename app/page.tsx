@@ -10,8 +10,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-hidden">
       
-      {/* ✅ TOP SECTION: Clean background with floating circles */}
-      <div className="relative bg-white dark:bg-black transition-colors duration-300">
+      {/* ✅ TOP SECTION: Light background with transparent navbar area */}
+      <div className="relative bg-white dark:bg-gray-900 transition-colors duration-300">
+        
+        {/* ✅ NAVBAR TRANSPARENT ZONE - This prevents background showing through navbar */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-transparent z-40"></div>
         
         {/* ✅ Floating Transparent Circles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

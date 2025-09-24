@@ -28,7 +28,6 @@ const ModernNavbar = () => {
 
   return (
     <>
-      <div className="h-20"></div>
       <nav className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
         isScrolled ? 'top-2' : 'top-4'
       } w-full max-w-6xl px-4`}>

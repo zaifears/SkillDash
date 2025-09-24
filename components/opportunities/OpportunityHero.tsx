@@ -55,7 +55,7 @@ const OpportunityHero = React.memo(() => {
   const hirerMaintenanceUrl = "/opportunities/hiring";
 
   return (
-    <div className="bg-white/60 dark:bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 py-16">
+    <div className="bg-white/60 dark:bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 pt-40 pb-18">
       <div className="max-w-4xl w-full">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-4 bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent">
           Unlock Your Next Opportunity

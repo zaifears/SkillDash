@@ -59,7 +59,7 @@ const CARD_GRADIENTS = [
 
 export default function AboutUsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-black dark:to-gray-900 text-gray-800 dark:text-gray-200 py-12 sm:py-24 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-black dark:to-gray-900 text-gray-800 dark:text-gray-200 pt-40 pb-12 sm:pt-40 sm:pb-24 px-4 relative overflow-hidden">
       
       {/* Bouncing Balls Component */}
       <BouncingBalls variant="dense" />

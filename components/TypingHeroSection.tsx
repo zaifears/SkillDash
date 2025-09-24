@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import BouncingBalls from './shared/BouncingBalls';
 
 // Typing animation component (same as before)
 const TypingAnimation = () => {
@@ -61,9 +60,16 @@ const TypingAnimation = () => {
 
 const TypingHeroSection = () => {
     return (
-        <section className="relative py-16 px-6 text-center overflow-hidden">
-            {/* Reusable Bouncing Balls */}
-            <BouncingBalls variant="default" />
+        <section className="relative py-16 px-6 text-center overflow-hidden mt-20">
+            {/* FIXED: Inline bouncing balls that match the dark background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-20 right-16 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-optimized-bounce opacity-80 shadow-lg" style={{ animationDelay: '0s', animationDuration: '4s' }}></div>
+                <div className="absolute bottom-32 left-20 w-6 h-6 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-optimized-bounce opacity-60 shadow-md" style={{ animationDelay: '2s', animationDuration: '3.5s' }}></div>
+                <div className="absolute top-60 right-12 w-7 h-7 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-optimized-bounce opacity-70 shadow-md" style={{ animationDelay: '1s', animationDuration: '5s' }}></div>
+                <div className="absolute top-40 left-14 w-5 h-5 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-optimized-bounce opacity-75 shadow-sm" style={{ animationDelay: '3s', animationDuration: '4.5s' }}></div>
+                <div className="absolute top-80 left-8 w-9 h-9 bg-gradient-to-r from-violet-400 to-purple-600 rounded-full animate-optimized-bounce opacity-65 shadow-lg" style={{ animationDelay: '1.5s', animationDuration: '3.8s' }}></div>
+                <div className="absolute bottom-20 right-24 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-optimized-bounce opacity-80 shadow-sm" style={{ animationDelay: '2.5s', animationDuration: '4.2s' }}></div>
+            </div>
 
             <div className="max-w-6xl mx-auto relative z-10">
                 {/* Main Heading */}
@@ -79,7 +85,7 @@ const TypingHeroSection = () => {
 
                 {/* Subtitle */}
                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-                    From Classroom to Career. The AI-powered platform for Bangladesh's youth to discover, grow, and showcase their real-world skills.
+                    From Classroom to Career. Your AI-powered journey to discover, grow, and showcase your real-world skills.
                 </p>
 
                 {/* CTA Button */}

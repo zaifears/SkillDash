@@ -1009,8 +1009,7 @@ export default function ResumeFeedbackPage() {
   if (loading || !user) return <AuthLoadingScreen />;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black font-sans">
-      {/* Header */}
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black font-sans pt-20">      {/* Header */}
       <header className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-b border-black/5 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
