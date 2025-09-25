@@ -4,14 +4,29 @@ import React, { useState, memo, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
-// Lazy load heavy components
 const BouncingBalls = dynamic(() => import('../shared/BouncingBalls'), {
   ssr: false,
   loading: () => null
 });
 
-// Move skills data to constants - prevents re-creation
-const SKILLS_DATA = [
+type Course = {
+  url: string;
+  educator: string;
+  educatorLink: string;
+};
+
+type Skill = {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  courses: {
+    bangla: Course | null;
+    english: Course | null;
+  };
+};
+
+const SKILLS_DATA: Skill[] = [
   {
     id: 'graphic-design',
     name: 'Graphic Design using Canva',
@@ -21,19 +36,247 @@ const SKILLS_DATA = [
       bangla: {
         url: 'https://www.youtube.com/watch?v=-CTQYiGtoTI&list=PLBYQR04FmifgMyzhWgqlnzT624RQVxWsh',
         educator: 'Fahimul Islam Khan',
-        educatorLink: 'https://www.linkedin.com/in/fahimul-islam-khan-01b5b8180/'
+        educatorLink: 'https://www.linkedin.com/in/fahimulrafi/'
       },
       english: {
         url: 'https://youtu.be/Llnmf5BXLBA',
         educator: 'Daniel Walter Scott',
-        educatorLink: 'https://en.wikipedia.org/wiki/Daniel_Walter_Scott'
+        educatorLink: 'https://bringyourownlaptop.com/bio'
       }
     }
   },
-  // Add other skills data here - same structure
-] as const;
+  {
+    id: 'presentation-canva',
+    name: 'Presentation Making using Canva',
+    logo: '/learn-skill/logos/canva.png',
+    description: 'Master compelling presentations that captivate audiences.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://youtu.be/hrgrFmV7aCM',
+        educator: 'Pat Flynn',
+        educatorLink: 'https://wirededucator.com/wep79/'
+      }
+    }
+  },
+  {
+    id: 'ui-ux-figma',
+    name: 'UI/UX Design (Figma)',
+    logo: '/learn-skill/logos/figma.png',
+    description: 'Design beautiful user-friendly interfaces with industry standards.',
+    courses: {
+      bangla: {
+        url: 'https://youtu.be/Ed1ineovwzg',
+        educator: 'Atiqur Rahaman',
+        educatorLink: 'https://www.designmonks.co/atiqur-rahaman'
+      },
+      english: {
+        url: 'https://www.youtube.com/watch?v=kbZejnPXyLM&list=PLttcEXjN1UcHu4tCUSNhhuQ4riGARGeap',
+        educator: 'Daniel Walter Scott',
+        educatorLink: 'https://bringyourownlaptop.com/bio'
+      }
+    }
+  },
+  {
+    id: 'flutter-development',
+    name: 'Mobile App Development using Flutter',
+    logo: '/learn-skill/logos/flutter.png',
+    description: "Build cross-platform mobile applications with Google's framework.",
+    courses: {
+      bangla: {
+        url: 'https://www.youtube.com/watch?v=SCFTPjgZLQw&list=PLzHzHuEcLLzDh7koqhZJMrE879XzLAfo4',
+        educator: 'Jibon Khan',
+        educatorLink: 'https://www.youtube.com/c/JibonKhan'
+      },
+      english: {
+        url: 'https://youtu.be/HQ_ytw58tC4',
+        educator: 'Mitch Koko',
+        educatorLink: 'https://au.linkedin.com/in/mitchkoko'
+      }
+    }
+  },
+  {
+    id: 'english-vocabulary',
+    name: 'English Vocabulary Practice',
+    logo: '/learn-skill/logos/speakandimprove.png',
+    description: 'Enhance vocabulary with gamified AI-based learning experiences.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.wordmate.app/',
+        educator: 'Wordmate Team',
+        educatorLink: 'https://www.wordmate.app/'
+      }
+    }
+  },
+  {
+    id: 'typing-skills',
+    name: 'Fast Typing Skills',
+    logo: '/learn-skill/logos/typing_bird.png',
+    description: 'Master fast and accurate typing through engaging games.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.typing.com/student/games',
+        educator: 'Typing.com Team',
+        educatorLink: 'https://www.typing.com/'
+      }
+    }
+  },
+  {
+    id: 'excel-mastery',
+    name: 'Microsoft Excel Mastery',
+    logo: '/learn-skill/logos/excel.png',
+    description: 'Master spreadsheet skills essential for business and data analysis.',
+    courses: {
+      bangla: {
+        url: 'https://www.youtube.com/watch?v=ccyy-kIN75I&list=PLsRR4c2QGChwFRp_gOy06qAw-AMtdZ_pQ&pp=0gcJCaIEOCosWNin',
+        educator: 'Tanvir Rahaman',
+        educatorLink: 'https://www.tanviracademy.com/tanvir-rahaman'
+      },
+      english: {
+        url: 'https://youtu.be/Vl0H-qTclOg',
+        educator: 'Shad Sluiter',
+        educatorLink: 'https://www.freecodecamp.org/news/excel-classes-online-free-excel-training-courses/'
+      }
+    }
+  },
+  {
+    id: 'python-programming',
+    name: 'Python Programming',
+    logo: '/learn-skill/logos/python.png',
+    description: 'Learn versatile programming for data science and web development.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://youtu.be/eWRfhZUzrAc?list=PLWKjhJtqVAbnqBxcdjVGgT3uVR10bzTEB',
+        educator: 'Beau Carnes',
+        educatorLink: 'https://www.freecodecamp.org/news/author/beaucarnes/'
+      }
+    }
+  },
+  {
+    id: 'power-bi',
+    name: 'Microsoft Power BI',
+    logo: '/learn-skill/logos/powerbi.png',
+    description: 'Transform data into actionable business intelligence insights.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.youtube.com/watch?v=VaOhNqNtGGE&list=PLlKpQrBME6xIAUqcPjFRPsMQJhgXdJVxe',
+        educator: 'Kevin Stratvert',
+        educatorLink: 'https://kevinstratvert.com/'
+      }
+    }
+  },
+  {
+    id: 'git-github',
+    name: 'Git & GitHub',
+    logo: '/learn-skill/logos/git.png',
+    description: 'Master version control and collaborate on code projects effectively.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://skills.github.com/',
+        educator: 'GitHub Learn Team',
+        educatorLink: 'https://skills.github.com/'
+      }
+    }
+  },
+  {
+    id: 'video-editing-capcut',
+    name: 'Video Editing with CapCut',
+    logo: '/learn-skill/logos/capcut.png',
+    description: 'Create engaging videos with professional editing techniques.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.youtube.com/watch?v=P51CqlPOE_w&list=PLKrujGFpHTTXuDK_7nq5CN-iLRzq2ir96',
+        educator: 'Dee Nimmin',
+        educatorLink: 'https://www.youtube.com/@DeeNimmin'
+      }
+    }
+  },
+  {
+    id: 'english-speaking',
+    name: 'English Speaking Practice',
+    logo: '/learn-skill/logos/speakandimprove.png',
+    description: 'Improve English speaking with AI-powered feedback and practice.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://speakandimprove.com/',
+        educator: 'Speak & Improve Team (University of Cambridge)',
+        educatorLink: 'https://speakandimprove.com/'
+      }
+    }
+  },
+  {
+    id: 'critical-thinking',
+    name: 'Critical Thinking',
+    logo: '/learn-skill/logos/critical_thinking.png',
+    description: 'Develop analytical and logical reasoning for better decisions.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.khanacademy.org/test-prep/lsat-prep/xdf35b2883be7178a:lsat-prep-lessons',
+        educator: 'Khan Academy (Salman Khan)',
+        educatorLink: 'https://en.wikipedia.org/wiki/Sal_Khan'
+      }
+    }
+  },
+  {
+    id: 'public-speaking',
+    name: 'Public Speaking & Presentation',
+    logo: '/learn-skill/logos/public-speaking.png',
+    description: 'Build confidence and deliver impactful presentations professionally.',
+    courses: {
+      bangla: {
+        url: 'https://www.youtube.com/watch?v=xMhZlt-OHEg&list=PL1pf33qWCkmjL7W-eevyKqNWMjI2nLMDA',
+        educator: 'Ayman Sadiq',
+        educatorLink: 'https://www.linkedin.com/in/aymansadiq/'
+      },
+      english: {
+        url: 'https://youtu.be/HAnw168huqA',
+        educator: 'Matt Abrahams',
+        educatorLink: 'https://gsb.stanford.edu/faculty-research/faculty/matt-abrahams'
+      }
+    }
+  },
+  {
+    id: 'audio-editing',
+    name: 'Audio Editing with Audacity',
+    logo: '/learn-skill/logos/audacity.png',
+    description: 'Edit and enhance audio files with professional-grade software.',
+    courses: {
+      bangla: {
+        url: 'https://www.youtube.com/watch?v=NqvO6A7WGeE&pp=ygUYYXVkYWNpdHkgdHV0b3JpYWwgYmFuZ2xh',
+        educator: 'Shohag Mia (Shohag360)',
+        educatorLink: 'https://www.youtube.com/@Shohag360'
+      },
+      english: {
+        url: 'https://www.youtube.com/watch?v=yzJ2VyYkmaA&pp=ygUYYXVkYWNpdHkgdHV0b3JpYWwgYmFuZ2xh',
+        educator: 'Kevin Stratvert',
+        educatorLink: 'https://kevinstratvert.com/'
+      }
+    }
+  },
+  {
+    id: 'financial-literacy',
+    name: 'Financial Literacy',
+    logo: '/learn-skill/logos/financial-literacy.png',
+    description: 'Learn money management and investment principles for success.',
+    courses: {
+      bangla: null,
+      english: {
+        url: 'https://www.khanacademy.org/college-careers-more/financial-literacy',
+        educator: 'Khan Academy (Salman Khan)',
+        educatorLink: 'https://en.wikipedia.org/wiki/Sal_Khan'
+      }
+    }
+  }
+];
 
-// Memoized language badge component
 const LanguageBadge = memo(({ 
   language, 
   label 
@@ -65,8 +308,7 @@ const LanguageBadge = memo(({
 });
 LanguageBadge.displayName = 'LanguageBadge';
 
-// Optimized skill card with better performance
-const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index: number }) => {
+const SkillCard = memo(({ skill, index }: { skill: Skill, index: number }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const availableLanguages = useMemo(() => {
@@ -117,7 +359,7 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
       onClick={handleCardClick}
       style={{ animationDelay: `${index * 0.1}s` }}
     >
-      {/* OPTIMIZED: Next.js Image with proper loading */}
+      {/* Logo */}
       <div className="flex items-center justify-center mb-6">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-2xl blur-xl scale-110 group-hover:scale-125 transition-transform duration-300"></div>
@@ -130,30 +372,25 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
               className="object-contain filter drop-shadow-sm"
               loading="lazy"
               sizes="48px"
-              onError={(e) => {
-                // Fallback to placeholder
+              onError={e => {
                 e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9IiMzNDgzRjYiLz4KPHBhdGggZD0iTTI0IDEyVjM2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTIgMjRIMzYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg==';
               }}
             />
           </div>
         </div>
       </div>
-
       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
         {skill.name}
       </h3>
-
       <p className="text-gray-600 dark:text-gray-400 text-base text-center mb-6 leading-relaxed">
         {skill.description}
       </p>
-
       {/* Language badges */}
       <div className="flex justify-center gap-3 mb-6">
         {skill.courses.bangla && <LanguageBadge language="bangla" label="BN" />}
         {skill.courses.english && <LanguageBadge language="english" label="EN" />}
       </div>
-
-      {/* Single language educator info or expandable options */}
+      {/* Course content */}
       {availableLanguages.length === 1 ? (
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 mb-2 border border-gray-200/50 dark:border-gray-600/50">
           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 uppercase tracking-wide">Educator:</p>
@@ -163,7 +400,7 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
               const course = skill.courses[availableLanguages[0]];
               return course?.educatorLink ? (
                 <button
-                  onClick={(e) => handleEducatorClick(course.educatorLink!, e)}
+                  onClick={e => handleEducatorClick(course.educatorLink!, e)}
                   className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
                 >
                   {course.educator}
@@ -177,27 +414,24 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
       ) : (
         <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="space-y-4">
-            {availableLanguages.map((language) => {
+            {availableLanguages.map(language => {
               const course = skill.courses[language];
               if (!course) return null;
-              
               return (
                 <div key={language} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-600/50">
                   <div className="flex items-center justify-between mb-3">
                     <LanguageBadge language={language} label={language === 'bangla' ? 'Bengali' : 'English'} />
                     <button
-                      onClick={(e) => handleLanguageClick(language, e)}
+                      onClick={e => handleLanguageClick(language, e)}
                       className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full font-medium transition-colors"
                     >
                       Start Learning
                     </button>
                   </div>
-                  
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 uppercase tracking-wide">Educator:</p>
-                  
                   {course.educatorLink ? (
                     <button
-                      onClick={(e) => handleEducatorClick(course.educatorLink!, e)}
+                      onClick={e => handleEducatorClick(course.educatorLink!, e)}
                       className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
                     >
                       {course.educator}
@@ -211,7 +445,6 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
           </div>
         </div>
       )}
-
       {/* Indicator icon */}
       <div className="absolute top-6 right-6">
         {availableLanguages.length === 1 ? (
@@ -229,9 +462,8 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
 });
 SkillCard.displayName = 'SkillCard';
 
-// Main component with virtual scrolling
 const TestInterestSection = memo(() => {
-  const [visibleSkills, setVisibleSkills] = useState(8); // Start with 8 instead of all 17+
+  const [visibleSkills, setVisibleSkills] = useState(8);
 
   const handleLoadMore = useCallback(() => {
     setVisibleSkills(prev => Math.min(prev + 6, SKILLS_DATA.length));
@@ -247,29 +479,25 @@ const TestInterestSection = memo(() => {
   return (
     <section className="py-20 px-6">
       <BouncingBalls variant="minimal" />
-      
       <div className="max-w-7xl mx-auto">
-        {/* Optimized Hero Header */}
+        {/* Hero Header */}
         <div className="text-center mb-20">
           <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-tight mb-8">
             TEST YOUR
             <br />
             INTEREST
           </h1>
-          
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed">
             Discover your passion through hands-on learning. Each skill comes with carefully curated courses 
             from expert educators in both <strong>Bangla</strong> and <strong>English</strong>.
           </p>
         </div>
-
-        {/* Optimized Skills Grid - Virtual Loading */}
+        {/* Skills Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {displayedSkills.map((skill, index) => (
             <SkillCard key={skill.id} skill={skill} index={index} />
           ))}
         </div>
-
         {/* Load More Button */}
         {hasMore && (
           <div className="text-center mt-12">
