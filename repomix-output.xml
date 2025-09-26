@@ -40,108 +40,139 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+app/
+  about-us/
+    page.tsx
+  api/
+    discover-chat/
+      route.ts
+    resume-feedback/
+      route.ts
+  auth/
+    page.tsx
+  discover/
+    page.tsx
+  learn-skill/
+    page.tsx
+  opportunities/
+    hiring/
+      page.tsx
+    job-seeker/
+      [id]/
+        page.tsx
+      page.tsx
+    page.tsx
+  profile/
+    page.tsx
+  resume-feedback/
+    page.tsx
+  globals.css
+  layout.tsx
+  not-found.tsx
+  page.tsx
+components/
+  discover/
+    BotIcon.tsx
+    LoadingDots.tsx
+    MessageBubble.tsx
+    SkillBadges.tsx
+    SuggestionsCard.tsx
+  hiring/
+    BenefitsSection.tsx
+    ComingSoonFeatures.tsx
+    ContactForm.tsx
+    HiringHeader.tsx
+  icons/
+    HiringIcons.tsx
+  job-details/
+    JobDetailsLoadingScreen.tsx
+    JobHeader.tsx
+    JobRequirements.tsx
+    JobSidebar.tsx
+    RichTextRenderer.tsx
+  job-seeker/
+    ErrorScreen.tsx
+    JobCard.tsx
+    JobIcons.tsx
+    JobSeekerHeader.tsx
+    JobsList.tsx
+    LoadingScreen.tsx
+  learn-skill/
+    BookOpenIcon.tsx
+    GPAcademyCard.tsx
+    LearnHeroSection.tsx
+    TestInterestSection.tsx
+  opportunities/
+    JobSeekerSection.tsx
+    OpportunityHero.tsx
+  profile/
+    ProfileActions.tsx
+    ProfileDisplay.tsx
+    ProfileEditForm.tsx
+    ProfileHeader.tsx
+    ProfileIcons.tsx
+    ProfileLoadingScreen.tsx
+  resume-feedback/
+    CollapsibleSection.tsx
+    CourseCard.tsx
+    FeedbackCard.tsx
+    FeedbackList.tsx
+    FeedbackSubSection.tsx
+  shared/
+    BackgroundAnimation.tsx
+    BouncingBalls.tsx
+    Footer.tsx
+    OptimizedImage.tsx
+    TeamMember.tsx
+  AboutHero.tsx
+  AuthForm.tsx
+  AuthIcons.tsx
+  AuthStatus.tsx
+  ContentSections.tsx
+  CoreFeatures.tsx
+  CoreFeaturesSection.tsx
+  HowItWorksSection.tsx
+  LoadingSpinner.tsx
+  ModernNavbar.jsx
+  Navbar.tsx
+  OpportunitiesSection.tsx
+  ResumeSection.tsx
+  ServiceWorkerRegistration.tsx
+  SkillsSection.tsx
+  SocialAuth.tsx
+  StorySection.tsx
+  TeamMember.tsx
+  TypingHeroSection.tsx
+contexts/
+  AuthContext.tsx
+hooks/
+  useJobData.tsx
+  useJobDetails.tsx
+  useProfile.tsx
+  useResumeWorkflow.tsx
+lib/
+  apiUtils.ts
+  authUtils.ts
+  bundleOptimizations.ts
+  contentful.ts
+  dynamicImports.tsx
+  firebase.ts
+  imageUtils.ts
+public/
+  site.webmanifest
+  sitemap.xml
+  sw.js
+scripts/
+  analyze-bundle.js
 .eslintrc.json
 .gitignore
 .nvmrc
-app/about-us/page.tsx
-app/api/discover-chat/route.ts
-app/api/resume-feedback/route.ts
-app/auth/page.tsx
-app/discover/page.tsx
-app/globals.css
-app/layout.tsx
-app/learn-skill/page.tsx
-app/not-found.tsx
-app/opportunities/hiring/page.tsx
-app/opportunities/job-seeker/[id]/page.tsx
-app/opportunities/job-seeker/page.tsx
-app/opportunities/page.tsx
-app/page.tsx
-app/profile/page.tsx
-app/resume-feedback/page.tsx
-components/AboutHero.tsx
-components/AuthForm.tsx
-components/AuthIcons.tsx
-components/AuthStatus.tsx
-components/ContentSections.tsx
-components/CoreFeatures.tsx
-components/CoreFeaturesSection.tsx
-components/discover/BotIcon.tsx
-components/discover/LoadingDots.tsx
-components/discover/MessageBubble.tsx
-components/discover/SkillBadges.tsx
-components/discover/SuggestionsCard.tsx
-components/hiring/BenefitsSection.tsx
-components/hiring/ComingSoonFeatures.tsx
-components/hiring/ContactForm.tsx
-components/hiring/HiringHeader.tsx
-components/HowItWorksSection.tsx
-components/icons/HiringIcons.tsx
-components/job-details/JobDetailsLoadingScreen.tsx
-components/job-details/JobHeader.tsx
-components/job-details/JobRequirements.tsx
-components/job-details/JobSidebar.tsx
-components/job-details/RichTextRenderer.tsx
-components/job-seeker/ErrorScreen.tsx
-components/job-seeker/JobCard.tsx
-components/job-seeker/JobIcons.tsx
-components/job-seeker/JobSeekerHeader.tsx
-components/job-seeker/JobsList.tsx
-components/job-seeker/LoadingScreen.tsx
-components/learn-skill/BookOpenIcon.tsx
-components/learn-skill/GPAcademyCard.tsx
-components/learn-skill/LearnHeroSection.tsx
-components/learn-skill/TestInterestSection.tsx
-components/LoadingSpinner.tsx
-components/ModernNavbar.jsx
-components/Navbar.tsx
-components/opportunities/JobSeekerSection.tsx
-components/opportunities/OpportunityHero.tsx
-components/OpportunitiesSection.tsx
-components/profile/ProfileActions.tsx
-components/profile/ProfileDisplay.tsx
-components/profile/ProfileEditForm.tsx
-components/profile/ProfileHeader.tsx
-components/profile/ProfileIcons.tsx
-components/profile/ProfileLoadingScreen.tsx
-components/resume-feedback/CollapsibleSection.tsx
-components/resume-feedback/CourseCard.tsx
-components/resume-feedback/FeedbackCard.tsx
-components/resume-feedback/FeedbackList.tsx
-components/resume-feedback/FeedbackSubSection.tsx
-components/ResumeSection.tsx
-components/ServiceWorkerRegistration.tsx
-components/shared/BackgroundAnimation.tsx
-components/shared/BouncingBalls.tsx
-components/shared/Footer.tsx
-components/shared/OptimizedImage.tsx
-components/shared/TeamMember.tsx
-components/SkillsSection.tsx
-components/SocialAuth.tsx
-components/StorySection.tsx
-components/TeamMember.tsx
-components/TypingHeroSection.tsx
-contexts/AuthContext.tsx
-hooks/useJobData.tsx
-hooks/useJobDetails.tsx
-hooks/useProfile.tsx
-hooks/useResumeWorkflow.tsx
-lib/apiUtils.ts
-lib/authUtils.ts
-lib/bundleOptimizations.ts
-lib/contentful.ts
-lib/dynamicImports.tsx
-lib/firebase.ts
-lib/imageUtils.ts
 LICENSE
 next-env.d.ts
 next.config.mjs
 package.json
 postcss.config.js
-public/site.webmanifest
-public/sw.js
 README.md
-scripts/analyze-bundle.js
 tailwind.config.ts
 tsconfig.json
 vercel.json
@@ -288,418 +319,6 @@ A project for the [**GP AI Future Maker**](https://gpfuturemakers.com/) competit
 Empowering Bangladesh's youth from classroom to career!
 
 ---
-</file>
-
-<file path=".nvmrc">
-20.11.0
-</file>
-
-<file path="components/AboutHero.tsx">
-import React from 'react';
-
-const AboutHero = () => {
-  return (
-    <section className="text-center mb-20 md:mb-28">
-      <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
-        About SkillDash
-      </h1>
-      <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-        We are passionate students building a bridge between education and employment in Bangladesh.
-      </p>
-    </section>
-  );
-};
-
-export default AboutHero;
-</file>
-
-<file path="components/AuthForm.tsx">
-'use client';
-import React from 'react';
-
-interface AuthFormProps {
-  isSignUp: boolean;
-  formData: any;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean;
-  error: string;
-  message: string;
-}
-
-const AuthForm: React.FC<AuthFormProps> = ({
-  isSignUp,
-  formData,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  error,
-  message
-}) => {
-  const inputClass = "w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors";
-  
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {isSignUp && (
-        <>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name *"
-            value={formData.name}
-            onChange={handleInputChange}
-            className={inputClass}
-            required
-            minLength={2}
-            maxLength={50}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className={inputClass}
-              pattern="[0-9+\-\s]+"
-              maxLength={15}
-            />
-            <input
-              type="number"
-              name="age"
-              placeholder="Age"
-              value={formData.age}
-              onChange={handleInputChange}
-              className={inputClass}
-              min="13"
-              max="100"
-            />
-          </div>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            className={inputClass}
-            required
-          >
-            <option value="">Select Your Status *</option>
-            <option value="School">School (Class 1-10)</option>
-            <option value="College">College (Class 11-12)</option>
-            <option value="University">University</option>
-            <option value="Job">In a Job</option>
-            <option value="Other">Other</option>
-          </select>
-        </>
-      )}
-      
-      <input
-        type="email"
-        name="email"
-        placeholder="Email Address *"
-        value={formData.email}
-        onChange={handleInputChange}
-        className={inputClass}
-        required
-        maxLength={100}
-      />
-      
-      <input
-        type="password"
-        name="password"
-        placeholder="Password *"
-        value={formData.password}
-        onChange={handleInputChange}
-        className={inputClass}
-        required
-        minLength={6}
-        maxLength={128}
-      />
-      
-      {isSignUp && (
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password *"
-          value={formData.confirmPassword}
-          onChange={handleInputChange}
-          className={inputClass}
-          required
-          minLength={6}
-          maxLength={128}
-        />
-      )}
-
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
-      
-      {message && (
-        <div className="bg-green-100 dark:bg-green-900/20 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded">
-          {message}
-        </div>
-      )}
-
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-all duration-200"
-      >
-        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
-      </button>
-    </form>
-  );
-};
-
-export default AuthForm;
-</file>
-
-<file path="components/AuthIcons.tsx">
-import React from 'react';
-
-export const GoogleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-  </svg>
-);
-
-export const GitHubIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-  </svg>
-);
-</file>
-
-<file path="components/ContentSections.tsx">
-import React from 'react';
-import Link from 'next/link';
-import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
-
-const ContentSections = () => {
-  return (
-    <>
-      {/* Learn New Skills Section */}
-      <section className="relative py-20 bg-gradient-to-r from-slate-800 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Learn In-Demand Skills
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from partners like Grameenphone Academy to build job-ready skills and turn your potential into certified proficiency.
-          </p>
-
-          <Link
-            href="/learn-skill"
-            className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Explore Courses
-          </Link>
-        </div>
-      </section>
-
-      {/* AI Resume Feedback Section */}
-      <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Perfect Your Resume with AI
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
-          </p>
-
-          <Link
-            href="/resume-feedback"
-            className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Get AI Feedback
-          </Link>
-        </div>
-      </section>
-
-      {/* Find Opportunities Section */}
-      <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Find Real-World Opportunities
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
-          </p>
-
-          <Link
-            href="/opportunities"
-            className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Browse Gigs & Jobs
-          </Link>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <div className="text-6xl mb-6">🚀</div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Your Journey to a Dream Career Starts Here
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
-            SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaUser className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                Personalized Growth
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                Our AI understands your unique talents and recommends tailored learning paths to maximize your potential.
-              </p>
-            </div>
-
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaBriefcase className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                Real-World Application
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers.
-              </p>
-            </div>
-
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaCogs className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                AI-Powered Tools
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-};
-
-export default ContentSections;
-</file>
-
-<file path="components/CoreFeatures.tsx">
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-
-const CoreFeatures = () => {
-  const coreFeatures = [
-    {
-      icon: "/homepage/discover-talent.png",
-      title: "Discover Your Talent",
-      description: "Start with our AI Skill Quest to uncover your unique strengths and passions.",
-      href: "/discover",
-      gradient: "from-blue-500 to-indigo-600",
-    },
-    {
-      icon: "/homepage/new-skills.png",
-      title: "Learn New Skills",
-      description: "Access curated courses to build job-ready skills and turn potential into proficiency.",
-      href: "/learn-skill",
-      gradient: "from-purple-500 to-violet-600",
-    },
-    {
-      icon: "/homepage/resume-feedback.png",
-      title: "AI Resume Feedback",
-      description: "Get instant AI feedback to craft a resume that stands out to employers.",
-      href: "/resume-feedback",
-      gradient: "from-sky-500 to-cyan-600",
-    },
-    {
-      icon: "/homepage/opportunites-logo.png",
-      title: "Find Opportunities",
-      description: "Unlock a portal of part-time jobs and freelance gigs to gain real experience.",
-      href: "/opportunities",
-      gradient: "from-emerald-500 to-teal-600",
-    },
-  ];
-
-  return (
-    <section className="relative z-10 py-20">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
-          Your Path to Success
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {coreFeatures.map((feature, index) => (
-            <Link
-              key={feature.title}
-              href={feature.href}
-              className={`group relative p-6 flex flex-col items-center text-center rounded-2xl bg-gradient-to-br ${feature.gradient} text-white overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
-            >
-              <div className="relative w-16 h-16 mb-4">
-                <Image
-                  src={feature.icon}
-                  alt={`${feature.title} logo`}
-                  fill
-                  sizes="64px"
-                  className="object-contain filter drop-shadow-lg"
-                />
-              </div>
-              
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-sm opacity-90 leading-relaxed">{feature.description}</p>
-              
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20" />
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default CoreFeatures;
 </file>
 
 <file path="components/discover/BotIcon.tsx">
@@ -1258,72 +877,6 @@ const HiringHeader = React.memo(() => {
 
 HiringHeader.displayName = 'HiringHeader';
 export default HiringHeader;
-</file>
-
-<file path="components/HowItWorksSection.tsx">
-import React from 'react';
-import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
-
-const HowItWorksSection = () => {
-  const features = [
-    {
-      icon: <FaUser className="w-8 h-8" />,
-      title: "Personalized Growth",
-      description: "Our AI understands your unique talents and recommends tailored learning paths to maximize your potential."
-    },
-    {
-      icon: <FaBriefcase className="w-8 h-8" />,
-      title: "Real-World Application", 
-      description: "Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers."
-    },
-    {
-      icon: <FaCogs className="w-8 h-8" />,
-      title: "AI-Powered Tools",
-      description: "From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market."
-    }
-  ];
-
-  return (
-    <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <div className="text-6xl mb-6">🚀</div>
-        
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Your Journey to a Dream Career Starts Here
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
-          SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={feature.title} className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                {feature.icon}
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                {feature.title}
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default HowItWorksSection;
 </file>
 
 <file path="components/icons/HiringIcons.tsx">
@@ -2052,102 +1605,6 @@ BookOpenIcon.displayName = 'BookOpenIcon';
 export default BookOpenIcon;
 </file>
 
-<file path="components/learn-skill/GPAcademyCard.tsx">
-import React from 'react';
-import Image from 'next/image';
-
-const GPAcademyCard = React.memo(() => {
-  return (
-    <section className="mb-16 academy-fade-in">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-8 sm:p-12 text-center transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl shadow-xl">
-          {/* ALTERNATIVE: More flexible container */}
-          <div className="inline-block px-8 py-4 bg-white/90 backdrop-blur-sm rounded-2xl mx-auto mb-8 shadow-lg transform transition-transform duration-300 hover:scale-105">
-            <div className="relative w-60 h-20 sm:w-72 sm:h-24"> {/* Even wider if needed */}
-              <Image
-                src="/learn-skill/gp-academy-logo.png"
-                alt="GP Academy Logo"
-                fill
-                sizes="(max-width: 640px) 240px, 288px"
-                className="object-contain"
-                priority
-              />
-            </div>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4">Our Top Recommendation</h2>
-          <p className="max-w-xl mx-auto text-gray-600 dark:text-gray-400 mb-8">
-            Grameenphone Academy offers a wide range of courses focused on future-ready skills, from digital marketing to cybersecurity. It's the perfect place to turn your potential into proficiency.
-          </p>
-          <a 
-            href="https://www.grameenphone.academy/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="group relative inline-block bg-gradient-to-r from-purple-600 to-violet-700 text-white font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl" />
-            <span className="relative z-10 text-lg">Visit GP Academy</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-});
-
-GPAcademyCard.displayName = 'GPAcademyCard';
-export default GPAcademyCard;
-</file>
-
-<file path="components/learn-skill/LearnHeroSection.tsx">
-import React from 'react';
-import BookOpenIcon from './BookOpenIcon';
-
-const LearnHeroSection = React.memo(() => {
-  return (
-    <section className="text-center mb-16 sm:mb-24 relative">
-      <div className="hero-fade-in">
-        {/* Large Icon */}
-        <div className="w-32 h-32 sm:w-40 sm:h-40 p-8 mx-auto flex items-center justify-center bg-purple-100/80 dark:bg-purple-900/50 backdrop-blur-sm rounded-3xl mb-8 text-purple-500 shadow-2xl transform transition-transform duration-300 hover:scale-110">
-          <BookOpenIcon />
-        </div>
-
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-600 bg-clip-text text-transparent leading-tight sm:leading-tight md:leading-tight">
-          Learn Industry Accredited Courses
-        </h1>
-        <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-          SkillDash partners with leading institutions to bring you industry-recognized courses that align with your discovered skills and career ambitions.
-        </p>
-        
-        <div className="flex flex-row items-baseline justify-center gap-x-2 sm:gap-x-3 text-xl sm:text-2xl font-semibold mb-10">
-          <span className="text-gray-700 dark:text-gray-300">
-            Turn your potential into
-          </span>
-          <span className="bg-gradient-to-r from-purple-500 to-violet-500 bg-clip-text text-transparent">
-            Proficiency
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-});
-
-LearnHeroSection.displayName = 'LearnHeroSection';
-export default LearnHeroSection;
-</file>
-
-<file path="components/LoadingSpinner.tsx">
-import React from 'react';
-
-const LoadingSpinner = () => {
-  return (
-    <div className="flex justify-center items-center py-20">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-    </div>
-  );
-};
-
-export default LoadingSpinner;
-</file>
-
 <file path="components/opportunities/JobSeekerSection.tsx">
 import React from 'react';
 import Image from 'next/image';
@@ -2261,42 +1718,6 @@ const JobSeekerSection = React.memo(() => {
 
 JobSeekerSection.displayName = 'JobSeekerSection';
 export default JobSeekerSection;
-</file>
-
-<file path="components/OpportunitiesSection.tsx">
-import React from 'react';
-import Link from 'next/link';
-
-const OpportunitiesSection = () => {
-  return (
-    <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Find Real-World Opportunities
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-          Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
-        </p>
-
-        <Link
-          href="/opportunities"
-          className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-        >
-          Browse Gigs & Jobs
-        </Link>
-      </div>
-    </section>
-  );
-};
-
-export default OpportunitiesSection;
 </file>
 
 <file path="components/profile/ProfileActions.tsx">
@@ -2957,103 +2378,6 @@ FeedbackSubSection.displayName = 'FeedbackSubSection';
 export default FeedbackSubSection;
 </file>
 
-<file path="components/ResumeSection.tsx">
-import React from 'react';
-import Link from 'next/link';
-
-const ResumeSection = () => {
-  return (
-    <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Perfect Your Resume with AI
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-          Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
-        </p>
-
-        <Link
-          href="/resume-feedback"
-          className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-        >
-          Get AI Feedback
-        </Link>
-      </div>
-    </section>
-  );
-};
-
-export default ResumeSection;
-</file>
-
-<file path="components/ServiceWorkerRegistration.tsx">
-'use client';
-
-import { useEffect } from 'react';
-
-export default function ServiceWorkerRegistration() {
-  useEffect(() => {
-    if (
-      typeof window !== 'undefined' && 
-      'serviceWorker' in navigator && 
-      process.env.NODE_ENV === 'production'
-    ) {
-      // ✅ OPTIMIZED: Register service worker on page load
-      window.addEventListener('load', async () => {
-        try {
-          const registration = await navigator.serviceWorker.register('/sw.js', {
-            scope: '/'
-          });
-
-          console.log('✅ Service Worker registered successfully:', registration.scope);
-
-          // ✅ OPTIMIZED: Handle service worker updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // New content is available, notify user
-                  console.log('🔄 New content available! Please refresh.');
-                  
-                  // Optional: Show update notification
-                  if (window.confirm('New version available! Refresh to update?')) {
-                    window.location.reload();
-                  }
-                }
-              });
-            }
-          });
-
-          // ✅ OPTIMIZED: Handle service worker messages
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            console.log('📨 Message from service worker:', event.data);
-          });
-
-        } catch (error) {
-          console.error('❌ Service Worker registration failed:', error);
-        }
-      });
-
-      // ✅ OPTIMIZED: Handle service worker controller change
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('🔄 Service Worker controller changed');
-        window.location.reload();
-      });
-    }
-  }, []);
-
-  return null; // This component doesn't render anything
-}
-</file>
-
 <file path="components/shared/BackgroundAnimation.tsx">
 import React from 'react';
 
@@ -3367,6 +2691,627 @@ const TeamMember: React.FC<TeamMemberProps> = ({
 }
 
 export default TeamMember
+</file>
+
+<file path="components/AboutHero.tsx">
+import React from 'react';
+
+const AboutHero = () => {
+  return (
+    <section className="text-center mb-20 md:mb-28">
+      <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
+        About SkillDash
+      </h1>
+      <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+        We are passionate students building a bridge between education and employment in Bangladesh.
+      </p>
+    </section>
+  );
+};
+
+export default AboutHero;
+</file>
+
+<file path="components/AuthForm.tsx">
+'use client';
+import React from 'react';
+
+interface AuthFormProps {
+  isSignUp: boolean;
+  formData: any;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  error: string;
+  message: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({
+  isSignUp,
+  formData,
+  handleInputChange,
+  handleSubmit,
+  isLoading,
+  error,
+  message
+}) => {
+  const inputClass = "w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors";
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {isSignUp && (
+        <>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name *"
+            value={formData.name}
+            onChange={handleInputChange}
+            className={inputClass}
+            required
+            minLength={2}
+            maxLength={50}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className={inputClass}
+              pattern="[0-9+\-\s]+"
+              maxLength={15}
+            />
+            <input
+              type="number"
+              name="age"
+              placeholder="Age"
+              value={formData.age}
+              onChange={handleInputChange}
+              className={inputClass}
+              min="13"
+              max="100"
+            />
+          </div>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleInputChange}
+            className={inputClass}
+            required
+          >
+            <option value="">Select Your Status *</option>
+            <option value="School">School (Class 1-10)</option>
+            <option value="College">College (Class 11-12)</option>
+            <option value="University">University</option>
+            <option value="Job">In a Job</option>
+            <option value="Other">Other</option>
+          </select>
+        </>
+      )}
+      
+      <input
+        type="email"
+        name="email"
+        placeholder="Email Address *"
+        value={formData.email}
+        onChange={handleInputChange}
+        className={inputClass}
+        required
+        maxLength={100}
+      />
+      
+      <input
+        type="password"
+        name="password"
+        placeholder="Password *"
+        value={formData.password}
+        onChange={handleInputChange}
+        className={inputClass}
+        required
+        minLength={6}
+        maxLength={128}
+      />
+      
+      {isSignUp && (
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password *"
+          value={formData.confirmPassword}
+          onChange={handleInputChange}
+          className={inputClass}
+          required
+          minLength={6}
+          maxLength={128}
+        />
+      )}
+
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      
+      {message && (
+        <div className="bg-green-100 dark:bg-green-900/20 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded">
+          {message}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-all duration-200"
+      >
+        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+      </button>
+    </form>
+  );
+};
+
+export default AuthForm;
+</file>
+
+<file path="components/AuthIcons.tsx">
+import React from 'react';
+
+export const GoogleIcon = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+  </svg>
+);
+
+export const GitHubIcon = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+  </svg>
+);
+</file>
+
+<file path="components/ContentSections.tsx">
+import React from 'react';
+import Link from 'next/link';
+import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
+
+const ContentSections = () => {
+  return (
+    <>
+      {/* Learn New Skills Section */}
+      <section className="relative py-20 bg-gradient-to-r from-slate-800 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Learn In-Demand Skills
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from partners like Grameenphone Academy to build job-ready skills and turn your potential into certified proficiency.
+          </p>
+
+          <Link
+            href="/learn-skill"
+            className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Explore Courses
+          </Link>
+        </div>
+      </section>
+
+      {/* AI Resume Feedback Section */}
+      <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
+          <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Perfect Your Resume with AI
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
+          </p>
+
+          <Link
+            href="/resume-feedback"
+            className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Get AI Feedback
+          </Link>
+        </div>
+      </section>
+
+      {/* Find Opportunities Section */}
+      <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Find Real-World Opportunities
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
+          </p>
+
+          <Link
+            href="/opportunities"
+            className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Browse Gigs & Jobs
+          </Link>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <div className="text-6xl mb-6">🚀</div>
+          
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Your Journey to a Dream Career Starts Here
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
+            SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaUser className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                Personalized Growth
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                Our AI understands your unique talents and recommends tailored learning paths to maximize your potential.
+              </p>
+            </div>
+
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaBriefcase className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                Real-World Application
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers.
+              </p>
+            </div>
+
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaCogs className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                AI-Powered Tools
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default ContentSections;
+</file>
+
+<file path="components/CoreFeatures.tsx">
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+const CoreFeatures = () => {
+  const coreFeatures = [
+    {
+      icon: "/homepage/discover-talent.png",
+      title: "Discover Your Talent",
+      description: "Start with our AI Skill Quest to uncover your unique strengths and passions.",
+      href: "/discover",
+      gradient: "from-blue-500 to-indigo-600",
+    },
+    {
+      icon: "/homepage/new-skills.png",
+      title: "Learn New Skills",
+      description: "Access curated courses to build job-ready skills and turn potential into proficiency.",
+      href: "/learn-skill",
+      gradient: "from-purple-500 to-violet-600",
+    },
+    {
+      icon: "/homepage/resume-feedback.png",
+      title: "AI Resume Feedback",
+      description: "Get instant AI feedback to craft a resume that stands out to employers.",
+      href: "/resume-feedback",
+      gradient: "from-sky-500 to-cyan-600",
+    },
+    {
+      icon: "/homepage/opportunites-logo.png",
+      title: "Find Opportunities",
+      description: "Unlock a portal of part-time jobs and freelance gigs to gain real experience.",
+      href: "/opportunities",
+      gradient: "from-emerald-500 to-teal-600",
+    },
+  ];
+
+  return (
+    <section className="relative z-10 py-20">
+      <div className="container mx-auto px-6">
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
+          Your Path to Success
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {coreFeatures.map((feature, index) => (
+            <Link
+              key={feature.title}
+              href={feature.href}
+              className={`group relative p-6 flex flex-col items-center text-center rounded-2xl bg-gradient-to-br ${feature.gradient} text-white overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+            >
+              <div className="relative w-16 h-16 mb-4">
+                <Image
+                  src={feature.icon}
+                  alt={`${feature.title} logo`}
+                  fill
+                  sizes="64px"
+                  className="object-contain filter drop-shadow-lg"
+                />
+              </div>
+              
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <p className="text-sm opacity-90 leading-relaxed">{feature.description}</p>
+              
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default CoreFeatures;
+</file>
+
+<file path="components/HowItWorksSection.tsx">
+import React from 'react';
+import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
+
+const HowItWorksSection = () => {
+  const features = [
+    {
+      icon: <FaUser className="w-8 h-8" />,
+      title: "Personalized Growth",
+      description: "Our AI understands your unique talents and recommends tailored learning paths to maximize your potential."
+    },
+    {
+      icon: <FaBriefcase className="w-8 h-8" />,
+      title: "Real-World Application", 
+      description: "Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers."
+    },
+    {
+      icon: <FaCogs className="w-8 h-8" />,
+      title: "AI-Powered Tools",
+      description: "From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market."
+    }
+  ];
+
+  return (
+    <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <div className="text-6xl mb-6">🚀</div>
+        
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Your Journey to a Dream Career Starts Here
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
+          SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div key={feature.title} className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                {feature.icon}
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                {feature.title}
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HowItWorksSection;
+</file>
+
+<file path="components/LoadingSpinner.tsx">
+import React from 'react';
+
+const LoadingSpinner = () => {
+  return (
+    <div className="flex justify-center items-center py-20">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+};
+
+export default LoadingSpinner;
+</file>
+
+<file path="components/OpportunitiesSection.tsx">
+import React from 'react';
+import Link from 'next/link';
+
+const OpportunitiesSection = () => {
+  return (
+    <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Find Real-World Opportunities
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+          Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
+        </p>
+
+        <Link
+          href="/opportunities"
+          className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+        >
+          Browse Gigs & Jobs
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export default OpportunitiesSection;
+</file>
+
+<file path="components/ResumeSection.tsx">
+import React from 'react';
+import Link from 'next/link';
+
+const ResumeSection = () => {
+  return (
+    <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Perfect Your Resume with AI
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+          Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
+        </p>
+
+        <Link
+          href="/resume-feedback"
+          className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+        >
+          Get AI Feedback
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export default ResumeSection;
+</file>
+
+<file path="components/ServiceWorkerRegistration.tsx">
+'use client';
+
+import { useEffect } from 'react';
+
+export default function ServiceWorkerRegistration() {
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' && 
+      'serviceWorker' in navigator && 
+      process.env.NODE_ENV === 'production'
+    ) {
+      // ✅ OPTIMIZED: Register service worker on page load
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/'
+          });
+
+          console.log('✅ Service Worker registered successfully:', registration.scope);
+
+          // ✅ OPTIMIZED: Handle service worker updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content is available, notify user
+                  console.log('🔄 New content available! Please refresh.');
+                  
+                  // Optional: Show update notification
+                  if (window.confirm('New version available! Refresh to update?')) {
+                    window.location.reload();
+                  }
+                }
+              });
+            }
+          });
+
+          // ✅ OPTIMIZED: Handle service worker messages
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            console.log('📨 Message from service worker:', event.data);
+          });
+
+        } catch (error) {
+          console.error('❌ Service Worker registration failed:', error);
+        }
+      });
+
+      // ✅ OPTIMIZED: Handle service worker controller change
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('🔄 Service Worker controller changed');
+        window.location.reload();
+      });
+    }
+  }, []);
+
+  return null; // This component doesn't render anything
+}
 </file>
 
 <file path="components/SkillsSection.tsx">
@@ -4630,6 +4575,66 @@ export const getOptimizedImageProps = (
 }
 </file>
 
+<file path="public/sitemap.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://www.skilldash.live/</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/discover</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/learn-skill</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/resume-feedback</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/opportunities</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/about-us</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/auth</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/opportunities/job-seeker</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.skilldash.live/opportunities/hiring</loc>
+  <lastmod>2025-09-26T04:58:22+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
+
+</urlset>
+</file>
+
 <file path="public/sw.js">
 // SkillDash Service Worker for Caching Optimization
 const CACHE_NAME = 'skilldash-v1.0.0';
@@ -4934,6 +4939,10 @@ if (require.main === module) {
 module.exports = { analyzeBundleSize };
 </file>
 
+<file path=".nvmrc">
+20.11.0
+</file>
+
 <file path="vercel.json">
 {
   "functions": {
@@ -4966,150 +4975,222 @@ module.exports = { analyzeBundleSize };
 }
 </file>
 
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+<file path="components/learn-skill/GPAcademyCard.tsx">
+'use client';
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+import React from 'react';
+import Image from 'next/image';
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+const GPAcademyCard = React.memo(() => {
+  return (
+    <section className="mb-16 academy-fade-in">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-8 sm:p-12 text-center transform transition-all duration-300 hover:scale-[1.02] shadow-xl">
+          <div className="inline-block px-8 py-4 bg-white/90 backdrop-blur-sm rounded-2xl mx-auto mb-8 shadow-lg transform transition-transform duration-300 hover:scale-105">
+            <div className="relative w-60 h-20 sm:w-72 sm:h-24">
+              <Image
+                src="/learn-skill/gp-academy-logo.png"
+                alt="GP Academy Logo"
+                fill
+                sizes="(max-width: 640px) 240px, 288px"
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4">Our Top Recommendation</h2>
+          <p className="max-w-xl mx-auto text-gray-600 dark:text-gray-400 mb-8">
+            Grameenphone Academy offers a wide range of courses focused on future-ready skills, the perfect place to turn your potential into proficiency.
+          </p>
+          <a 
+            href="https://www.grameenphone.academy/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="group relative inline-block bg-gradient-to-r from-purple-600 to-violet-700 text-white font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl" />
+            <span className="relative z-10 text-lg">Visit GP Academy</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+});
 
-# Directory for instrumented libs generated by jscoverage/JSCover
-lib-cov
+GPAcademyCard.displayName = 'GPAcademyCard';
+export default GPAcademyCard;
+</file>
 
-# Coverage directory used by tools like istanbul
-coverage
-*.lcov
+<file path="components/learn-skill/LearnHeroSection.tsx">
+import React from 'react';
+import BookOpenIcon from './BookOpenIcon';
 
-# nyc test coverage
-.nyc_output
+const LearnHeroSection = React.memo(() => {
+  return (
+    <section className="text-center mb-16 sm:mb-24 relative">
+      <div className="hero-fade-in">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 p-8 mx-auto flex items-center justify-center bg-purple-100/80 dark:bg-purple-900/50 backdrop-blur-sm rounded-3xl mb-8 text-purple-500 shadow-2xl transform transition-transform duration-300 hover:scale-110">
+          <BookOpenIcon />
+        </div>
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-600 bg-clip-text text-transparent leading-tight sm:leading-tight md:leading-tight">
+          Learn Industry Accredited Courses
+        </h1>
+        <p className="max-w-3xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+          SkillDash partners with leading institutions to bring you industry-recognized courses that align with your discovered skills and career ambitions.
+        </p>
+        <div className="flex flex-row items-baseline justify-center gap-x-2 sm:gap-x-3 text-xl sm:text-2xl font-semibold mb-10">
+          <span className="text-gray-700 dark:text-gray-300">
+            Turn your potential into
+          </span>
+          <span className="bg-gradient-to-r from-purple-500 to-violet-500 bg-clip-text text-transparent">
+            Proficiency
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+});
 
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
+LearnHeroSection.displayName = 'LearnHeroSection';
+export default LearnHeroSection;
+</file>
 
-# Bower dependency directory (https://bower.io/)
-bower_components
+<file path="components/opportunities/OpportunityHero.tsx">
+import React from 'react';
+import Image from 'next/image';
 
-# node-waf configuration
-.lock-wscript
+interface OpportunityCardProps {
+  href: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  variant: 'primary' | 'secondary';
+}
 
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
+const OpportunityCard = React.memo<OpportunityCardProps>(({ href, title, description, imageUrl, variant }) => {
+  const isPrimary = variant === 'primary';
+  
+  return (
+    <a
+      href={href}
+      className={`group relative flex flex-col items-center justify-center p-12 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+        isPrimary 
+          ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white' 
+          : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm text-gray-800 dark:text-white border border-gray-200 dark:border-gray-800 hover:border-blue-500'
+      }`}
+    >
+      <div className="mb-4">
+        <div className="relative w-12 h-12">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            sizes="48px"
+            className={`object-contain ${!isPrimary ? 'opacity-60 group-hover:opacity-100' : ''} transition-opacity`}
+          />
+        </div>
+      </div>
+      <h2 className="text-3xl font-bold mb-2">{title}</h2>
+      <p className={isPrimary ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'}>
+        {description}
+      </p>
+      
+      {/* Decorative elements */}
+      {isPrimary ? (
+        <>
+          <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 dark:hidden" />
+          <div className="hidden dark:block absolute -bottom-4 -right-4 w-16 h-16 bg-blue-400/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
+        </>
+      ) : null}
+    </a>
+  );
+});
 
-# Dependency directories
-node_modules/
-jspm_packages/
+OpportunityCard.displayName = 'OpportunityCard';
 
-# Snowpack dependency directory (https://snowpack.dev/)
-web_modules/
+const OpportunityHero = React.memo(() => {
+  const jobSeekerMaintenanceUrl = "/opportunities/job-seeker";
+  const hirerMaintenanceUrl = "/opportunities/hiring";
 
-# TypeScript cache
-*.tsbuildinfo
+  return (
+    <div className="bg-white/60 dark:bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 pt-40 pb-18">
+      <div className="max-w-4xl w-full">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-4 bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+          Unlock Your Next Opportunity
+        </h1>
+        <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400 mb-12">
+          Are you looking for your next role, or searching for the perfect candidate? Select your path below to get started.
+        </p>
 
-# Optional npm cache directory
-.npm
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <OpportunityCard
+            href={jobSeekerMaintenanceUrl}
+            title="I am seeking a job"
+            description="Find part-time roles, internships, and freelance gigs tailored to your skills."
+            imageUrl="/opportunities/seeking-jobs.png"
+            variant="primary"
+          />
+          
+          <OpportunityCard
+            href={hirerMaintenanceUrl}
+            title="I am hiring"
+            description="Post a job opening and find skilled, ambitious student talent for your team."
+            imageUrl="/opportunities/hiring.png"
+            variant="secondary"
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
 
-# Optional eslint cache
-.eslintcache
+OpportunityHero.displayName = 'OpportunityHero';
+export default OpportunityHero;
+</file>
 
-# Optional stylelint cache
-.stylelintcache
+<file path="components/shared/OptimizedImage.tsx">
+"use client"
 
-# Optional REPL history
-.node_repl_history
+import Image, { ImageProps } from 'next/image'
+import { useState } from 'react'
 
-# Output of 'npm pack'
-*.tgz
+interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
+  src: string
+  alt: string
+  fallbackSrc?: string
+}
 
-# Yarn Integrity file
-.yarn-integrity
+const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
+  src, 
+  alt, 
+  fallbackSrc = '/skilldash-logo.png',
+  className = '',
+  ...props 
+}) => {
+  const [imgSrc, setImgSrc] = useState(src)
+  const [isLoading, setIsLoading] = useState(true)
 
-# dotenv environment variable files
-.env
-.env.*
-!.env.example
+  return (
+    <div className={`relative overflow-hidden ${isLoading ? 'animate-pulse bg-gray-200 dark:bg-gray-700' : ''}`}>
+      <Image
+        {...props}
+        src={imgSrc}
+        alt={alt}
+        className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setImgSrc(fallbackSrc)
+          setIsLoading(false)
+        }}
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+        priority={props.priority}
+      />
+    </div>
+  )
+}
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
-
-# vuepress build output
-.vuepress/dist
-
-# vuepress v2.x temp and cache directory
-.temp
-.cache
-
-# Sveltekit cache directory
-.svelte-kit/
-
-# vitepress build output
-**/.vitepress/dist
-
-# vitepress cache directory
-**/.vitepress/cache
-
-# Docusaurus cache and generated files
-.docusaurus
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# Firebase cache directory
-.firebase/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v3
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# Vite logs files
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-.env.local
-.env*.local
-.vercel
+export default OptimizedImage
 </file>
 
 <file path="components/CoreFeaturesSection.tsx">
@@ -5267,6 +5348,205 @@ CoreFeaturesSection.displayName = 'CoreFeaturesSection';
 export default CoreFeaturesSection;
 </file>
 
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for instrumented libs generated by jscoverage/JSCover
+lib-cov
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+# Comment in the public line in if your project uses Gatsby and not Next.js
+# https://nextjs.org/blog/next-9-1#public-directory-support
+# public
+
+# vuepress build output
+.vuepress/dist
+
+# vuepress v2.x temp and cache directory
+.temp
+.cache
+
+# Sveltekit cache directory
+.svelte-kit/
+
+# vitepress build output
+**/.vitepress/dist
+
+# vitepress cache directory
+**/.vitepress/cache
+
+# Docusaurus cache and generated files
+.docusaurus
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# Firebase cache directory
+.firebase/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v3
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Vite logs files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+.env.local
+.env*.local
+.vercel
+</file>
+
+<file path="postcss.config.js">
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "target": "ES2017"
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+</file>
+
 <file path="components/learn-skill/TestInterestSection.tsx">
 'use client';
 
@@ -5274,14 +5554,29 @@ import React, { useState, memo, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
-// Lazy load heavy components
 const BouncingBalls = dynamic(() => import('../shared/BouncingBalls'), {
   ssr: false,
   loading: () => null
 });
 
-// Complete skills data with all 17+ skills
-const SKILLS_DATA = [
+type Course = {
+  url: string;
+  educator: string;
+  educatorLink: string;
+};
+
+type Skill = {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  courses: {
+    bangla: Course | null;
+    english: Course | null;
+  };
+};
+
+const SKILLS_DATA: Skill[] = [
   {
     id: 'graphic-design',
     name: 'Graphic Design using Canva',
@@ -5291,12 +5586,12 @@ const SKILLS_DATA = [
       bangla: {
         url: 'https://www.youtube.com/watch?v=-CTQYiGtoTI&list=PLBYQR04FmifgMyzhWgqlnzT624RQVxWsh',
         educator: 'Fahimul Islam Khan',
-        educatorLink: 'https://www.linkedin.com/in/fahimul-islam-khan-01b5b8180/'
+        educatorLink: 'https://www.linkedin.com/in/fahimulrafi/'
       },
       english: {
         url: 'https://youtu.be/Llnmf5BXLBA',
         educator: 'Daniel Walter Scott',
-        educatorLink: 'https://youtube.com/@danielwscott'
+        educatorLink: 'https://bringyourownlaptop.com/bio'
       }
     }
   },
@@ -5306,10 +5601,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/canva.png',
     description: 'Master compelling presentations that captivate audiences.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=Llnmf5BXLBA',
-        educator: 'Daniel Scott',
-        educatorLink: 'https://youtube.com/@danielwscott'
+        url: 'https://youtu.be/hrgrFmV7aCM',
+        educator: 'Pat Flynn',
+        educatorLink: 'https://wirededucator.com/wep79/'
       }
     }
   },
@@ -5320,32 +5616,32 @@ const SKILLS_DATA = [
     description: 'Design beautiful user-friendly interfaces with industry standards.',
     courses: {
       bangla: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Bangla UI/UX Expert',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://youtu.be/Ed1ineovwzg',
+        educator: 'Atiqur Rahaman',
+        educatorLink: 'https://www.designmonks.co/atiqur-rahaman'
       },
       english: {
-        url: 'https://www.youtube.com/watch?v=HZuk6Wkx_Eg',
-        educator: 'AJ&Smart',
-        educatorLink: 'https://youtube.com/@AJSmart'
+        url: 'https://www.youtube.com/watch?v=kbZejnPXyLM&list=PLttcEXjN1UcHu4tCUSNhhuQ4riGARGeap',
+        educator: 'Daniel Walter Scott',
+        educatorLink: 'https://bringyourownlaptop.com/bio'
       }
     }
   },
   {
     id: 'flutter-development',
-    name: 'Mobile App Development (Flutter)',
+    name: 'Mobile App Development using Flutter',
     logo: '/learn-skill/logos/flutter.png',
-    description: 'Build cross-platform mobile applications with Google\'s framework.',
+    description: "Build cross-platform mobile applications with Google's framework.",
     courses: {
       bangla: {
-        url: 'https://www.youtube.com/playlist?list=PLjVLYmrlmjGfGLShoW0vVX_tcyT8u1Y3E',
-        educator: 'Rabbil Hasan',
-        educatorLink: 'https://www.linkedin.com/in/rabbilhasan/'
+        url: 'https://www.youtube.com/watch?v=SCFTPjgZLQw&list=PLzHzHuEcLLzDh7koqhZJMrE879XzLAfo4',
+        educator: 'Jibon Khan',
+        educatorLink: 'https://www.youtube.com/c/JibonKhan'
       },
       english: {
-        url: 'https://www.youtube.com/watch?v=VPvVD8t02U8',
-        educator: 'Flutter Official',
-        educatorLink: 'https://flutter.dev/'
+        url: 'https://youtu.be/HQ_ytw58tC4',
+        educator: 'Mitch Koko',
+        educatorLink: 'https://au.linkedin.com/in/mitchkoko'
       }
     }
   },
@@ -5355,10 +5651,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/speakandimprove.png',
     description: 'Enhance vocabulary with gamified AI-based learning experiences.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.vocabulary.com/',
-        educator: 'Vocabulary.com Team',
-        educatorLink: 'https://www.vocabulary.com/'
+        url: 'https://www.wordmate.app/',
+        educator: 'Wordmate Team',
+        educatorLink: 'https://www.wordmate.app/'
       }
     }
   },
@@ -5368,10 +5665,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/typing_bird.png',
     description: 'Master fast and accurate typing through engaging games.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.keybr.com/',
-        educator: 'Keybr.com',
-        educatorLink: 'https://www.keybr.com/'
+        url: 'https://www.typing.com/student/games',
+        educator: 'Typing.com Team',
+        educatorLink: 'https://www.typing.com/'
       }
     }
   },
@@ -5382,14 +5680,14 @@ const SKILLS_DATA = [
     description: 'Master spreadsheet skills essential for business and data analysis.',
     courses: {
       bangla: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Excel Bangla Expert',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://www.youtube.com/watch?v=ccyy-kIN75I&list=PLsRR4c2QGChwFRp_gOy06qAw-AMtdZ_pQ&pp=0gcJCaIEOCosWNin',
+        educator: 'Tanvir Rahaman',
+        educatorLink: 'https://www.tanviracademy.com/tanvir-rahaman'
       },
       english: {
-        url: 'https://www.youtube.com/watch?v=0nbkaYsR94c',
-        educator: 'ExcelIsFun',
-        educatorLink: 'https://youtube.com/@ExcelIsFun'
+        url: 'https://youtu.be/Vl0H-qTclOg',
+        educator: 'Shad Sluiter',
+        educatorLink: 'https://www.freecodecamp.org/news/excel-classes-online-free-excel-training-courses/'
       }
     }
   },
@@ -5399,10 +5697,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/python.png',
     description: 'Learn versatile programming for data science and web development.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=_uQrJ0TkZlc',
-        educator: 'Programming with Mosh',
-        educatorLink: 'https://youtube.com/@programmingwithmosh'
+        url: 'https://youtu.be/eWRfhZUzrAc?list=PLWKjhJtqVAbnqBxcdjVGgT3uVR10bzTEB',
+        educator: 'Beau Carnes',
+        educatorLink: 'https://www.freecodecamp.org/news/author/beaucarnes/'
       }
     }
   },
@@ -5412,10 +5711,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/powerbi.png',
     description: 'Transform data into actionable business intelligence insights.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=3u7MQz1EyPY',
-        educator: 'Guy in a Cube',
-        educatorLink: 'https://youtube.com/@GuyInACube'
+        url: 'https://www.youtube.com/watch?v=VaOhNqNtGGE&list=PLlKpQrBME6xIAUqcPjFRPsMQJhgXdJVxe',
+        educator: 'Kevin Stratvert',
+        educatorLink: 'https://kevinstratvert.com/'
       }
     }
   },
@@ -5425,10 +5725,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/git.png',
     description: 'Master version control and collaborate on code projects effectively.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=RGOj5yH7evk',
-        educator: 'freeCodeCamp',
-        educatorLink: 'https://youtube.com/@freecodecamp'
+        url: 'https://skills.github.com/',
+        educator: 'GitHub Learn Team',
+        educatorLink: 'https://skills.github.com/'
       }
     }
   },
@@ -5438,10 +5739,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/capcut.png',
     description: 'Create engaging videos with professional editing techniques.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'CapCut Official',
-        educatorLink: 'https://www.capcut.com/'
+        url: 'https://www.youtube.com/watch?v=P51CqlPOE_w&list=PLKrujGFpHTTXuDK_7nq5CN-iLRzq2ir96',
+        educator: 'Dee Nimmin',
+        educatorLink: 'https://www.youtube.com/@DeeNimmin'
       }
     }
   },
@@ -5451,10 +5753,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/speakandimprove.png',
     description: 'Improve English speaking with AI-powered feedback and practice.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'English Speaking Pro',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://speakandimprove.com/',
+        educator: 'Speak & Improve Team (University of Cambridge)',
+        educatorLink: 'https://speakandimprove.com/'
       }
     }
   },
@@ -5464,10 +5767,11 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/critical_thinking.png',
     description: 'Develop analytical and logical reasoning for better decisions.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Critical Thinking Academy',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://www.khanacademy.org/test-prep/lsat-prep/xdf35b2883be7178a:lsat-prep-lessons',
+        educator: 'Khan Academy (Salman Khan)',
+        educatorLink: 'https://en.wikipedia.org/wiki/Sal_Khan'
       }
     }
   },
@@ -5478,14 +5782,14 @@ const SKILLS_DATA = [
     description: 'Build confidence and deliver impactful presentations professionally.',
     courses: {
       bangla: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Bangla Speaking Expert',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://www.youtube.com/watch?v=xMhZlt-OHEg&list=PL1pf33qWCkmjL7W-eevyKqNWMjI2nLMDA',
+        educator: 'Ayman Sadiq',
+        educatorLink: 'https://www.linkedin.com/in/aymansadiq/'
       },
       english: {
-        url: 'https://www.youtube.com/watch?v=Unzc731iCUY',
-        educator: 'TED',
-        educatorLink: 'https://www.ted.com/'
+        url: 'https://youtu.be/HAnw168huqA',
+        educator: 'Matt Abrahams',
+        educatorLink: 'https://gsb.stanford.edu/faculty-research/faculty/matt-abrahams'
       }
     }
   },
@@ -5496,14 +5800,14 @@ const SKILLS_DATA = [
     description: 'Edit and enhance audio files with professional-grade software.',
     courses: {
       bangla: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Bangla Audio Expert',
-        educatorLink: 'https://linkedin.com'
+        url: 'https://www.youtube.com/watch?v=NqvO6A7WGeE&pp=ygUYYXVkYWNpdHkgdHV0b3JpYWwgYmFuZ2xh',
+        educator: 'Shohag Mia (Shohag360)',
+        educatorLink: 'https://www.youtube.com/@Shohag360'
       },
       english: {
-        url: 'https://www.youtube.com/watch?v=xl-WDjWrTtk',
-        educator: 'Audacity Team',
-        educatorLink: 'https://www.audacityteam.org/'
+        url: 'https://www.youtube.com/watch?v=yzJ2VyYkmaA&pp=ygUYYXVkYWNpdHkgdHV0b3JpYWwgYmFuZ2xh',
+        educator: 'Kevin Stratvert',
+        educatorLink: 'https://kevinstratvert.com/'
       }
     }
   },
@@ -5513,29 +5817,16 @@ const SKILLS_DATA = [
     logo: '/learn-skill/logos/financial-literacy.png',
     description: 'Learn money management and investment principles for success.',
     courses: {
+      bangla: null,
       english: {
-        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        educator: 'Financial Education',
-        educatorLink: 'https://linkedin.com'
-      }
-    }
-  },
-  {
-    id: 'sql-database',
-    name: 'SQL Database Management',
-    logo: '/learn-skill/logos/sql.png',
-    description: 'Master database queries and data management effectively.',
-    courses: {
-      english: {
-        url: 'https://www.youtube.com/watch?v=HXV3zeQKqGY',
-        educator: 'freeCodeCamp',
-        educatorLink: 'https://youtube.com/@freecodecamp'
+        url: 'https://www.khanacademy.org/college-careers-more/financial-literacy',
+        educator: 'Khan Academy (Salman Khan)',
+        educatorLink: 'https://en.wikipedia.org/wiki/Sal_Khan'
       }
     }
   }
-] as const;
+];
 
-// Memoized language badge component
 const LanguageBadge = memo(({ 
   language, 
   label 
@@ -5567,8 +5858,7 @@ const LanguageBadge = memo(({
 });
 LanguageBadge.displayName = 'LanguageBadge';
 
-// Optimized skill card with better performance
-const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index: number }) => {
+const SkillCard = memo(({ skill, index }: { skill: Skill, index: number }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const availableLanguages = useMemo(() => {
@@ -5632,29 +5922,24 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
               className="object-contain filter drop-shadow-sm"
               loading="lazy"
               sizes="48px"
-              onError={(e) => {
-                // Fallback to placeholder
+              onError={e => {
                 e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9IiMzNDgzRjYiLz4KPHBhdGggZD0iTTI0IDEyVjM2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTIgMjRIMzYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg==';
               }}
             />
           </div>
         </div>
       </div>
-
       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
         {skill.name}
       </h3>
-
       <p className="text-gray-600 dark:text-gray-400 text-base text-center mb-6 leading-relaxed">
         {skill.description}
       </p>
-
       {/* Language badges */}
       <div className="flex justify-center gap-3 mb-6">
         {skill.courses.bangla && <LanguageBadge language="bangla" label="BN" />}
         {skill.courses.english && <LanguageBadge language="english" label="EN" />}
       </div>
-
       {/* Course content */}
       {availableLanguages.length === 1 ? (
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 mb-2 border border-gray-200/50 dark:border-gray-600/50">
@@ -5665,7 +5950,7 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
               const course = skill.courses[availableLanguages[0]];
               return course?.educatorLink ? (
                 <button
-                  onClick={(e) => handleEducatorClick(course.educatorLink!, e)}
+                  onClick={e => handleEducatorClick(course.educatorLink!, e)}
                   className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
                 >
                   {course.educator}
@@ -5679,27 +5964,24 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
       ) : (
         <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="space-y-4">
-            {availableLanguages.map((language) => {
+            {availableLanguages.map(language => {
               const course = skill.courses[language];
               if (!course) return null;
-              
               return (
                 <div key={language} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-600/50">
                   <div className="flex items-center justify-between mb-3">
                     <LanguageBadge language={language} label={language === 'bangla' ? 'Bengali' : 'English'} />
                     <button
-                      onClick={(e) => handleLanguageClick(language, e)}
+                      onClick={e => handleLanguageClick(language, e)}
                       className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full font-medium transition-colors"
                     >
                       Start Learning
                     </button>
                   </div>
-                  
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 uppercase tracking-wide">Educator:</p>
-                  
                   {course.educatorLink ? (
                     <button
-                      onClick={(e) => handleEducatorClick(course.educatorLink!, e)}
+                      onClick={e => handleEducatorClick(course.educatorLink!, e)}
                       className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
                     >
                       {course.educator}
@@ -5713,7 +5995,6 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
           </div>
         </div>
       )}
-
       {/* Indicator icon */}
       <div className="absolute top-6 right-6">
         {availableLanguages.length === 1 ? (
@@ -5731,7 +6012,6 @@ const SkillCard = memo(({ skill, index }: { skill: typeof SKILLS_DATA[0], index:
 });
 SkillCard.displayName = 'SkillCard';
 
-// Main component
 const TestInterestSection = memo(() => {
   const [visibleSkills, setVisibleSkills] = useState(8);
 
@@ -5749,7 +6029,6 @@ const TestInterestSection = memo(() => {
   return (
     <section className="py-20 px-6">
       <BouncingBalls variant="minimal" />
-      
       <div className="max-w-7xl mx-auto">
         {/* Hero Header */}
         <div className="text-center mb-20">
@@ -5758,20 +6037,17 @@ const TestInterestSection = memo(() => {
             <br />
             INTEREST
           </h1>
-          
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed">
             Discover your passion through hands-on learning. Each skill comes with carefully curated courses 
             from expert educators in both <strong>Bangla</strong> and <strong>English</strong>.
           </p>
         </div>
-
         {/* Skills Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {displayedSkills.map((skill, index) => (
             <SkillCard key={skill.id} skill={skill} index={index} />
           ))}
         </div>
-
         {/* Load More Button */}
         {hasMore && (
           <div className="text-center mt-12">
@@ -5786,63 +6062,6 @@ const TestInterestSection = memo(() => {
             </button>
           </div>
         )}
-
-        {/* GP Academy Section */}
-        <div className="mt-32 text-center">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-3xl p-12 border border-blue-100 dark:border-gray-600/50">
-            <div className="flex items-center justify-center mb-8">
-              <div className="text-6xl font-black text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">
-                🎓
-              </div>
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              OUR RECOMMENDATIONS
-            </h2>
-            
-            <h3 className="text-2xl md:text-3xl font-semibold text-blue-600 dark:text-blue-400 mb-6">
-              Ready for Structured Learning?
-            </h3>
-            
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Take your skills to the next level with our carefully selected learning partners. 
-              These industry-recognized courses will help you build professional expertise.
-            </p>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Our Top Recommendation
-              </h4>
-              
-              <div className="flex items-center justify-center mb-6">
-                <Image
-                  src="/learn-skill/logos/gp-academy-logo.png"
-                  alt="GP Academy"
-                  width={200}
-                  height={60}
-                  className="object-contain"
-                />
-              </div>
-              
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Grameenphone Academy offers a wide range of courses focused on future-ready skills, 
-                from digital marketing to cybersecurity. It's the perfect place to turn your potential into proficiency.
-              </p>
-              
-              <a
-                href="https://www.grameenphone.academy/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold py-3 px-8 rounded-full hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl"
-              >
-                <span>Visit GP Academy</span>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -5850,197 +6069,6 @@ const TestInterestSection = memo(() => {
 TestInterestSection.displayName = 'TestInterestSection';
 
 export default TestInterestSection;
-</file>
-
-<file path="components/opportunities/OpportunityHero.tsx">
-import React from 'react';
-import Image from 'next/image';
-
-interface OpportunityCardProps {
-  href: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  variant: 'primary' | 'secondary';
-}
-
-const OpportunityCard = React.memo<OpportunityCardProps>(({ href, title, description, imageUrl, variant }) => {
-  const isPrimary = variant === 'primary';
-  
-  return (
-    <a
-      href={href}
-      className={`group relative flex flex-col items-center justify-center p-12 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
-        isPrimary 
-          ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white' 
-          : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm text-gray-800 dark:text-white border border-gray-200 dark:border-gray-800 hover:border-blue-500'
-      }`}
-    >
-      <div className="mb-4">
-        <div className="relative w-12 h-12">
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            sizes="48px"
-            className={`object-contain ${!isPrimary ? 'opacity-60 group-hover:opacity-100' : ''} transition-opacity`}
-          />
-        </div>
-      </div>
-      <h2 className="text-3xl font-bold mb-2">{title}</h2>
-      <p className={isPrimary ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'}>
-        {description}
-      </p>
-      
-      {/* Decorative elements */}
-      {isPrimary ? (
-        <>
-          <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-white/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 dark:hidden" />
-          <div className="hidden dark:block absolute -bottom-4 -right-4 w-16 h-16 bg-blue-400/20 rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
-        </>
-      ) : null}
-    </a>
-  );
-});
-
-OpportunityCard.displayName = 'OpportunityCard';
-
-const OpportunityHero = React.memo(() => {
-  const jobSeekerMaintenanceUrl = "/opportunities/job-seeker";
-  const hirerMaintenanceUrl = "/opportunities/hiring";
-
-  return (
-    <div className="bg-white/60 dark:bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 pt-40 pb-18">
-      <div className="max-w-4xl w-full">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-4 bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-          Unlock Your Next Opportunity
-        </h1>
-        <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400 mb-12">
-          Are you looking for your next role, or searching for the perfect candidate? Select your path below to get started.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <OpportunityCard
-            href={jobSeekerMaintenanceUrl}
-            title="I am seeking a job"
-            description="Find part-time roles, internships, and freelance gigs tailored to your skills."
-            imageUrl="/opportunities/seeking-jobs.png"
-            variant="primary"
-          />
-          
-          <OpportunityCard
-            href={hirerMaintenanceUrl}
-            title="I am hiring"
-            description="Post a job opening and find skilled, ambitious student talent for your team."
-            imageUrl="/opportunities/hiring.png"
-            variant="secondary"
-          />
-        </div>
-      </div>
-    </div>
-  );
-});
-
-OpportunityHero.displayName = 'OpportunityHero';
-export default OpportunityHero;
-</file>
-
-<file path="components/shared/OptimizedImage.tsx">
-"use client"
-
-import Image, { ImageProps } from 'next/image'
-import { useState } from 'react'
-
-interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
-  src: string
-  alt: string
-  fallbackSrc?: string
-}
-
-const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
-  src, 
-  alt, 
-  fallbackSrc = '/skilldash-logo.png',
-  className = '',
-  ...props 
-}) => {
-  const [imgSrc, setImgSrc] = useState(src)
-  const [isLoading, setIsLoading] = useState(true)
-
-  return (
-    <div className={`relative overflow-hidden ${isLoading ? 'animate-pulse bg-gray-200 dark:bg-gray-700' : ''}`}>
-      <Image
-        {...props}
-        src={imgSrc}
-        alt={alt}
-        className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
-          setImgSrc(fallbackSrc)
-          setIsLoading(false)
-        }}
-        placeholder="blur"
-        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-        priority={props.priority}
-      />
-    </div>
-  )
-}
-
-export default OptimizedImage
-</file>
-
-<file path="postcss.config.js">
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-</file>
-
-<file path="tsconfig.json">
-{
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "target": "ES2017"
-  },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
-}
 </file>
 
 <file path="contexts/AuthContext.tsx">
@@ -6079,299 +6107,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-</file>
-
-<file path=".eslintrc.json">
-{
-  "extends": ["next/core-web-vitals"],
-  "rules": {}
-}
-</file>
-
-<file path="app/opportunities/hiring/page.tsx">
-'use client';
-
-import React from 'react';
-import dynamic from 'next/dynamic';
-import HiringHeader from '../../../components/hiring/HiringHeader';
-
-// Lazy load heavy components for better initial page load
-const ContactForm = dynamic(() => import('../../../components/hiring/ContactForm'), {
-  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl" />
-});
-
-const BenefitsSection = dynamic(() => import('../../../components/hiring/BenefitsSection'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
-});
-
-const ComingSoonFeatures = dynamic(() => import('../../../components/hiring/ComingSoonFeatures'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
-});
-
-export default function HiringPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
-      {/* Header */}
-      <HiringHeader />
-
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <ContactForm />
-          <BenefitsSection />
-          <ComingSoonFeatures />
-        </div>
-      </div>
-    </div>
-  );
-}
-</file>
-
-<file path="app/opportunities/job-seeker/[id]/page.tsx">
-'use client';
-
-import React, { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { useAuth } from '../../../../contexts/AuthContext';
-import { useJobDetails } from '../../../../hooks/useJobDetails';
-import JobDetailsLoadingScreen from '../../../../components/job-details/JobDetailsLoadingScreen';
-import ErrorScreen from '../../../../components/job-seeker/ErrorScreen';
-
-// Lazy load heavy components
-const JobHeader = dynamic(() => import('../../../../components/job-details/JobHeader'), {
-  loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-800" />
-});
-
-const JobRequirements = dynamic(() => import('../../../../components/job-details/JobRequirements'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
-
-const JobSidebar = dynamic(() => import('../../../../components/job-details/JobSidebar'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
-
-const RichTextRenderer = dynamic(() => import('../../../../components/job-details/RichTextRenderer'), {
-  loading: () => <div className="h-24 animate-pulse bg-gray-200 dark:bg-gray-800 rounded" />
-});
-
-export default function JobDetailsPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const params = useParams();
-  const { formattedJob, isLoading, isTimeout, error, refetch } = useJobDetails(params.id as string);
-
-  // Handle authentication
-  useEffect(() => {
-    if (!loading && !user) {
-      sessionStorage.setItem('redirectMessage', 'Please log in to view job details.');
-      sessionStorage.setItem('redirectAfterLogin', `/opportunities/job-seeker/${params.id}`);
-      router.push('/auth');
-    }
-  }, [user, loading, router, params.id]);
-
-  // Loading states
-  if (loading || !user) {
-    return <JobDetailsLoadingScreen />;
-  }
-
-  if (error) {
-    return (
-      <ErrorScreen
-        title="Unable to Load Job"
-        message={error}
-        onRetry={refetch}
-        icon="🔄"
-      />
-    );
-  }
-
-  if (isLoading) {
-    return <JobDetailsLoadingScreen isTimeout={isTimeout} onRetry={isTimeout ? refetch : undefined} />;
-  }
-
-  if (!formattedJob) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="text-6xl mb-4">📄</div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Job Not Found</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The job you're looking for might have been removed or doesn't exist.
-          </p>
-          <Link 
-            href="/opportunities/job-seeker" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            ← Back to Job Listings
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
-      <JobHeader formattedJob={formattedJob} />
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            <JobRequirements requirements={formattedJob.requirements} />
-
-            {/* Apply Procedure */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Apply Procedure</h2>
-              <div className="prose prose-gray dark:prose-invert max-w-none">
-                <RichTextRenderer content={formattedJob.applyProcedure} />
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <JobSidebar formattedJob={formattedJob} />
-        </div>
-      </div>
-    </div>
-  );
-}
-</file>
-
-<file path="next-env.d.ts">
-/// <reference types="next" />
-/// <reference types="next/image-types/global" />
-/// <reference path="./.next/types/routes.d.ts" />
-
-// NOTE: This file should not be edited
-// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
-</file>
-
-<file path="app/about-us/page.tsx">
-'use client';
-
-import React, { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import BouncingBalls from '../../components/shared/BouncingBalls';
-
-// Dynamic imports for better performance
-const AboutHero = dynamic(() => import('../../components/AboutHero'), {
-  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl mb-16"></div>,
-  ssr: false
-});
-
-const TeamMember = dynamic(() => import('../../components/shared/TeamMember'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
-  ssr: false
-});
-
-const StorySection = dynamic(() => import('../../components/StorySection'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
-  ssr: false
-});
-
-const Footer = dynamic(() => import('../../components/shared/Footer'), {
-  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>,
-  ssr: false
-});
-
-// Team data - optimized
-const TEAM_MEMBERS = [
-  {
-    name: 'MD AL Shahoriar Hossain',
-    role: 'FINANCE & DATA ANALYTICS LEAD',
-    imageUrl: '/about-us/shahoriar.png',
-    description: 'A Finance major with a passion for data-driven decision-making. Shahoriar\'s expertise in financial analysis, Excel, and Power BI drives the analytical core of SkillDash, ensuring our skill assessments and learning paths are backed by solid data.',
-    contactUrl: 'https://shahoriar.me/contact'
-  },
-  {
-    name: 'Tasnuva Jahan Lamiya',
-    role: 'EDUCATION & USER EXPERIENCE LEAD',
-    imageUrl: '/about-us/tasnuva.png',
-    description: 'With a passion for making learning accessible and enjoyable, Tasnuva\'s experience in online tutoring and instruction shapes the user-centric design of our Skill Courses. Her innovative mindset helps bridge the gap between academic knowledge and practical application.',
-    contactUrl: 'https://www.linkedin.com/in/tasnuva-jahan-lamiya'
-  },
-  {
-    name: 'Tazrian Rahman',
-    role: 'STRATEGY & COMMUNITY LEAD',
-    imageUrl: '/about-us/tazrian.png',
-    description: 'Tazrian brings extensive leadership and communication experience from his diverse roles in university clubs and internships. His skills in team management and public relations are vital for building the SkillDash community and forging connections with real-world opportunities.',
-    contactUrl: 'https://www.linkedin.com/in/tazrian-rahman-aa6822247'
-  }
-] as const;
-
-// Gradient classes for team members
-const CARD_GRADIENTS = [
-  'from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-500/20 dark:via-purple-500/10 dark:to-indigo-500/20',
-  'from-pink-500/10 via-rose-500/5 to-purple-500/10 dark:from-pink-500/20 dark:via-rose-500/10 dark:to-purple-500/20',
-  'from-violet-500/10 via-sky-500/5 to-cyan-500/10 dark:from-violet-500/20 dark:via-sky-500/10 dark:to-cyan-500/20'
-] as const;
-
-export default function AboutUsPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-black dark:to-gray-900 text-gray-800 dark:text-gray-200 pt-40 pb-12 sm:pt-40 sm:pb-24 px-4 relative overflow-hidden">
-      
-      {/* Bouncing Balls Component */}
-      <BouncingBalls variant="dense" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Hero Section */}
-        <div className="animate-fade-in-up">
-          <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl mb-16"></div>}>
-            <AboutHero />
-          </Suspense>
-        </div>
-
-        {/* Meet the Team Header */}
-        <section className="text-center mb-16 md:mb-20">
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="relative inline-block mb-8">
-              <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent mb-4">
-                Meet the Team
-              </h2>
-              
-              {/* Small decorative elements near title */}
-              <div className="absolute -top-2 -right-2 w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse opacity-80"></div>
-              <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-bounce opacity-60"></div>
-            </div>
-            
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
-          </div>
-        </section>
-
-        {/* Team Members Grid - FIXED: Added gradient and index props */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-20 md:mb-32">
-          {TEAM_MEMBERS.map((member, idx) => (
-            <div 
-              key={member.name} 
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${0.3 + (idx * 0.1)}s` }}
-            >
-              <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
-                <TeamMember 
-                  {...member} 
-                  gradient={CARD_GRADIENTS[idx % 3]} 
-                  index={idx}
-                />
-              </Suspense>
-            </div>
-          ))}
-        </section>
-
-        {/* Story Section */}
-        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
-          <StorySection />
-        </Suspense>
-      </div>
-
-      {/* Footer */}
-      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>}>
-        <Footer />
-      </Suspense>
-    </div>
-  );
-}
 </file>
 
 <file path="app/api/discover-chat/route.ts">
@@ -6889,6 +6624,299 @@ export async function POST(req: NextRequest) {
 }
 </file>
 
+<file path="app/opportunities/hiring/page.tsx">
+'use client';
+
+import React from 'react';
+import dynamic from 'next/dynamic';
+import HiringHeader from '../../../components/hiring/HiringHeader';
+
+// Lazy load heavy components for better initial page load
+const ContactForm = dynamic(() => import('../../../components/hiring/ContactForm'), {
+  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-2xl" />
+});
+
+const BenefitsSection = dynamic(() => import('../../../components/hiring/BenefitsSection'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
+
+const ComingSoonFeatures = dynamic(() => import('../../../components/hiring/ComingSoonFeatures'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
+
+export default function HiringPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
+      {/* Header */}
+      <HiringHeader />
+
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 py-12">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <ContactForm />
+          <BenefitsSection />
+          <ComingSoonFeatures />
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="app/opportunities/job-seeker/[id]/page.tsx">
+'use client';
+
+import React, { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { useJobDetails } from '../../../../hooks/useJobDetails';
+import JobDetailsLoadingScreen from '../../../../components/job-details/JobDetailsLoadingScreen';
+import ErrorScreen from '../../../../components/job-seeker/ErrorScreen';
+
+// Lazy load heavy components
+const JobHeader = dynamic(() => import('../../../../components/job-details/JobHeader'), {
+  loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
+
+const JobRequirements = dynamic(() => import('../../../../components/job-details/JobRequirements'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
+});
+
+const JobSidebar = dynamic(() => import('../../../../components/job-details/JobSidebar'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
+});
+
+const RichTextRenderer = dynamic(() => import('../../../../components/job-details/RichTextRenderer'), {
+  loading: () => <div className="h-24 animate-pulse bg-gray-200 dark:bg-gray-800 rounded" />
+});
+
+export default function JobDetailsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const { formattedJob, isLoading, isTimeout, error, refetch } = useJobDetails(params.id as string);
+
+  // Handle authentication
+  useEffect(() => {
+    if (!loading && !user) {
+      sessionStorage.setItem('redirectMessage', 'Please log in to view job details.');
+      sessionStorage.setItem('redirectAfterLogin', `/opportunities/job-seeker/${params.id}`);
+      router.push('/auth');
+    }
+  }, [user, loading, router, params.id]);
+
+  // Loading states
+  if (loading || !user) {
+    return <JobDetailsLoadingScreen />;
+  }
+
+  if (error) {
+    return (
+      <ErrorScreen
+        title="Unable to Load Job"
+        message={error}
+        onRetry={refetch}
+        icon="🔄"
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <JobDetailsLoadingScreen isTimeout={isTimeout} onRetry={isTimeout ? refetch : undefined} />;
+  }
+
+  if (!formattedJob) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">📄</div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Job Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            The job you're looking for might have been removed or doesn't exist.
+          </p>
+          <Link 
+            href="/opportunities/job-seeker" 
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            ← Back to Job Listings
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
+      <JobHeader formattedJob={formattedJob} />
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            <JobRequirements requirements={formattedJob.requirements} />
+
+            {/* Apply Procedure */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Apply Procedure</h2>
+              <div className="prose prose-gray dark:prose-invert max-w-none">
+                <RichTextRenderer content={formattedJob.applyProcedure} />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <JobSidebar formattedJob={formattedJob} />
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path=".eslintrc.json">
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {}
+}
+</file>
+
+<file path="next-env.d.ts">
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+/// <reference path="./.next/types/routes.d.ts" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+</file>
+
+<file path="app/about-us/page.tsx">
+'use client';
+
+import React, { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import BouncingBalls from '../../components/shared/BouncingBalls';
+
+// Dynamic imports for better performance
+const AboutHero = dynamic(() => import('../../components/AboutHero'), {
+  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl mb-16"></div>,
+  ssr: false
+});
+
+const TeamMember = dynamic(() => import('../../components/shared/TeamMember'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
+  ssr: false
+});
+
+const StorySection = dynamic(() => import('../../components/StorySection'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
+  ssr: false
+});
+
+const Footer = dynamic(() => import('../../components/shared/Footer'), {
+  loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>,
+  ssr: false
+});
+
+// Team data - optimized
+const TEAM_MEMBERS = [
+  {
+    name: 'MD AL Shahoriar Hossain',
+    role: 'FINANCE & DATA ANALYTICS LEAD',
+    imageUrl: '/about-us/shahoriar.png',
+    description: 'A Finance major with a passion for data-driven decision-making. Shahoriar\'s expertise in financial analysis, Excel, and Power BI drives the analytical core of SkillDash, ensuring our skill assessments and learning paths are backed by solid data.',
+    contactUrl: 'https://shahoriar.me/contact'
+  },
+  {
+    name: 'Tasnuva Jahan Lamiya',
+    role: 'EDUCATION & USER EXPERIENCE LEAD',
+    imageUrl: '/about-us/tasnuva.png',
+    description: 'With a passion for making learning accessible and enjoyable, Tasnuva\'s experience in online tutoring and instruction shapes the user-centric design of our Skill Courses. Her innovative mindset helps bridge the gap between academic knowledge and practical application.',
+    contactUrl: 'https://www.linkedin.com/in/tasnuva-jahan-lamiya'
+  },
+  {
+    name: 'Tazrian Rahman',
+    role: 'STRATEGY & COMMUNITY LEAD',
+    imageUrl: '/about-us/tazrian.png',
+    description: 'Tazrian brings extensive leadership and communication experience from his diverse roles in university clubs and internships. His skills in team management and public relations are vital for building the SkillDash community and forging connections with real-world opportunities.',
+    contactUrl: 'https://www.linkedin.com/in/tazrian-rahman-aa6822247'
+  }
+] as const;
+
+// Gradient classes for team members
+const CARD_GRADIENTS = [
+  'from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-500/20 dark:via-purple-500/10 dark:to-indigo-500/20',
+  'from-pink-500/10 via-rose-500/5 to-purple-500/10 dark:from-pink-500/20 dark:via-rose-500/10 dark:to-purple-500/20',
+  'from-violet-500/10 via-sky-500/5 to-cyan-500/10 dark:from-violet-500/20 dark:via-sky-500/10 dark:to-cyan-500/20'
+] as const;
+
+export default function AboutUsPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-black dark:to-gray-900 text-gray-800 dark:text-gray-200 pt-40 pb-12 sm:pt-40 sm:pb-24 px-4 relative overflow-hidden">
+      
+      {/* Bouncing Balls Component */}
+      <BouncingBalls variant="dense" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Hero Section */}
+        <div className="animate-fade-in-up">
+          <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl mb-16"></div>}>
+            <AboutHero />
+          </Suspense>
+        </div>
+
+        {/* Meet the Team Header */}
+        <section className="text-center mb-16 md:mb-20">
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="relative inline-block mb-8">
+              <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent mb-4">
+                Meet the Team
+              </h2>
+              
+              {/* Small decorative elements near title */}
+              <div className="absolute -top-2 -right-2 w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse opacity-80"></div>
+              <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-bounce opacity-60"></div>
+            </div>
+            
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+          </div>
+        </section>
+
+        {/* Team Members Grid - FIXED: Added gradient and index props */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-20 md:mb-32">
+          {TEAM_MEMBERS.map((member, idx) => (
+            <div 
+              key={member.name} 
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${0.3 + (idx * 0.1)}s` }}
+            >
+              <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
+                <TeamMember 
+                  {...member} 
+                  gradient={CARD_GRADIENTS[idx % 3]} 
+                  index={idx}
+                />
+              </Suspense>
+            </div>
+          ))}
+        </section>
+
+        {/* Story Section */}
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
+          <StorySection />
+        </Suspense>
+      </div>
+
+      {/* Footer */}
+      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>}>
+        <Footer />
+      </Suspense>
+    </div>
+  );
+}
+</file>
+
 <file path="components/AuthStatus.tsx">
 'use client';
 
@@ -7288,136 +7316,6 @@ export function getCacheStats() {
     deadline: { size: deadlineCache.size }
   };
 }
-</file>
-
-<file path="app/learn-skill/page.tsx">
-'use client';
-
-import React, { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import TestInterestSection from '../../components/learn-skill/TestInterestSection';
-import GPAcademyCard from '../../components/learn-skill/GPAcademyCard';
-
-const Footer = dynamic(() => import('../../components/shared/Footer'), {
-  loading: () => (
-    <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>
-  ),
-  ssr: false
-});
-
-export default function LearnSkillPage() {
-  return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-black dark:to-blue-950/30 overflow-x-hidden relative">
-      {/* Modern Background elements */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-16 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-purple-400/10 dark:from-blue-400/20 dark:to-purple-400/20 rounded-full blur-2xl animate-optimized-bounce" style={{ animationDelay: '0s', animationDuration: '6s' }}></div>
-        <div className="absolute bottom-32 right-20 w-24 h-24 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 dark:from-emerald-400/20 dark:to-teal-400/20 rounded-full blur-xl animate-optimized-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}></div>
-        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-r from-pink-400/10 to-rose-400/10 dark:from-pink-400/20 dark:to-rose-400/20 rounded-full blur-xl animate-optimized-bounce" style={{ animationDelay: '4s', animationDuration: '5s' }}></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 pt-10 sm:pt-14 relative z-10">
-        {/* HERO: Test Interest Section */}
-        <TestInterestSection />
-
-        {/* Modern Recommendation Section */}
-        <div className="text-center mb-16 px-6">
-          <div className="relative inline-block mb-8">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 dark:from-emerald-400/30 dark:to-teal-400/30 rounded-2xl blur-xl"></div>
-            <div className="relative bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 px-8 py-4 rounded-2xl border border-emerald-200/50 dark:border-emerald-700/50 backdrop-blur-sm">
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-3xl">🎓</span>
-                <span className="text-emerald-700 dark:text-emerald-300 font-bold text-xl">OUR RECOMMENDATIONS</span>
-              </div>
-            </div>
-          </div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-green-600 bg-clip-text text-transparent mb-6 leading-tight">
-            Ready for Structured Learning?
-          </h2>
-          
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Take your skills to the next level with our carefully selected learning partners. 
-            These industry-recognized courses will help you build professional expertise.
-          </p>
-        </div>
-
-        {/* GP Academy Feature Card */}
-        <GPAcademyCard />
-
-        {/* Footer */}
-        <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>}>
-          <Footer />
-        </Suspense>
-      </div>
-    </div>
-  );
-}
-</file>
-
-<file path="app/opportunities/job-seeker/page.tsx">
-'use client';
-
-import React from 'react';
-import dynamic from 'next/dynamic';
-import { useJobData } from '../../../hooks/useJobData';
-import LoadingScreen from '../../../components/job-seeker/LoadingScreen';
-import ErrorScreen from '../../../components/job-seeker/ErrorScreen';
-
-// Lazy load heavy components
-const JobSeekerHeader = dynamic(() => import('../../../components/job-seeker/JobSeekerHeader'), {
-  loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-800" />
-});
-
-const JobsList = dynamic(() => import('../../../components/job-seeker/JobsList'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
-
-export default function JobSeekerPage() {
-  const { jobs, isLoading, isTimeout, error, refetch } = useJobData();
-
-  if (error) {
-    return (
-      <ErrorScreen
-        title="Connection Error"
-        message={error}
-        onRetry={refetch}
-        icon="🔄"
-      />
-    );
-  }
-
-  if (isLoading) {
-    return <LoadingScreen isTimeout={isTimeout} onRetry={isTimeout ? refetch : undefined} />;
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
-      <JobSeekerHeader jobCount={jobs.length} />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <JobsList jobs={jobs} />
-      </div>
-    </div>
-  );
-}
-</file>
-
-<file path="next.config.mjs">
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  eslint: {
-    // Disable ESLint during builds
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    // Keep TypeScript checking enabled
-    ignoreBuildErrors: false,
-  },
-  experimental: {
-    optimizePackageImports: ['react-icons'],
-  },
-};
-
-export default nextConfig;
 </file>
 
 <file path="app/api/resume-feedback/route.ts">
@@ -8089,6 +7987,108 @@ export async function POST(req: NextRequest) {
 }
 </file>
 
+<file path="app/learn-skill/page.tsx">
+'use client';
+
+import React, { Suspense } from 'react';
+import TestInterestSection from '../../components/learn-skill/TestInterestSection';
+import GPAcademyCard from '../../components/learn-skill/GPAcademyCard';
+// If Footer is a client component just import directly:
+import Footer from '../../components/shared/Footer';
+// If you really need to use next/dynamic, drop ssr: false and ONLY use loading:
+
+export default function LearnSkillPage() {
+  return (
+    <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-black dark:to-blue-950/30 overflow-x-hidden relative">
+      {/* background */}
+      <div className="max-w-7xl mx-auto px-4 pt-10 sm:pt-14 relative z-10">
+        <TestInterestSection />
+        <GPAcademyCard />
+        <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>}>
+          <Footer />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="app/opportunities/job-seeker/page.tsx">
+'use client';
+
+import React from 'react';
+import dynamic from 'next/dynamic';
+import { useJobData } from '../../../hooks/useJobData';
+import LoadingScreen from '../../../components/job-seeker/LoadingScreen';
+import ErrorScreen from '../../../components/job-seeker/ErrorScreen';
+
+// Lazy load heavy components
+const JobSeekerHeader = dynamic(() => import('../../../components/job-seeker/JobSeekerHeader'), {
+  loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-800" />
+});
+
+const JobsList = dynamic(() => import('../../../components/job-seeker/JobsList'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
+});
+
+export default function JobSeekerPage() {
+  const { jobs, isLoading, isTimeout, error, refetch } = useJobData();
+
+  if (error) {
+    return (
+      <ErrorScreen
+        title="Connection Error"
+        message={error}
+        onRetry={refetch}
+        icon="🔄"
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <LoadingScreen isTimeout={isTimeout} onRetry={isTimeout ? refetch : undefined} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-black">
+      <JobSeekerHeader jobCount={jobs.length} />
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <JobsList jobs={jobs} />
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="components/Navbar.tsx">
+'use client';
+
+import ModernNavbar from './ModernNavbar';
+
+export default function Navbar() {
+  return <ModernNavbar />;
+}
+</file>
+
+<file path="next.config.mjs">
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  eslint: {
+    // Disable ESLint during builds
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Keep TypeScript checking enabled
+    ignoreBuildErrors: false,
+  },
+  experimental: {
+    optimizePackageImports: ['react-icons'],
+  },
+};
+
+export default nextConfig;
+</file>
+
 <file path="app/opportunities/page.tsx">
 'use client';
 
@@ -8126,16 +8126,6 @@ export default function OpportunitiesPage() {
       </div>
     </div>
   );
-}
-</file>
-
-<file path="components/Navbar.tsx">
-'use client';
-
-import ModernNavbar from './ModernNavbar';
-
-export default function Navbar() {
-  return <ModernNavbar />;
 }
 </file>
 
@@ -10770,6 +10760,46 @@ export default function AuthPage() {
 }
 </file>
 
+<file path="app/layout.tsx">
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Navbar from '../components/Navbar'
+import { AuthProvider } from '../contexts/AuthContext' // ✅ FIXED: Named import
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react"
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'SkillDash: AI-Powered Skill Platform for Bangladesh\'s Youth',
+  description: 'The AI-Powered platform for Bangladesh\'s youth to discover skills, learn new courses, get resume feedback, and find opportunities.',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      {/* ✅ FIX: Add proper background that works for all pages */}
+      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+        </AuthProvider>
+        <SpeedInsights />
+        <Analytics />
+      </body>
+    </html>
+  )
+}
+</file>
+
 <file path="lib/firebase.ts">
 // lib/firebase.ts - FIXED VERSION
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -10988,46 +11018,6 @@ export {
     signInWithEmailAndPassword,
     getRedirectResult
 };
-</file>
-
-<file path="app/layout.tsx">
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Navbar from '../components/Navbar'
-import { AuthProvider } from '../contexts/AuthContext' // ✅ FIXED: Named import
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/react"
-
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'SkillDash: AI-Powered Skill Platform for Bangladesh\'s Youth',
-  description: 'The AI-Powered platform for Bangladesh\'s youth to discover skills, learn new courses, get resume feedback, and find opportunities.',
-}
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return (
-    <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      {/* ✅ FIX: Add proper background that works for all pages */}
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
-        <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-        </AuthProvider>
-        <SpeedInsights />
-        <Analytics />
-      </body>
-    </html>
-  )
-}
 </file>
 
 <file path="package.json">

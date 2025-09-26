@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://skilldash.live/sitemap.xml
