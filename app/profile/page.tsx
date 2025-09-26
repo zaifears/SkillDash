@@ -57,8 +57,8 @@ export default function ProfilePage() {
         {/* Header */}
         <ProfileHeader />
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Main Content - INCREASED TOP PADDING TO LOWER CONTENT */}
+        <div className="max-w-4xl mx-auto px-4 pt-20 pb-12">
           <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden">
             
             {/* Profile Header */}
