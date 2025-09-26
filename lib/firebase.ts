@@ -1,4 +1,5 @@
-// lib/firebase.ts - FIXED VERSION
+// lib/firebase.ts - AUTOGENERATE COINS FIELD FOR ALL NEW USERS
+
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
     getAuth, 
@@ -13,22 +14,20 @@ import {
     sendSignInLinkToEmail,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signInAnonymously,  // ADD THIS
+    signInAnonymously,
     sendEmailVerification,
-    updateProfile       // IMPORT THIS SEPARATELY
+    updateProfile
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
-
-// --- Type definitions remain the same ---
 export interface UserProfile {
     name?: string;
     age?: number;
     status?: 'School' | 'College' | 'University' | 'Job' | 'Other';
     email?: string;
     phone?: string;
+    coins?: number;
 }
-
 
 interface SignUpProfileData {
     name: string;
@@ -37,7 +36,6 @@ interface SignUpProfileData {
     phone?: string;
     email: string;
 }
-
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -48,18 +46,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-
 if (!firebaseConfig.apiKey) {
     throw new Error("Missing Firebase configuration.");
 }
-
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-
-// FIXED: Properly configure providers with custom parameters
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
@@ -67,32 +61,23 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-
 const githubProvider = new GithubAuthProvider();
 githubProvider.addScope('user:email');
 githubProvider.setCustomParameters({
   allow_signup: 'true'
 });
 
-
 export const getActionCodeSettings = () => ({
     url: `${window.location.origin}/auth`,
     handleCodeInApp: true,
 });
 
-
-// FIXED: Guest login function with proper updateProfile usage
+// Guest login: coins: 5
 export const signInAsGuest = async () => {
   try {
     const result = await signInAnonymously(auth);
-    
     if (result.user) {
-      // FIXED: Call updateProfile as a standalone function, not method
-      await updateProfile(result.user, {
-        displayName: 'Guest'
-      });
-      
-      // Create a basic profile in Firestore
+      await updateProfile(result.user, { displayName: 'Guest' });
       const userDocRef = doc(db, 'users', result.user.uid);
       await setDoc(userDocRef, {
         name: 'Guest', 
@@ -100,10 +85,10 @@ export const signInAsGuest = async () => {
         age: null, 
         status: 'Other', 
         phone: '',
-        isGuest: true // Flag to identify guest users
+        isGuest: true,
+        coins: 5 // <-- coins!
       });
     }
-    
     return result.user;
   } catch (error) {
     console.error('Guest login error:', error);
@@ -111,34 +96,42 @@ export const signInAsGuest = async () => {
   }
 };
 
+// Social login result: coins: 5
+const handleSocialSignInResult = async (user: any) => {
+    const userDocRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(userDocRef);
+    if (!docSnap.exists()) {
+        await setDoc(userDocRef, {
+            name: user.displayName || user.email?.split('@')[0] || 'User', 
+            email: user.email,
+            age: null, 
+            status: 'Other', 
+            phone: '',
+            coins: 5 // <-- coins!
+        });
+    }
+    return user;
+};
 
-// FIXED: Enhanced error handling and fallback to redirect
 export const signInWithSocialProviderAndCreateProfile = async (
     provider: GoogleAuthProvider | GithubAuthProvider
 ) => {
     try {
-        console.log('Attempting popup sign-in...');
         const result = await signInWithPopup(auth, provider);
         return await handleSocialSignInResult(result.user);
     } catch (error: any) {
-        console.error('Popup sign-in failed:', error);
-        
-        // If popup is blocked or fails, try redirect as fallback
-        if (error.code === 'auth/popup-blocked' || 
+        if (
+            error.code === 'auth/popup-blocked' || 
             error.code === 'auth/popup-closed-by-user' ||
-            error.code === 'auth/cancelled-popup-request') {
-            
-            console.log('Falling back to redirect sign-in...');
+            error.code === 'auth/cancelled-popup-request'
+        ) {
             await signInWithRedirect(auth, provider);
-            return null; // Will be handled by redirect result
+            return null;
         }
-        
         throw error;
     }
 };
 
-
-// FIXED: Separate function to handle redirect results
 export const handleRedirectResult = async () => {
     try {
         const result = await getRedirectResult(auth);
@@ -152,56 +145,34 @@ export const handleRedirectResult = async () => {
     }
 };
 
-
-// FIXED: Common function to handle social sign-in user creation
-const handleSocialSignInResult = async (user: any) => {
-    const userDocRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(userDocRef);
-
-
-    if (!docSnap.exists()) {
-        await setDoc(userDocRef, {
-            name: user.displayName || user.email?.split('@')[0] || 'User', 
-            email: user.email,
-            age: null, 
-            status: 'Other', 
-            phone: ''
-        });
-    }
-    return user;
-};
-
-
-// Keep existing functions
+// Email signup: coins: 5
 export const signUpWithEmailPasswordAndProfile = async (profileData: SignUpProfileData, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, profileData.email, password);
     const user = userCredential.user;
-    await updateProfile(user, { displayName: profileData.name }); // FIXED: Proper updateProfile usage
+    await updateProfile(user, { displayName: profileData.name });
     const userDocRef = doc(db, 'users', user.uid);
     await setDoc(userDocRef, {
-        name: profileData.name, 
-        age: profileData.age, 
+        name: profileData.name,
+        age: profileData.age,
         status: profileData.status,
-        phone: profileData.phone || null, 
-        email: profileData.email
+        phone: profileData.phone || null,
+        email: profileData.email,
+        coins: 5 // <-- coins!
     });
     await sendEmailVerification(user);
     return user;
 };
-
 
 export const updateUserProfile = async (userId: string, data: any) => {
     const userDocRef = doc(db, 'users', userId);
     await setDoc(userDocRef, data, { merge: true });
 };
 
-
 export const getUserProfile = async (userId: string) => {
     const userDocRef = doc(db, 'users', userId);
     const docSnap = await getDoc(userDocRef);
     return docSnap.exists() ? docSnap.data() as UserProfile : null;
 };
-
 
 export { 
     auth, 
