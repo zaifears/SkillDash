@@ -40,139 +40,110 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
-app/
-  about-us/
-    page.tsx
-  api/
-    discover-chat/
-      route.ts
-    resume-feedback/
-      route.ts
-  auth/
-    page.tsx
-  discover/
-    page.tsx
-  learn-skill/
-    page.tsx
-  opportunities/
-    hiring/
-      page.tsx
-    job-seeker/
-      [id]/
-        page.tsx
-      page.tsx
-    page.tsx
-  profile/
-    page.tsx
-  resume-feedback/
-    page.tsx
-  globals.css
-  layout.tsx
-  not-found.tsx
-  page.tsx
-components/
-  discover/
-    BotIcon.tsx
-    LoadingDots.tsx
-    MessageBubble.tsx
-    SkillBadges.tsx
-    SuggestionsCard.tsx
-  hiring/
-    BenefitsSection.tsx
-    ComingSoonFeatures.tsx
-    ContactForm.tsx
-    HiringHeader.tsx
-  icons/
-    HiringIcons.tsx
-  job-details/
-    JobDetailsLoadingScreen.tsx
-    JobHeader.tsx
-    JobRequirements.tsx
-    JobSidebar.tsx
-    RichTextRenderer.tsx
-  job-seeker/
-    ErrorScreen.tsx
-    JobCard.tsx
-    JobIcons.tsx
-    JobSeekerHeader.tsx
-    JobsList.tsx
-    LoadingScreen.tsx
-  learn-skill/
-    BookOpenIcon.tsx
-    GPAcademyCard.tsx
-    LearnHeroSection.tsx
-    TestInterestSection.tsx
-  opportunities/
-    JobSeekerSection.tsx
-    OpportunityHero.tsx
-  profile/
-    ProfileActions.tsx
-    ProfileDisplay.tsx
-    ProfileEditForm.tsx
-    ProfileHeader.tsx
-    ProfileIcons.tsx
-    ProfileLoadingScreen.tsx
-  resume-feedback/
-    CollapsibleSection.tsx
-    CourseCard.tsx
-    FeedbackCard.tsx
-    FeedbackList.tsx
-    FeedbackSubSection.tsx
-  shared/
-    BackgroundAnimation.tsx
-    BouncingBalls.tsx
-    Footer.tsx
-    OptimizedImage.tsx
-    TeamMember.tsx
-  AboutHero.tsx
-  AuthForm.tsx
-  AuthIcons.tsx
-  AuthStatus.tsx
-  ContentSections.tsx
-  CoreFeatures.tsx
-  CoreFeaturesSection.tsx
-  HowItWorksSection.tsx
-  LoadingSpinner.tsx
-  ModernNavbar.jsx
-  Navbar.tsx
-  OpportunitiesSection.tsx
-  ResumeSection.tsx
-  ServiceWorkerRegistration.tsx
-  SkillsSection.tsx
-  SocialAuth.tsx
-  StorySection.tsx
-  TeamMember.tsx
-  TypingHeroSection.tsx
-contexts/
-  AuthContext.tsx
-hooks/
-  useJobData.tsx
-  useJobDetails.tsx
-  useProfile.tsx
-  useResumeWorkflow.tsx
-lib/
-  apiUtils.ts
-  authUtils.ts
-  bundleOptimizations.ts
-  contentful.ts
-  dynamicImports.tsx
-  firebase.ts
-  imageUtils.ts
-public/
-  site.webmanifest
-  sitemap.xml
-  sw.js
-scripts/
-  analyze-bundle.js
 .eslintrc.json
 .gitignore
 .nvmrc
+app/about-us/page.tsx
+app/api/discover-chat/route.ts
+app/api/resume-feedback/route.ts
+app/auth/page.tsx
+app/discover/page.tsx
+app/globals.css
+app/layout.tsx
+app/learn-skill/page.tsx
+app/not-found.tsx
+app/opportunities/hiring/page.tsx
+app/opportunities/job-seeker/[id]/page.tsx
+app/opportunities/job-seeker/page.tsx
+app/opportunities/page.tsx
+app/page.tsx
+app/profile/page.tsx
+app/resume-feedback/page.tsx
+components/AboutHero.tsx
+components/AuthForm.tsx
+components/AuthIcons.tsx
+components/AuthStatus.tsx
+components/ContentSections.tsx
+components/CoreFeatures.tsx
+components/CoreFeaturesSection.tsx
+components/discover/BotIcon.tsx
+components/discover/LoadingDots.tsx
+components/discover/MessageBubble.tsx
+components/discover/SkillBadges.tsx
+components/discover/SuggestionsCard.tsx
+components/hiring/BenefitsSection.tsx
+components/hiring/ComingSoonFeatures.tsx
+components/hiring/ContactForm.tsx
+components/hiring/HiringHeader.tsx
+components/HowItWorksSection.tsx
+components/icons/HiringIcons.tsx
+components/job-details/JobDetailsLoadingScreen.tsx
+components/job-details/JobHeader.tsx
+components/job-details/JobRequirements.tsx
+components/job-details/JobSidebar.tsx
+components/job-details/RichTextRenderer.tsx
+components/job-seeker/ErrorScreen.tsx
+components/job-seeker/JobCard.tsx
+components/job-seeker/JobIcons.tsx
+components/job-seeker/JobSeekerHeader.tsx
+components/job-seeker/JobsList.tsx
+components/job-seeker/LoadingScreen.tsx
+components/learn-skill/BookOpenIcon.tsx
+components/learn-skill/GPAcademyCard.tsx
+components/learn-skill/LearnHeroSection.tsx
+components/learn-skill/TestInterestSection.tsx
+components/LoadingSpinner.tsx
+components/ModernNavbar.jsx
+components/Navbar.tsx
+components/opportunities/JobSeekerSection.tsx
+components/opportunities/OpportunityHero.tsx
+components/OpportunitiesSection.tsx
+components/profile/ProfileActions.tsx
+components/profile/ProfileDisplay.tsx
+components/profile/ProfileEditForm.tsx
+components/profile/ProfileHeader.tsx
+components/profile/ProfileIcons.tsx
+components/profile/ProfileLoadingScreen.tsx
+components/resume-feedback/CollapsibleSection.tsx
+components/resume-feedback/CourseCard.tsx
+components/resume-feedback/FeedbackCard.tsx
+components/resume-feedback/FeedbackList.tsx
+components/resume-feedback/FeedbackSubSection.tsx
+components/ResumeSection.tsx
+components/ServiceWorkerRegistration.tsx
+components/shared/BackgroundAnimation.tsx
+components/shared/BouncingBalls.tsx
+components/shared/Footer.tsx
+components/shared/OptimizedImage.tsx
+components/shared/TeamMember.tsx
+components/SkillsSection.tsx
+components/SocialAuth.tsx
+components/StorySection.tsx
+components/TeamMember.tsx
+components/TypingHeroSection.tsx
+contexts/AuthContext.tsx
+hooks/useJobData.tsx
+hooks/useJobDetails.tsx
+hooks/useProfile.tsx
+hooks/useResumeWorkflow.tsx
+lib/apiUtils.ts
+lib/authUtils.ts
+lib/bundleOptimizations.ts
+lib/contentful.ts
+lib/dynamicImports.tsx
+lib/firebase.ts
+lib/imageUtils.ts
 LICENSE
 next-env.d.ts
 next.config.mjs
 package.json
 postcss.config.js
+public/robots.txt
+public/site.webmanifest
+public/sitemap.xml
+public/sw.js
 README.md
+scripts/analyze-bundle.js
 tailwind.config.ts
 tsconfig.json
 vercel.json
@@ -319,6 +290,418 @@ A project for the [**GP AI Future Maker**](https://gpfuturemakers.com/) competit
 Empowering Bangladesh's youth from classroom to career!
 
 ---
+</file>
+
+<file path=".nvmrc">
+20.11.0
+</file>
+
+<file path="components/AboutHero.tsx">
+import React from 'react';
+
+const AboutHero = () => {
+  return (
+    <section className="text-center mb-20 md:mb-28">
+      <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
+        About SkillDash
+      </h1>
+      <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+        We are passionate students building a bridge between education and employment in Bangladesh.
+      </p>
+    </section>
+  );
+};
+
+export default AboutHero;
+</file>
+
+<file path="components/AuthForm.tsx">
+'use client';
+import React from 'react';
+
+interface AuthFormProps {
+  isSignUp: boolean;
+  formData: any;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  error: string;
+  message: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({
+  isSignUp,
+  formData,
+  handleInputChange,
+  handleSubmit,
+  isLoading,
+  error,
+  message
+}) => {
+  const inputClass = "w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors";
+  
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {isSignUp && (
+        <>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name *"
+            value={formData.name}
+            onChange={handleInputChange}
+            className={inputClass}
+            required
+            minLength={2}
+            maxLength={50}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className={inputClass}
+              pattern="[0-9+\-\s]+"
+              maxLength={15}
+            />
+            <input
+              type="number"
+              name="age"
+              placeholder="Age"
+              value={formData.age}
+              onChange={handleInputChange}
+              className={inputClass}
+              min="13"
+              max="100"
+            />
+          </div>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleInputChange}
+            className={inputClass}
+            required
+          >
+            <option value="">Select Your Status *</option>
+            <option value="School">School (Class 1-10)</option>
+            <option value="College">College (Class 11-12)</option>
+            <option value="University">University</option>
+            <option value="Job">In a Job</option>
+            <option value="Other">Other</option>
+          </select>
+        </>
+      )}
+      
+      <input
+        type="email"
+        name="email"
+        placeholder="Email Address *"
+        value={formData.email}
+        onChange={handleInputChange}
+        className={inputClass}
+        required
+        maxLength={100}
+      />
+      
+      <input
+        type="password"
+        name="password"
+        placeholder="Password *"
+        value={formData.password}
+        onChange={handleInputChange}
+        className={inputClass}
+        required
+        minLength={6}
+        maxLength={128}
+      />
+      
+      {isSignUp && (
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password *"
+          value={formData.confirmPassword}
+          onChange={handleInputChange}
+          className={inputClass}
+          required
+          minLength={6}
+          maxLength={128}
+        />
+      )}
+
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      
+      {message && (
+        <div className="bg-green-100 dark:bg-green-900/20 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded">
+          {message}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-all duration-200"
+      >
+        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+      </button>
+    </form>
+  );
+};
+
+export default AuthForm;
+</file>
+
+<file path="components/AuthIcons.tsx">
+import React from 'react';
+
+export const GoogleIcon = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+  </svg>
+);
+
+export const GitHubIcon = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+  </svg>
+);
+</file>
+
+<file path="components/ContentSections.tsx">
+import React from 'react';
+import Link from 'next/link';
+import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
+
+const ContentSections = () => {
+  return (
+    <>
+      {/* Learn New Skills Section */}
+      <section className="relative py-20 bg-gradient-to-r from-slate-800 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Learn In-Demand Skills
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from partners like Grameenphone Academy to build job-ready skills and turn your potential into certified proficiency.
+          </p>
+
+          <Link
+            href="/learn-skill"
+            className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Explore Courses
+          </Link>
+        </div>
+      </section>
+
+      {/* AI Resume Feedback Section */}
+      <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
+          <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Perfect Your Resume with AI
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
+          </p>
+
+          <Link
+            href="/resume-feedback"
+            className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Get AI Feedback
+          </Link>
+        </div>
+      </section>
+
+      {/* Find Opportunities Section */}
+      <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Find Real-World Opportunities
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+            Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
+          </p>
+
+          <Link
+            href="/opportunities"
+            className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+          >
+            Browse Gigs & Jobs
+          </Link>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 text-center">
+          <div className="text-6xl mb-6">🚀</div>
+          
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+            Your Journey to a Dream Career Starts Here
+          </h2>
+          
+          <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
+            SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaUser className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                Personalized Growth
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                Our AI understands your unique talents and recommends tailored learning paths to maximize your potential.
+              </p>
+            </div>
+
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaBriefcase className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                Real-World Application
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers.
+              </p>
+            </div>
+
+            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                <FaCogs className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                AI-Powered Tools
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default ContentSections;
+</file>
+
+<file path="components/CoreFeatures.tsx">
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+const CoreFeatures = () => {
+  const coreFeatures = [
+    {
+      icon: "/homepage/discover-talent.png",
+      title: "Discover Your Talent",
+      description: "Start with our AI Skill Quest to uncover your unique strengths and passions.",
+      href: "/discover",
+      gradient: "from-blue-500 to-indigo-600",
+    },
+    {
+      icon: "/homepage/new-skills.png",
+      title: "Learn New Skills",
+      description: "Access curated courses to build job-ready skills and turn potential into proficiency.",
+      href: "/learn-skill",
+      gradient: "from-purple-500 to-violet-600",
+    },
+    {
+      icon: "/homepage/resume-feedback.png",
+      title: "AI Resume Feedback",
+      description: "Get instant AI feedback to craft a resume that stands out to employers.",
+      href: "/resume-feedback",
+      gradient: "from-sky-500 to-cyan-600",
+    },
+    {
+      icon: "/homepage/opportunites-logo.png",
+      title: "Find Opportunities",
+      description: "Unlock a portal of part-time jobs and freelance gigs to gain real experience.",
+      href: "/opportunities",
+      gradient: "from-emerald-500 to-teal-600",
+    },
+  ];
+
+  return (
+    <section className="relative z-10 py-20">
+      <div className="container mx-auto px-6">
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
+          Your Path to Success
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {coreFeatures.map((feature, index) => (
+            <Link
+              key={feature.title}
+              href={feature.href}
+              className={`group relative p-6 flex flex-col items-center text-center rounded-2xl bg-gradient-to-br ${feature.gradient} text-white overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+            >
+              <div className="relative w-16 h-16 mb-4">
+                <Image
+                  src={feature.icon}
+                  alt={`${feature.title} logo`}
+                  fill
+                  sizes="64px"
+                  className="object-contain filter drop-shadow-lg"
+                />
+              </div>
+              
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <p className="text-sm opacity-90 leading-relaxed">{feature.description}</p>
+              
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default CoreFeatures;
 </file>
 
 <file path="components/discover/BotIcon.tsx">
@@ -877,6 +1260,72 @@ const HiringHeader = React.memo(() => {
 
 HiringHeader.displayName = 'HiringHeader';
 export default HiringHeader;
+</file>
+
+<file path="components/HowItWorksSection.tsx">
+import React from 'react';
+import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
+
+const HowItWorksSection = () => {
+  const features = [
+    {
+      icon: <FaUser className="w-8 h-8" />,
+      title: "Personalized Growth",
+      description: "Our AI understands your unique talents and recommends tailored learning paths to maximize your potential."
+    },
+    {
+      icon: <FaBriefcase className="w-8 h-8" />,
+      title: "Real-World Application", 
+      description: "Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers."
+    },
+    {
+      icon: <FaCogs className="w-8 h-8" />,
+      title: "AI-Powered Tools",
+      description: "From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market."
+    }
+  ];
+
+  return (
+    <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <div className="text-6xl mb-6">🚀</div>
+        
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Your Journey to a Dream Career Starts Here
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
+          SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div key={feature.title} className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
+              <div className="text-blue-400 mb-4 flex justify-center">
+                {feature.icon}
+              </div>
+              
+              <h3 className="text-2xl font-semibold text-white mb-4">
+                {feature.title}
+              </h3>
+              
+              <p className="text-slate-300 leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HowItWorksSection;
 </file>
 
 <file path="components/icons/HiringIcons.tsx">
@@ -1605,6 +2054,20 @@ BookOpenIcon.displayName = 'BookOpenIcon';
 export default BookOpenIcon;
 </file>
 
+<file path="components/LoadingSpinner.tsx">
+import React from 'react';
+
+const LoadingSpinner = () => {
+  return (
+    <div className="flex justify-center items-center py-20">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+};
+
+export default LoadingSpinner;
+</file>
+
 <file path="components/opportunities/JobSeekerSection.tsx">
 import React from 'react';
 import Image from 'next/image';
@@ -1718,6 +2181,42 @@ const JobSeekerSection = React.memo(() => {
 
 JobSeekerSection.displayName = 'JobSeekerSection';
 export default JobSeekerSection;
+</file>
+
+<file path="components/OpportunitiesSection.tsx">
+import React from 'react';
+import Link from 'next/link';
+
+const OpportunitiesSection = () => {
+  return (
+    <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Find Real-World Opportunities
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+          Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
+        </p>
+
+        <Link
+          href="/opportunities"
+          className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+        >
+          Browse Gigs & Jobs
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export default OpportunitiesSection;
 </file>
 
 <file path="components/profile/ProfileActions.tsx">
@@ -2378,6 +2877,103 @@ FeedbackSubSection.displayName = 'FeedbackSubSection';
 export default FeedbackSubSection;
 </file>
 
+<file path="components/ResumeSection.tsx">
+import React from 'react';
+import Link from 'next/link';
+
+const ResumeSection = () => {
+  return (
+    <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+          Perfect Your Resume with AI
+        </h2>
+        
+        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
+          Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
+        </p>
+
+        <Link
+          href="/resume-feedback"
+          className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
+        >
+          Get AI Feedback
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export default ResumeSection;
+</file>
+
+<file path="components/ServiceWorkerRegistration.tsx">
+'use client';
+
+import { useEffect } from 'react';
+
+export default function ServiceWorkerRegistration() {
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' && 
+      'serviceWorker' in navigator && 
+      process.env.NODE_ENV === 'production'
+    ) {
+      // ✅ OPTIMIZED: Register service worker on page load
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/'
+          });
+
+          console.log('✅ Service Worker registered successfully:', registration.scope);
+
+          // ✅ OPTIMIZED: Handle service worker updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content is available, notify user
+                  console.log('🔄 New content available! Please refresh.');
+                  
+                  // Optional: Show update notification
+                  if (window.confirm('New version available! Refresh to update?')) {
+                    window.location.reload();
+                  }
+                }
+              });
+            }
+          });
+
+          // ✅ OPTIMIZED: Handle service worker messages
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            console.log('📨 Message from service worker:', event.data);
+          });
+
+        } catch (error) {
+          console.error('❌ Service Worker registration failed:', error);
+        }
+      });
+
+      // ✅ OPTIMIZED: Handle service worker controller change
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('🔄 Service Worker controller changed');
+        window.location.reload();
+      });
+    }
+  }, []);
+
+  return null; // This component doesn't render anything
+}
+</file>
+
 <file path="components/shared/BackgroundAnimation.tsx">
 import React from 'react';
 
@@ -2691,627 +3287,6 @@ const TeamMember: React.FC<TeamMemberProps> = ({
 }
 
 export default TeamMember
-</file>
-
-<file path="components/AboutHero.tsx">
-import React from 'react';
-
-const AboutHero = () => {
-  return (
-    <section className="text-center mb-20 md:mb-28">
-      <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
-        About SkillDash
-      </h1>
-      <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-        We are passionate students building a bridge between education and employment in Bangladesh.
-      </p>
-    </section>
-  );
-};
-
-export default AboutHero;
-</file>
-
-<file path="components/AuthForm.tsx">
-'use client';
-import React from 'react';
-
-interface AuthFormProps {
-  isSignUp: boolean;
-  formData: any;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  isLoading: boolean;
-  error: string;
-  message: string;
-}
-
-const AuthForm: React.FC<AuthFormProps> = ({
-  isSignUp,
-  formData,
-  handleInputChange,
-  handleSubmit,
-  isLoading,
-  error,
-  message
-}) => {
-  const inputClass = "w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors";
-  
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {isSignUp && (
-        <>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name *"
-            value={formData.name}
-            onChange={handleInputChange}
-            className={inputClass}
-            required
-            minLength={2}
-            maxLength={50}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className={inputClass}
-              pattern="[0-9+\-\s]+"
-              maxLength={15}
-            />
-            <input
-              type="number"
-              name="age"
-              placeholder="Age"
-              value={formData.age}
-              onChange={handleInputChange}
-              className={inputClass}
-              min="13"
-              max="100"
-            />
-          </div>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            className={inputClass}
-            required
-          >
-            <option value="">Select Your Status *</option>
-            <option value="School">School (Class 1-10)</option>
-            <option value="College">College (Class 11-12)</option>
-            <option value="University">University</option>
-            <option value="Job">In a Job</option>
-            <option value="Other">Other</option>
-          </select>
-        </>
-      )}
-      
-      <input
-        type="email"
-        name="email"
-        placeholder="Email Address *"
-        value={formData.email}
-        onChange={handleInputChange}
-        className={inputClass}
-        required
-        maxLength={100}
-      />
-      
-      <input
-        type="password"
-        name="password"
-        placeholder="Password *"
-        value={formData.password}
-        onChange={handleInputChange}
-        className={inputClass}
-        required
-        minLength={6}
-        maxLength={128}
-      />
-      
-      {isSignUp && (
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password *"
-          value={formData.confirmPassword}
-          onChange={handleInputChange}
-          className={inputClass}
-          required
-          minLength={6}
-          maxLength={128}
-        />
-      )}
-
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
-      
-      {message && (
-        <div className="bg-green-100 dark:bg-green-900/20 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded">
-          {message}
-        </div>
-      )}
-
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-all duration-200"
-      >
-        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
-      </button>
-    </form>
-  );
-};
-
-export default AuthForm;
-</file>
-
-<file path="components/AuthIcons.tsx">
-import React from 'react';
-
-export const GoogleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-  </svg>
-);
-
-export const GitHubIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-  </svg>
-);
-</file>
-
-<file path="components/ContentSections.tsx">
-import React from 'react';
-import Link from 'next/link';
-import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
-
-const ContentSections = () => {
-  return (
-    <>
-      {/* Learn New Skills Section */}
-      <section className="relative py-20 bg-gradient-to-r from-slate-800 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Learn In-Demand Skills
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from partners like Grameenphone Academy to build job-ready skills and turn your potential into certified proficiency.
-          </p>
-
-          <Link
-            href="/learn-skill"
-            className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Explore Courses
-          </Link>
-        </div>
-      </section>
-
-      {/* AI Resume Feedback Section */}
-      <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Perfect Your Resume with AI
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
-          </p>
-
-          <Link
-            href="/resume-feedback"
-            className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Get AI Feedback
-          </Link>
-        </div>
-      </section>
-
-      {/* Find Opportunities Section */}
-      <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Find Real-World Opportunities
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-            Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
-          </p>
-
-          <Link
-            href="/opportunities"
-            className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-          >
-            Browse Gigs & Jobs
-          </Link>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <div className="text-6xl mb-6">🚀</div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Your Journey to a Dream Career Starts Here
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
-            SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaUser className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                Personalized Growth
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                Our AI understands your unique talents and recommends tailored learning paths to maximize your potential.
-              </p>
-            </div>
-
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaBriefcase className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                Real-World Application
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers.
-              </p>
-            </div>
-
-            <div className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                <FaCogs className="w-8 h-8" />
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                AI-Powered Tools
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-};
-
-export default ContentSections;
-</file>
-
-<file path="components/CoreFeatures.tsx">
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-
-const CoreFeatures = () => {
-  const coreFeatures = [
-    {
-      icon: "/homepage/discover-talent.png",
-      title: "Discover Your Talent",
-      description: "Start with our AI Skill Quest to uncover your unique strengths and passions.",
-      href: "/discover",
-      gradient: "from-blue-500 to-indigo-600",
-    },
-    {
-      icon: "/homepage/new-skills.png",
-      title: "Learn New Skills",
-      description: "Access curated courses to build job-ready skills and turn potential into proficiency.",
-      href: "/learn-skill",
-      gradient: "from-purple-500 to-violet-600",
-    },
-    {
-      icon: "/homepage/resume-feedback.png",
-      title: "AI Resume Feedback",
-      description: "Get instant AI feedback to craft a resume that stands out to employers.",
-      href: "/resume-feedback",
-      gradient: "from-sky-500 to-cyan-600",
-    },
-    {
-      icon: "/homepage/opportunites-logo.png",
-      title: "Find Opportunities",
-      description: "Unlock a portal of part-time jobs and freelance gigs to gain real experience.",
-      href: "/opportunities",
-      gradient: "from-emerald-500 to-teal-600",
-    },
-  ];
-
-  return (
-    <section className="relative z-10 py-20">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
-          Your Path to Success
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {coreFeatures.map((feature, index) => (
-            <Link
-              key={feature.title}
-              href={feature.href}
-              className={`group relative p-6 flex flex-col items-center text-center rounded-2xl bg-gradient-to-br ${feature.gradient} text-white overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
-            >
-              <div className="relative w-16 h-16 mb-4">
-                <Image
-                  src={feature.icon}
-                  alt={`${feature.title} logo`}
-                  fill
-                  sizes="64px"
-                  className="object-contain filter drop-shadow-lg"
-                />
-              </div>
-              
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-sm opacity-90 leading-relaxed">{feature.description}</p>
-              
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20" />
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default CoreFeatures;
-</file>
-
-<file path="components/HowItWorksSection.tsx">
-import React from 'react';
-import { FaUser, FaBriefcase, FaCogs } from 'react-icons/fa';
-
-const HowItWorksSection = () => {
-  const features = [
-    {
-      icon: <FaUser className="w-8 h-8" />,
-      title: "Personalized Growth",
-      description: "Our AI understands your unique talents and recommends tailored learning paths to maximize your potential."
-    },
-    {
-      icon: <FaBriefcase className="w-8 h-8" />,
-      title: "Real-World Application", 
-      description: "Apply your new skills through part-time jobs and freelance projects, building a portfolio that impresses employers."
-    },
-    {
-      icon: <FaCogs className="w-8 h-8" />,
-      title: "AI-Powered Tools",
-      description: "From resume feedback to skill tracking, our intelligent tools give you a competitive edge in the job market."
-    }
-  ];
-
-  return (
-    <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <div className="text-6xl mb-6">🚀</div>
-        
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Your Journey to a Dream Career Starts Here
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-16 max-w-4xl mx-auto">
-          SkillDash is more than a learning platform; it's a complete ecosystem designed to guide you from self-discovery to employment.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={feature.title} className="p-8 bg-slate-800/50 rounded-xl backdrop-blur-sm">
-              <div className="text-blue-400 mb-4 flex justify-center">
-                {feature.icon}
-              </div>
-              
-              <h3 className="text-2xl font-semibold text-white mb-4">
-                {feature.title}
-              </h3>
-              
-              <p className="text-slate-300 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default HowItWorksSection;
-</file>
-
-<file path="components/LoadingSpinner.tsx">
-import React from 'react';
-
-const LoadingSpinner = () => {
-  return (
-    <div className="flex justify-center items-center py-20">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-    </div>
-  );
-};
-
-export default LoadingSpinner;
-</file>
-
-<file path="components/OpportunitiesSection.tsx">
-import React from 'react';
-import Link from 'next/link';
-
-const OpportunitiesSection = () => {
-  return (
-    <section className="relative py-20 bg-gradient-to-r from-slate-900 to-emerald-900/20">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-16 left-16 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-16 right-16 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Find Real-World Opportunities
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-          Connect your skills directly to the job market. SkillDash unlocks a curated portal of part-time jobs and freelance gigs from trusted companies. Gain valuable hands-on experience and start earning while you're still in university.
-        </p>
-
-        <Link
-          href="/opportunities"
-          className="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-        >
-          Browse Gigs & Jobs
-        </Link>
-      </div>
-    </section>
-  );
-};
-
-export default OpportunitiesSection;
-</file>
-
-<file path="components/ResumeSection.tsx">
-import React from 'react';
-import Link from 'next/link';
-
-const ResumeSection = () => {
-  return (
-    <section className="relative py-20 bg-gradient-to-l from-slate-800 to-slate-900">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-20 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 left-20 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-          Perfect Your Resume with AI
-        </h2>
-        
-        <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-          Stop guessing what recruiters want. Upload your resume and get instant, intelligent feedback from our AI Coach. Receive actionable tips to highlight your new skills, optimize for job descriptions, and create a resume that truly stands out.
-        </p>
-
-        <Link
-          href="/resume-feedback"
-          className="inline-block bg-gradient-to-r from-sky-500 to-cyan-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300"
-        >
-          Get AI Feedback
-        </Link>
-      </div>
-    </section>
-  );
-};
-
-export default ResumeSection;
-</file>
-
-<file path="components/ServiceWorkerRegistration.tsx">
-'use client';
-
-import { useEffect } from 'react';
-
-export default function ServiceWorkerRegistration() {
-  useEffect(() => {
-    if (
-      typeof window !== 'undefined' && 
-      'serviceWorker' in navigator && 
-      process.env.NODE_ENV === 'production'
-    ) {
-      // ✅ OPTIMIZED: Register service worker on page load
-      window.addEventListener('load', async () => {
-        try {
-          const registration = await navigator.serviceWorker.register('/sw.js', {
-            scope: '/'
-          });
-
-          console.log('✅ Service Worker registered successfully:', registration.scope);
-
-          // ✅ OPTIMIZED: Handle service worker updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // New content is available, notify user
-                  console.log('🔄 New content available! Please refresh.');
-                  
-                  // Optional: Show update notification
-                  if (window.confirm('New version available! Refresh to update?')) {
-                    window.location.reload();
-                  }
-                }
-              });
-            }
-          });
-
-          // ✅ OPTIMIZED: Handle service worker messages
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            console.log('📨 Message from service worker:', event.data);
-          });
-
-        } catch (error) {
-          console.error('❌ Service Worker registration failed:', error);
-        }
-      });
-
-      // ✅ OPTIMIZED: Handle service worker controller change
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('🔄 Service Worker controller changed');
-        window.location.reload();
-      });
-    }
-  }, []);
-
-  return null; // This component doesn't render anything
-}
 </file>
 
 <file path="components/SkillsSection.tsx">
@@ -4556,6 +4531,12 @@ export const getOptimizedImageProps = (
 }
 </file>
 
+<file path="public/robots.txt">
+User-agent: *
+Allow: /
+Sitemap: https://skilldash.live/sitemap.xml
+</file>
+
 <file path="public/site.webmanifest">
 {
   "name": "SkillDash",
@@ -4939,10 +4920,6 @@ if (require.main === module) {
 module.exports = { analyzeBundleSize };
 </file>
 
-<file path=".nvmrc">
-20.11.0
-</file>
-
 <file path="vercel.json">
 {
   "functions": {
@@ -4973,6 +4950,307 @@ module.exports = { analyzeBundleSize };
     }
   ]
 }
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for instrumented libs generated by jscoverage/JSCover
+lib-cov
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+# Comment in the public line in if your project uses Gatsby and not Next.js
+# https://nextjs.org/blog/next-9-1#public-directory-support
+# public
+
+# vuepress build output
+.vuepress/dist
+
+# vuepress v2.x temp and cache directory
+.temp
+.cache
+
+# Sveltekit cache directory
+.svelte-kit/
+
+# vitepress build output
+**/.vitepress/dist
+
+# vitepress cache directory
+**/.vitepress/cache
+
+# Docusaurus cache and generated files
+.docusaurus
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# Firebase cache directory
+.firebase/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v3
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Vite logs files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+.env.local
+.env*.local
+.vercel
+</file>
+
+<file path="components/CoreFeaturesSection.tsx">
+'use client';
+
+import React, { memo } from 'react';
+import Link from 'next/link';
+
+// Step interface
+interface Step {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  icon: string;
+  href: string;
+  color: string;
+}
+
+// Step data
+const STEPS: Step[] = [
+  {
+    id: 'discover',
+    number: '01',
+    title: 'Discover Your Skills',
+    description: 'Take our AI-powered skill assessment to uncover your unique talents and strengths',
+    icon: '🎯',
+    href: '/discover',
+    color: 'bg-blue-500'
+  },
+  {
+    id: 'learn',
+    number: '02', 
+    title: 'Test & Learn Skills',
+    description: 'Explore hands-on courses and test your abilities across 17+ in-demand skill areas',
+    icon: '📚',
+    href: '/learn-skill',
+    color: 'bg-purple-500'
+  },
+  {
+    id: 'resume',
+    number: '03',
+    title: 'Perfect Your Resume',
+    description: 'Get AI-powered feedback to craft a resume that stands out to employers',
+    icon: '📄',
+    href: '/resume-feedback',
+    color: 'bg-emerald-500'
+  },
+  {
+    id: 'opportunities',
+    number: '04',
+    title: 'Find Opportunities',
+    description: 'Access curated job listings, internships, and freelance projects tailored to your skills',
+    icon: '💼',
+    href: '/opportunities',
+    color: 'bg-orange-500'
+  }
+];
+
+const StepCard = memo(({ step, index }: { step: Step, index: number }) => (
+  <div className="w-full relative">
+    <Link href={step.href} className="group block">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 relative">
+        
+        {/* Step Number */}
+        <div className={`${step.color} text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-lg mb-4`}>
+          {step.number}
+        </div>
+
+        {/* Icon */}
+        <div className="text-4xl mb-4">
+          {step.icon}
+        </div>
+
+        {/* Content */}
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+          {step.title}
+        </h3>
+        
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
+          {step.description}
+        </p>
+
+        {/* Call to Action */}
+        <div className="flex items-center text-sm font-medium text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+          <span>Get Started</span>
+          <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </div>
+      </div>
+    </Link>
+
+    {/* FIXED: Modern Mobile Arrow - centered between cards */}
+    {index < STEPS.length - 1 && (
+      <div className="lg:hidden relative py-8 flex justify-center">
+        {/* Connection Line */}
+        <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-200 dark:bg-gray-600 transform -translate-x-1/2"></div>
+        
+        {/* Modern Arrow */}
+        <div className="relative bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+          <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </div>
+    )}
+  </div>
+));
+StepCard.displayName = 'StepCard';
+
+const CoreFeaturesSection = memo(() => (
+  <section className="py-20 relative">
+    <div className="max-w-7xl mx-auto px-6">
+      {/* UPDATED: Header with Question */}
+      <div className="text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          How SkillDash Works?
+        </h2>
+        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          Follow our proven 4-step process to discover your potential, build skills, and land your dream opportunity
+        </p>
+      </div>
+
+      {/* Steps Grid with Connection Line */}
+      <div className="relative">
+        {/* ADDED: Connection Line Behind Cards (Desktop Only) */}
+        <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-gray-200 dark:bg-gray-600 transform -translate-y-1/2 z-0"></div>
+        
+        {/* Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+          {STEPS.map((step, index) => (
+            <StepCard key={step.id} step={step} index={index} />
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="text-center mt-16">
+        <Link 
+          href="/discover"
+          className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300 shadow-xl"
+        >
+          <span>Start Your Journey Now</span>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+  </section>
+));
+CoreFeaturesSection.displayName = 'CoreFeaturesSection';
+
+export default CoreFeaturesSection;
 </file>
 
 <file path="components/learn-skill/GPAcademyCard.tsx">
@@ -5191,307 +5469,6 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 }
 
 export default OptimizedImage
-</file>
-
-<file path="components/CoreFeaturesSection.tsx">
-'use client';
-
-import React, { memo } from 'react';
-import Link from 'next/link';
-
-// Step interface
-interface Step {
-  id: string;
-  number: string;
-  title: string;
-  description: string;
-  icon: string;
-  href: string;
-  color: string;
-}
-
-// Step data
-const STEPS: Step[] = [
-  {
-    id: 'discover',
-    number: '01',
-    title: 'Discover Your Skills',
-    description: 'Take our AI-powered skill assessment to uncover your unique talents and strengths',
-    icon: '🎯',
-    href: '/discover',
-    color: 'bg-blue-500'
-  },
-  {
-    id: 'learn',
-    number: '02', 
-    title: 'Test & Learn Skills',
-    description: 'Explore hands-on courses and test your abilities across 17+ in-demand skill areas',
-    icon: '📚',
-    href: '/learn-skill',
-    color: 'bg-purple-500'
-  },
-  {
-    id: 'resume',
-    number: '03',
-    title: 'Perfect Your Resume',
-    description: 'Get AI-powered feedback to craft a resume that stands out to employers',
-    icon: '📄',
-    href: '/resume-feedback',
-    color: 'bg-emerald-500'
-  },
-  {
-    id: 'opportunities',
-    number: '04',
-    title: 'Find Opportunities',
-    description: 'Access curated job listings, internships, and freelance projects tailored to your skills',
-    icon: '💼',
-    href: '/opportunities',
-    color: 'bg-orange-500'
-  }
-];
-
-const StepCard = memo(({ step, index }: { step: Step, index: number }) => (
-  <div className="w-full relative">
-    <Link href={step.href} className="group block">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 relative">
-        
-        {/* Step Number */}
-        <div className={`${step.color} text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-lg mb-4`}>
-          {step.number}
-        </div>
-
-        {/* Icon */}
-        <div className="text-4xl mb-4">
-          {step.icon}
-        </div>
-
-        {/* Content */}
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-          {step.title}
-        </h3>
-        
-        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-          {step.description}
-        </p>
-
-        {/* Call to Action */}
-        <div className="flex items-center text-sm font-medium text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
-          <span>Get Started</span>
-          <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </div>
-      </div>
-    </Link>
-
-    {/* FIXED: Modern Mobile Arrow - centered between cards */}
-    {index < STEPS.length - 1 && (
-      <div className="lg:hidden relative py-8 flex justify-center">
-        {/* Connection Line */}
-        <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-gray-200 dark:bg-gray-600 transform -translate-x-1/2"></div>
-        
-        {/* Modern Arrow */}
-        <div className="relative bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
-          <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-      </div>
-    )}
-  </div>
-));
-StepCard.displayName = 'StepCard';
-
-const CoreFeaturesSection = memo(() => (
-  <section className="py-20 relative">
-    <div className="max-w-7xl mx-auto px-6">
-      {/* UPDATED: Header with Question */}
-      <div className="text-center mb-16">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          How SkillDash Works?
-        </h2>
-        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          Follow our proven 4-step process to discover your potential, build skills, and land your dream opportunity
-        </p>
-      </div>
-
-      {/* Steps Grid with Connection Line */}
-      <div className="relative">
-        {/* ADDED: Connection Line Behind Cards (Desktop Only) */}
-        <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-gray-200 dark:bg-gray-600 transform -translate-y-1/2 z-0"></div>
-        
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-          {STEPS.map((step, index) => (
-            <StepCard key={step.id} step={step} index={index} />
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom CTA */}
-      <div className="text-center mt-16">
-        <Link 
-          href="/discover"
-          className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300 shadow-xl"
-        >
-          <span>Start Your Journey Now</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-  </section>
-));
-CoreFeaturesSection.displayName = 'CoreFeaturesSection';
-
-export default CoreFeaturesSection;
-</file>
-
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Directory for instrumented libs generated by jscoverage/JSCover
-lib-cov
-
-# Coverage directory used by tools like istanbul
-coverage
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Snowpack dependency directory (https://snowpack.dev/)
-web_modules/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variable files
-.env
-.env.*
-!.env.example
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
-
-# vuepress build output
-.vuepress/dist
-
-# vuepress v2.x temp and cache directory
-.temp
-.cache
-
-# Sveltekit cache directory
-.svelte-kit/
-
-# vitepress build output
-**/.vitepress/dist
-
-# vitepress cache directory
-**/.vitepress/cache
-
-# Docusaurus cache and generated files
-.docusaurus
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# Firebase cache directory
-.firebase/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v3
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# Vite logs files
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-.env.local
-.env*.local
-.vercel
 </file>
 
 <file path="postcss.config.js">
@@ -6107,6 +6084,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+</file>
+
+<file path=".eslintrc.json">
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {}
+}
 </file>
 
 <file path="app/api/discover-chat/route.ts">
@@ -6775,10 +6759,66 @@ export default function JobDetailsPage() {
 }
 </file>
 
-<file path=".eslintrc.json">
-{
-  "extends": ["next/core-web-vitals"],
-  "rules": {}
+<file path="components/AuthStatus.tsx">
+'use client';
+
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, getUserProfile } from '../lib/firebase';
+import { useRouter } from 'next/navigation';
+
+export default function AuthStatus() {
+    const [user, setUser] = useState<User | null>(null);
+    const [userName, setUserName] = useState<string | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setUser(currentUser);
+            if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
+            } else {
+                setUserName(null);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleAuthAction = () => {
+        if (user) {
+            router.push('/profile');
+        } else {
+            router.push('/auth');
+        }
+    };
+
+    // Helper function to get first name only
+    const getFirstName = (fullName: string) => {
+        return fullName.split(' ')[0];
+    };
+
+    return (
+        <div className="flex items-center">
+            <button
+                onClick={handleAuthAction}
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-700 rounded-md hover:shadow-lg transition-all whitespace-nowrap"
+            >
+                {user && userName ? (
+                    <div className="flex items-baseline gap-1 sm:gap-1.5">
+                        <span>Hi,</span>
+                        {/* ✅ Show first name only on mobile, full name on desktop */}
+                        <span className="font-bold">
+                            <span className="sm:hidden">{getFirstName(userName)}</span>
+                            <span className="hidden sm:inline">{userName}</span>
+                        </span>
+                    </div>
+                ) : (
+                    <span>Join</span>
+                )}
+            </button>
+        </div>
+    );
 }
 </file>
 
@@ -6917,66 +6957,13 @@ export default function AboutUsPage() {
 }
 </file>
 
-<file path="components/AuthStatus.tsx">
+<file path="components/Navbar.tsx">
 'use client';
 
-import { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, getUserProfile } from '../lib/firebase';
-import { useRouter } from 'next/navigation';
+import ModernNavbar from './ModernNavbar';
 
-export default function AuthStatus() {
-    const [user, setUser] = useState<User | null>(null);
-    const [userName, setUserName] = useState<string | null>(null);
-    const router = useRouter();
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            setUser(currentUser);
-            if (currentUser) {
-                const profile = await getUserProfile(currentUser.uid);
-                setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
-            } else {
-                setUserName(null);
-            }
-        });
-        return () => unsubscribe();
-    }, []);
-
-    const handleAuthAction = () => {
-        if (user) {
-            router.push('/profile');
-        } else {
-            router.push('/auth');
-        }
-    };
-
-    // Helper function to get first name only
-    const getFirstName = (fullName: string) => {
-        return fullName.split(' ')[0];
-    };
-
-    return (
-        <div className="flex items-center">
-            <button
-                onClick={handleAuthAction}
-                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-700 rounded-md hover:shadow-lg transition-all whitespace-nowrap"
-            >
-                {user && userName ? (
-                    <div className="flex items-baseline gap-1 sm:gap-1.5">
-                        <span>Hi,</span>
-                        {/* ✅ Show first name only on mobile, full name on desktop */}
-                        <span className="font-bold">
-                            <span className="sm:hidden">{getFirstName(userName)}</span>
-                            <span className="hidden sm:inline">{userName}</span>
-                        </span>
-                    </div>
-                ) : (
-                    <span>Join</span>
-                )}
-            </button>
-        </div>
-    );
+export default function Navbar() {
+  return <ModernNavbar />;
 }
 </file>
 
@@ -8057,16 +8044,6 @@ export default function JobSeekerPage() {
       </div>
     </div>
   );
-}
-</file>
-
-<file path="components/Navbar.tsx">
-'use client';
-
-import ModernNavbar from './ModernNavbar';
-
-export default function Navbar() {
-  return <ModernNavbar />;
 }
 </file>
 
@@ -10034,6 +10011,301 @@ const TypingHeroSection = () => {
 export default TypingHeroSection;
 </file>
 
+<file path="app/auth/page.tsx">
+"use client"
+
+import React, { useState, useEffect, useCallback } from 'react'
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile, signInAsGuest } from '../../lib/firebase'
+import { useRouter } from 'next/navigation'
+import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
+import OptimizedImage from '../../components/shared/OptimizedImage'
+import AuthForm from '../../components/AuthForm'
+import SocialAuth from '../../components/SocialAuth'
+
+export default function AuthPage() {
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    age: '',
+    status: '',
+    password: '',
+    confirmPassword: ''
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
+  const [redirectMessage, setRedirectMessage] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Handle redirect message
+    const msg = sessionStorage.getItem('redirectMessage')
+    if (msg) {
+      setRedirectMessage(msg)
+      sessionStorage.removeItem('redirectMessage')
+    }
+
+    // Secure auth state management
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile'
+        sessionStorage.removeItem('redirectAfterLogin')
+        router.push(redirectPath)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    setError('') // Clear error on input change
+  }, [])
+
+  // Guest login handler
+  const handleGuestLogin = async () => {
+    setIsLoading(true)
+    setError('')
+    
+    try {
+      await signInAsGuest()
+      setMessage('Signed in as Guest! Welcome to SkillDash.')
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSignUp = async () => {
+    // Rate limiting
+    if (!rateLimit(`signup:${formData.email}`)) {
+      setError('Too many signup attempts. Please try again later.')
+      return
+    }
+
+    // Client-side validation
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    const passwordValidation = validatePassword(formData.password)
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message)
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    if (!formData.name?.trim() || formData.name.length < 2) {
+      setError('Please enter a valid name (at least 2 characters).')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const profileData = {
+        email: formData.email.trim().toLowerCase(),
+        name: formData.name.trim(),
+        age: formData.age ? Math.max(13, Math.min(100, parseInt(formData.age, 10))) : null,
+        status: formData.status,
+        phone: formData.phone?.trim()
+      }
+
+      await signUpWithEmailPasswordAndProfile(profileData, formData.password)
+      setMessage('Account created! Please check your email for verification.')
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSignIn = async () => {
+    // Rate limiting
+    if (!rateLimit(`signin:${formData.email}`)) {
+      setError('Too many login attempts. Please try again later.')
+      return
+    }
+
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      await signInWithEmailAndPassword(auth, formData.email.trim().toLowerCase(), formData.password)
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    if (!rateLimit('google:signin')) {
+      setError('Too many attempts. Please try again later.')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      await signInWithSocialProviderAndCreateProfile(googleProvider)
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGitHubSignIn = async () => {
+    if (!rateLimit('github:signin')) {
+      setError('Too many attempts. Please try again later.')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      await signInWithSocialProviderAndCreateProfile(githubProvider)
+    } catch (err: any) {
+      setError(sanitizeError(err))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (isLoading) return
+    isSignUp ? handleSignUp() : handleSignIn()
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
+        
+        <div className="text-center">
+          {/* OPTIMIZED: Replaced img tag with OptimizedImage component */}
+          <OptimizedImage
+            src="/skilldash-logo.png"
+            alt="SkillDash Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-4"
+            priority={true}
+            sizes="64px"
+          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+            {isSignUp ? 'Create an Account' : 'Welcome Back'}
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+            {isSignUp ? 'Join SkillDash to start your journey.' : 'Sign in to access your dashboard.'}
+          </p>
+        </div>
+
+        {/* GPFutureMaker Badge - Only above guest login */}
+        <div className="relative">
+          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+            GPFutureMaker
+          </div>
+          
+          {/* Guest Login Button */}
+          <div className="pt-4">
+            <button
+              onClick={handleGuestLogin}
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <span className="text-orange-500 text-lg">👤</span>
+              </span>
+              {isLoading ? 'Signing in...' : 'Continue as Guest'}
+            </button>
+            
+            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+              Quick access to explore all features
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
+          </div>
+        </div>
+
+        {/* Redirect Message */}
+        {redirectMessage && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 mb-4 rounded-md border border-blue-200 dark:border-blue-700">
+            <p className="text-blue-700 dark:text-blue-300 text-sm text-center">{redirectMessage}</p>
+          </div>
+        )}
+
+        <SocialAuth 
+          handleGoogleSignIn={handleGoogleSignIn}
+          handleGitHubSignIn={handleGitHubSignIn}
+          isLoading={isLoading}
+        />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
+          </div>
+        </div>
+
+        <AuthForm
+          isSignUp={isSignUp}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          isLoading={isLoading}
+          error={error}
+          message={message}
+        />
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignUp(!isSignUp)
+              setError('')
+              setMessage('')
+            }}
+            className="text-violet-600 dark:text-violet-400 hover:text-violet-500 font-medium"
+          >
+            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+</file>
+
 <file path="app/globals.css">
 @tailwind base;
 @tailwind components;
@@ -10465,341 +10737,6 @@ button:disabled {
 }
 </file>
 
-<file path="app/auth/page.tsx">
-"use client"
-
-import React, { useState, useEffect, useCallback } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile, signInAsGuest } from '../../lib/firebase'
-import { useRouter } from 'next/navigation'
-import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
-import OptimizedImage from '../../components/shared/OptimizedImage'
-import AuthForm from '../../components/AuthForm'
-import SocialAuth from '../../components/SocialAuth'
-
-export default function AuthPage() {
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    age: '',
-    status: '',
-    password: '',
-    confirmPassword: ''
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
-  const [redirectMessage, setRedirectMessage] = useState<string | null>(null)
-  const router = useRouter()
-
-  useEffect(() => {
-    // Handle redirect message
-    const msg = sessionStorage.getItem('redirectMessage')
-    if (msg) {
-      setRedirectMessage(msg)
-      sessionStorage.removeItem('redirectMessage')
-    }
-
-    // Secure auth state management
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile'
-        sessionStorage.removeItem('redirectAfterLogin')
-        router.push(redirectPath)
-      }
-    })
-
-    return () => unsubscribe()
-  }, [router])
-
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    setError('') // Clear error on input change
-  }, [])
-
-  // Guest login handler
-  const handleGuestLogin = async () => {
-    setIsLoading(true)
-    setError('')
-    
-    try {
-      await signInAsGuest()
-      setMessage('Signed in as Guest! Welcome to SkillDash.')
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSignUp = async () => {
-    // Rate limiting
-    if (!rateLimit(`signup:${formData.email}`)) {
-      setError('Too many signup attempts. Please try again later.')
-      return
-    }
-
-    // Client-side validation
-    if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address.')
-      return
-    }
-
-    const passwordValidation = validatePassword(formData.password)
-    if (!passwordValidation.isValid) {
-      setError(passwordValidation.message)
-      return
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
-
-    if (!formData.name?.trim() || formData.name.length < 2) {
-      setError('Please enter a valid name (at least 2 characters).')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      const profileData = {
-        email: formData.email.trim().toLowerCase(),
-        name: formData.name.trim(),
-        age: formData.age ? Math.max(13, Math.min(100, parseInt(formData.age, 10))) : null,
-        status: formData.status,
-        phone: formData.phone?.trim()
-      }
-
-      await signUpWithEmailPasswordAndProfile(profileData, formData.password)
-      setMessage('Account created! Please check your email for verification.')
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSignIn = async () => {
-    // Rate limiting
-    if (!rateLimit(`signin:${formData.email}`)) {
-      setError('Too many login attempts. Please try again later.')
-      return
-    }
-
-    if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address.')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      await signInWithEmailAndPassword(auth, formData.email.trim().toLowerCase(), formData.password)
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleGoogleSignIn = async () => {
-    if (!rateLimit('google:signin')) {
-      setError('Too many attempts. Please try again later.')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      await signInWithSocialProviderAndCreateProfile(googleProvider)
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleGitHubSignIn = async () => {
-    if (!rateLimit('github:signin')) {
-      setError('Too many attempts. Please try again later.')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      await signInWithSocialProviderAndCreateProfile(githubProvider)
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isLoading) return
-    isSignUp ? handleSignUp() : handleSignIn()
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
-        
-        <div className="text-center">
-          {/* OPTIMIZED: Replaced img tag with OptimizedImage component */}
-          <OptimizedImage
-            src="/skilldash-logo.png"
-            alt="SkillDash Logo"
-            width={64}
-            height={64}
-            className="mx-auto mb-4"
-            priority={true}
-            sizes="64px"
-          />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            {isSignUp ? 'Create an Account' : 'Welcome Back'}
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            {isSignUp ? 'Join SkillDash to start your journey.' : 'Sign in to access your dashboard.'}
-          </p>
-        </div>
-
-        {/* GPFutureMaker Badge - Only above guest login */}
-        <div className="relative">
-          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
-            GPFutureMaker
-          </div>
-          
-          {/* Guest Login Button */}
-          <div className="pt-4">
-            <button
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <span className="text-orange-500 text-lg">👤</span>
-              </span>
-              {isLoading ? 'Signing in...' : 'Continue as Guest'}
-            </button>
-            
-            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-              Quick access to explore all features
-            </p>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
-          </div>
-        </div>
-
-        {/* Redirect Message */}
-        {redirectMessage && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 mb-4 rounded-md border border-blue-200 dark:border-blue-700">
-            <p className="text-blue-700 dark:text-blue-300 text-sm text-center">{redirectMessage}</p>
-          </div>
-        )}
-
-        <SocialAuth 
-          handleGoogleSignIn={handleGoogleSignIn}
-          handleGitHubSignIn={handleGitHubSignIn}
-          isLoading={isLoading}
-        />
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
-          </div>
-        </div>
-
-        <AuthForm
-          isSignUp={isSignUp}
-          formData={formData}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          isLoading={isLoading}
-          error={error}
-          message={message}
-        />
-
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp)
-              setError('')
-              setMessage('')
-            }}
-            className="text-violet-600 dark:text-violet-400 hover:text-violet-500 font-medium"
-          >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-</file>
-
-<file path="app/layout.tsx">
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Navbar from '../components/Navbar'
-import { AuthProvider } from '../contexts/AuthContext' // ✅ FIXED: Named import
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/react"
-
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'SkillDash: AI-Powered Skill Platform for Bangladesh\'s Youth',
-  description: 'The AI-Powered platform for Bangladesh\'s youth to discover skills, learn new courses, get resume feedback, and find opportunities.',
-}
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return (
-    <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      {/* ✅ FIX: Add proper background that works for all pages */}
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
-        <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-        </AuthProvider>
-        <SpeedInsights />
-        <Analytics />
-      </body>
-    </html>
-  )
-}
-</file>
-
 <file path="lib/firebase.ts">
 // lib/firebase.ts - FIXED VERSION
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -11018,6 +10955,84 @@ export {
     signInWithEmailAndPassword,
     getRedirectResult
 };
+</file>
+
+<file path="app/layout.tsx">
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Navbar from '../components/Navbar'
+import { AuthProvider } from '../contexts/AuthContext'
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react"
+
+const GTM_ID = 'GTM-MT2LDFM3'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'SkillDash: AI-Powered Skill Platform for Bangladesh\'s Youth',
+  description: 'The AI-Powered platform for Bangladesh\'s youth to discover skills, learn new courses, get resume feedback, and find opportunities.',
+  keywords: [
+    "skills", "Bangladesh", "youth", "AI", "jobs", "resume", "courses", "freelancing", "digital skills"
+  ],
+  openGraph: {
+    title: "SkillDash - AI Gateway for Career Readiness",
+    description: "Unlock your skills, grow your career. Discover, Learn, Get Hired.",
+    url: "https://skilldash.live",
+    type: "website"
+  }
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* SEO & OpenGraph */}
+        <meta property="og:title" content="SkillDash - AI Gateway for Career Readiness" />
+        <meta property="og:description" content="Unlock your skills, grow your career. Discover, Learn, Get Hired." />
+        <meta property="og:url" content="https://skilldash.live" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://skilldash.live/og-image.png" />
+        <meta name="keywords" content="skills, Bangladesh, youth, AI, jobs, resume, courses, freelancing, digital skills" />
+        {/* Google Tag Manager (head) */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function(w,d,s,l,i){
+              w[l]=w[l]||[];
+              w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+              var f=d.getElementsByTagName(s)[0],
+                  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+              j.async=true;
+              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+              f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${GTM_ID}');
+          `
+        }} />
+      </head>
+      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
+        {/* Google Tag Manager (body) */}
+        <noscript>
+          <iframe 
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}>
+          </iframe>
+        </noscript>
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+        </AuthProvider>
+        <SpeedInsights />
+        <Analytics />
+      </body>
+    </html>
+  )
+}
 </file>
 
 <file path="package.json">
