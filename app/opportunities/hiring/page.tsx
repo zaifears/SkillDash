@@ -19,18 +19,21 @@ const ComingSoonFeatures = dynamic(() => import('../../../components/hiring/Comi
 
 export default function HiringPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <HiringHeader />
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="max-w-5xl mx-auto px-4 -mt-8 relative z-10">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <ContactForm />
           <BenefitsSection />
           <ComingSoonFeatures />
         </div>
       </div>
+
+      {/* Bottom spacing */}
+      <div className="h-12"></div>
     </div>
   );
 }

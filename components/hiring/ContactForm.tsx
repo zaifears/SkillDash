@@ -57,11 +57,18 @@ const ContactForm = React.memo(() => {
           ) : (
             <>
               <MailIcon />
-              <span className="ml-3 relative z-10">Post Your Job Opportunity</span>
+              <span className="ml-3 relative z-10">Email us to post your job opportunity</span>
               <ArrowRightIcon />
             </>
           )}
         </a>
+
+        {/* Helper text */}
+        <div className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-4">
+          <p className="italic">
+            You don't need to write everything from scratch. The email template is pre-written – just add your specific job details and send it to us.
+          </p>
+        </div>
       </div>
     </div>
   );
