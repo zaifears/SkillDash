@@ -1,52 +1,49 @@
 'use client';
 
-import React, { useState, useRef, FormEvent, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useRef, FormEvent, useEffect, useCallback, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import FeedbackCard from '../../components/resume-feedback/FeedbackCard';
 
 // --- Type Definitions ---
-type Step = 'industry' | 'resume' | 'job-description' | 'chat';
+interface ResumeFeedback {
+    overallScore: string;
+    overallFeedback: string;
+    detailedSuggestions: {
+        contactInfo?: string[];
+        summary?: string[];
+        education?: string[];
+        experience?: string[];
+        projects?: string[];
+        skills?: string[];
+    };
+    physicalFormattingTips?: string[];
+    bangladeshContextTips?: string[];
+    suggestedActionVerbs?: string[];
+    linkedinSynergy?: string;
+    atsScore?: number;
+    marketInsights?: string[];
+}
 
 interface Message {
   role: 'user' | 'assistant';
   content: string | React.ReactNode;
 }
 
-interface ResumeFeedback {
-  summary: string;
-  strengths: {
-    technical?: string[];
-    soft?: string[];
-    experience?: string[];
-    education?: string[];
-  };
-  weaknesses: {
-    technical?: string[];
-    soft?: string[];
-    experience?: string[];
-    education?: string[];
-  };
-  recommendations: {
-    skillsToDevelop?: string[];
-    experienceToGain?: string[];
-    formattingTips?: string[];
-    actionableSteps?: string[];
-  };
-  additionalSkillRequired?: string[];
-  suggestedCourses?: Array<{
-    title: string;
-    description: string;
-    priority: string;
-  }>;
-  confidenceScore: number;
-  atsScore?: number;
-  marketInsights?: string[];
-}
+type Step = 'industry' | 'resume' | 'job-description' | 'chat';
 
-// --- Memoized Helper Icons & Components ---
+// --- Helper Components ---
+const AuthLoadingScreen = memo(() => (
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black items-center justify-center px-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+    </div>
+));
+AuthLoadingScreen.displayName = 'AuthLoadingScreen';
+
 const BotIcon = memo(() => (
-  <img src="/skilldash-logo.png" alt="SkillDash AI Avatar" className="w-10 h-10 rounded-full shadow-md object-cover" loading="lazy" />
+  <img src="/skilldash-logo.png" alt="SkillDash AI" className="w-10 h-10 rounded-full shadow-md object-cover" />
 ));
 BotIcon.displayName = 'BotIcon';
 
@@ -59,815 +56,225 @@ const LoadingDots = memo(() => (
 ));
 LoadingDots.displayName = 'LoadingDots';
 
-const AuthLoadingScreen = memo(() => (
-  <div className="flex flex-col h-screen bg-gray-50 dark:bg-black items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
-  </div>
-));
-AuthLoadingScreen.displayName = 'AuthLoadingScreen';
-
-// --- Highly Optimized Sub-components ---
-const ListRenderer = memo(({ items, colorClass }: { items?: string[]; colorClass: string }) => (
-  <ul className="space-y-3">
-    {items?.map((item, index) => (
-      <li key={item.slice(0, 20) + index} className={`flex items-start ${colorClass}`}>
-        <span className="w-2 h-2 bg-current rounded-full mt-2 mr-3 flex-shrink-0"></span>
-        <span className="leading-relaxed">{item}</span>
-      </li>
-    )) || []}
-  </ul>
-));
-ListRenderer.displayName = 'ListRenderer';
-
-const SubSection = memo(({ title, items, colorClass }: { title: string; items?: string[]; colorClass: string }) => (
-  items && items.length > 0 ? (
-    <div className="mb-6">
-      <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
-        {title}
-      </h4>
-      <ListRenderer items={items} colorClass={colorClass} />
-    </div>
-  ) : null
-));
-SubSection.displayName = 'SubSection';
-
-const CourseCard = memo(({ course, index }: { course: { title: string; description: string; priority: string }; index: number }) => {
-  const priorityStyles = useMemo(() => {
-    switch (course.priority) {
-      case 'High':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      case 'Medium':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      default:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+// Helper function to convert JSON to readable text
+const convertJsonToReadableText = (feedback: ResumeFeedback): string => {
+  let text = `RESUME ANALYSIS REPORT\n\n`;
+  
+  text += `OVERALL SCORE: ${feedback.overallScore}\n\n`;
+  text += `OVERALL FEEDBACK:\n${feedback.overallFeedback}\n\n`;
+  
+  if (feedback.detailedSuggestions) {
+    text += `DETAILED SUGGESTIONS:\n\n`;
+    
+    if (feedback.detailedSuggestions.contactInfo) {
+      text += `Contact Info:\n`;
+      feedback.detailedSuggestions.contactInfo.forEach(item => text += `• ${item}\n`);
+      text += `\n`;
     }
-  }, [course.priority]);
-
-  return (
-    <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 border border-orange-200 dark:border-orange-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-bold text-orange-800 dark:text-orange-300 text-lg">{course.title}</h4>
-        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${priorityStyles}`}>
-          {course.priority}
-        </span>
-      </div>
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{course.description}</p>
-    </div>
-  );
-});
-CourseCard.displayName = 'CourseCard';
-
-// --- Main Feedback Display Component ---
-const FeedbackCard = memo(({ feedback, providerInfo }: { feedback: ResumeFeedback; providerInfo?: string }) => {
-  const [showRawJson, setShowRawJson] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    strengths: true,
-    weaknesses: false,
-    recommendations: false,
-    additionalSkills: false,
-    courses: false,
-    insights: false,
-    nextSteps: false
-  });
-
-  const toggleSection = useCallback((section: string) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  }, []);
-
-  const toggleJsonView = useCallback(() => {
-    setShowRawJson(prev => !prev);
-  }, []);
-
-  // Memoize expensive renders
-  const courseCards = useMemo(() => 
-    feedback.suggestedCourses?.map((course, index) => (
-      <CourseCard key={course.title + index} course={course} index={index} />
-    )) || [], [feedback.suggestedCourses]
-  );
-
-  if (showRawJson) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Raw JSON Data</h3>
-          <button onClick={toggleJsonView} className="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800">
-            Show Modern View
-          </button>
-        </div>
-        <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-auto text-sm text-gray-800 dark:text-gray-200">
-          {JSON.stringify(feedback, null, 2)}
-        </pre>
-        {providerInfo && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-            {providerInfo}
-          </div>
-        )}
-      </div>
-    );
+    
+    if (feedback.detailedSuggestions.summary) {
+      text += `Summary/Objective:\n`;
+      feedback.detailedSuggestions.summary.forEach(item => text += `• ${item}\n`);
+      text += `\n`;
+    }
+    
+    if (feedback.detailedSuggestions.experience) {
+      text += `Experience:\n`;
+      feedback.detailedSuggestions.experience.forEach(item => text += `• ${item}\n`);
+      text += `\n`;
+    }
+    
+    if (feedback.detailedSuggestions.skills) {
+      text += `Skills:\n`;
+      feedback.detailedSuggestions.skills.forEach(item => text += `• ${item}\n`);
+      text += `\n`;
+    }
   }
+  
+  if (feedback.physicalFormattingTips) {
+    text += `FORMATTING TIPS:\n`;
+    feedback.physicalFormattingTips.forEach(tip => text += `• ${tip}\n`);
+    text += `\n`;
+  }
+  
+  if (feedback.bangladeshContextTips) {
+    text += `BANGLADESH CONTEXT TIPS:\n`;
+    // FIXED: Changed 'item' to 'tip'
+    feedback.bangladeshContextTips.forEach(tip => text += `• ${tip}\n`);
+    text += `\n`;
+  }
+  
+  if (feedback.suggestedActionVerbs) {
+    text += `SUGGESTED ACTION VERBS:\n`;
+    text += feedback.suggestedActionVerbs.join(', ') + `\n\n`;
+  }
+  
+  if (feedback.linkedinSynergy) {
+    text += `LINKEDIN SYNERGY:\n${feedback.linkedinSynergy}\n\n`;
+  }
+  
+  if (feedback.atsScore) {
+    text += `ATS SCORE: ${feedback.atsScore}/10\n\n`;
+  }
+  
+  if (feedback.marketInsights) {
+    text += `MARKET INSIGHTS:\n`;
+    feedback.marketInsights.forEach(insight => text += `• ${insight}\n`);
+  }
+  
+  return text;
+};
 
-  return (
-    <div className="space-y-6">
-      {/* Modern Header with Metrics */}
-      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-8 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-        <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-        <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold">Resume Analysis Complete</h3>
-                <p className="text-blue-100">Professional assessment for Bangladesh market</p>
-              </div>
-            </div>
-            <button 
-              onClick={toggleJsonView} 
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium backdrop-blur-sm transition-all"
-            >
-              View JSON
-            </button>
-          </div>
-          
-          {/* Score Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">Overall Score</p>
-                  <p className="text-3xl font-bold">{feedback.confidenceScore}<span className="text-xl">/10</span></p>
-                </div>
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-sm font-bold ${
-                  feedback.confidenceScore >= 8 ? 'bg-green-500' : 
-                  feedback.confidenceScore >= 6 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}>
-                  {feedback.confidenceScore >= 8 ? '🏆' : 
-                   feedback.confidenceScore >= 6 ? '👍' : '📈'}
-                </div>
-              </div>
-            </div>
-            
-            {feedback.atsScore && (
-              <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100 text-sm">ATS Friendly</p>
-                    <p className="text-3xl font-bold">{feedback.atsScore}<span className="text-xl">/10</span></p>
-                  </div>
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center text-sm font-bold ${
-                    feedback.atsScore >= 8 ? 'bg-green-500' : 
-                    feedback.atsScore >= 6 ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}>
-                    🤖
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Summary */}
-          <div className="bg-white/10 rounded-xl p-5 backdrop-blur-sm">
-            <h4 className="font-semibold mb-3 flex items-center">
-              <span className="mr-2">📋</span>
-              Executive Summary
-            </h4>
-            <p className="leading-relaxed text-blue-50">{feedback.summary}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Modern Card Layout */}
-      <div className="grid gap-6">
-        {/* Strengths - Green Theme */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <button 
-            onClick={() => toggleSection('strengths')} 
-            className="w-full px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-800 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all duration-200 flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                💪
-              </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-green-800 dark:text-green-300">Your Strengths</h3>
-                <p className="text-green-600 dark:text-green-400 text-sm">What makes you stand out</p>
-              </div>
-            </div>
-            <svg className={`w-6 h-6 text-green-600 transition-transform ${expandedSections.strengths ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {expandedSections.strengths && (
-            <div className="p-6">
-              <div className="grid gap-4">
-                <SubSection title="💻 Technical Skills" items={feedback.strengths.technical} colorClass="text-green-700 dark:text-green-300" />
-                <SubSection title="🤝 Soft Skills" items={feedback.strengths.soft} colorClass="text-green-700 dark:text-green-300" />
-                <SubSection title="🎯 Experience" items={feedback.strengths.experience} colorClass="text-green-700 dark:text-green-300" />
-                <SubSection title="🎓 Education" items={feedback.strengths.education} colorClass="text-green-700 dark:text-green-300" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Weaknesses - Red Theme */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <button 
-            onClick={() => toggleSection('weaknesses')} 
-            className="w-full px-6 py-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-red-200 dark:border-red-800 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 transition-all duration-200 flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                🎯
-              </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-red-800 dark:text-red-300">Areas to Improve</h3>
-                <p className="text-red-600 dark:text-red-400 text-sm">Focus areas for growth</p>
-              </div>
-            </div>
-            <svg className={`w-6 h-6 text-red-600 transition-transform ${expandedSections.weaknesses ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {expandedSections.weaknesses && (
-            <div className="p-6">
-              <div className="grid gap-4">
-                <SubSection title="⚡ Technical Gaps" items={feedback.weaknesses.technical} colorClass="text-red-700 dark:text-red-300" />
-                <SubSection title="🎭 Soft Skills" items={feedback.weaknesses.soft} colorClass="text-red-700 dark:text-red-300" />
-                <SubSection title="📊 Experience" items={feedback.weaknesses.experience} colorClass="text-red-700 dark:text-red-300" />
-                <SubSection title="📚 Education" items={feedback.weaknesses.education} colorClass="text-red-700 dark:text-red-300" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Recommendations - Blue Theme */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <button 
-            onClick={() => toggleSection('recommendations')} 
-            className="w-full px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-b border-blue-200 dark:border-blue-800 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                🚀
-              </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300">Action Plan</h3>
-                <p className="text-blue-600 dark:text-blue-400 text-sm">Your roadmap to success</p>
-              </div>
-            </div>
-            <svg className={`w-6 h-6 text-blue-600 transition-transform ${expandedSections.recommendations ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {expandedSections.recommendations && (
-            <div className="p-6">
-              <div className="grid gap-4">
-                <SubSection title="🛠️ Skills to Build" items={feedback.recommendations.skillsToDevelop} colorClass="text-blue-700 dark:text-blue-300" />
-                <SubSection title="💼 Experience to Gain" items={feedback.recommendations.experienceToGain} colorClass="text-blue-700 dark:text-blue-300" />
-                <SubSection title="📝 Resume Format" items={feedback.recommendations.formattingTips} colorClass="text-blue-700 dark:text-blue-300" />
-                <SubSection title="⚡ Quick Wins" items={feedback.recommendations.actionableSteps} colorClass="text-blue-700 dark:text-blue-300" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Additional Skills - Purple Theme */}
-        {feedback.additionalSkillRequired && feedback.additionalSkillRequired.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <button 
-              onClick={() => toggleSection('additionalSkills')} 
-              className="w-full px-6 py-5 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 border-b border-purple-200 dark:border-purple-800 hover:from-purple-100 hover:to-violet-100 dark:hover:from-purple-900/30 dark:hover:to-violet-900/30 transition-all duration-200 flex items-center justify-between"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                  ⚡
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xl font-bold text-purple-800 dark:text-purple-300">Must-Have Skills</h3>
-                  <p className="text-purple-600 dark:text-purple-400 text-sm">Essential for your target role</p>
-                </div>
-              </div>
-              <svg className={`w-6 h-6 text-purple-600 transition-transform ${expandedSections.additionalSkills ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {expandedSections.additionalSkills && (
-              <div className="p-6">
-                <ListRenderer items={feedback.additionalSkillRequired} colorClass="text-purple-700 dark:text-purple-300" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Suggested Courses - Orange Theme */}
-        {feedback.suggestedCourses && feedback.suggestedCourses.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <button 
-              onClick={() => toggleSection('courses')} 
-              className="w-full px-6 py-5 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-b border-orange-200 dark:border-orange-800 hover:from-orange-100 hover:to-amber-100 dark:hover:from-orange-900/30 dark:hover:to-amber-900/30 transition-all duration-200 flex items-center justify-between"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                  📚
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xl font-bold text-orange-800 dark:text-orange-300">Learning Path</h3>
-                  <p className="text-orange-600 dark:text-orange-400 text-sm">Recommended courses for growth</p>
-                </div>
-              </div>
-              <svg className={`w-6 h-6 text-orange-600 transition-transform ${expandedSections.courses ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {expandedSections.courses && (
-              <div className="p-6">
-                <div className="grid gap-4">
-                  {courseCards}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Market Insights - Teal Theme */}
-        {feedback.marketInsights && feedback.marketInsights.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <button 
-              onClick={() => toggleSection('insights')} 
-              className="w-full px-6 py-5 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border-b border-teal-200 dark:border-teal-800 hover:from-teal-100 hover:to-cyan-100 dark:hover:from-teal-900/30 dark:hover:to-cyan-900/30 transition-all duration-200 flex items-center justify-between"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                  📊
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xl font-bold text-teal-800 dark:text-teal-300">Market Intel</h3>
-                  <p className="text-teal-600 dark:text-teal-400 text-sm">Bangladesh job market insights</p>
-                </div>
-              </div>
-              <svg className={`w-6 h-6 text-teal-600 transition-transform ${expandedSections.insights ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {expandedSections.insights && (
-              <div className="p-6">
-                <ListRenderer items={feedback.marketInsights} colorClass="text-teal-700 dark:text-teal-300" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Next Steps - Gradient Theme */}
-        <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-1 shadow-lg">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-            <button 
-              onClick={() => toggleSection('nextSteps')} 
-              className="w-full px-6 py-5 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 transition-all duration-200 flex items-center justify-between"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                  🎯
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Continue Your Journey</h3>
-                  <p className="text-indigo-600 dark:text-indigo-400 text-sm">Explore SkillDash features to grow</p>
-                </div>
-              </div>
-              <svg className={`w-6 h-6 text-indigo-600 transition-transform ${expandedSections.nextSteps ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {expandedSections.nextSteps && (
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <a 
-                    href="/learn-skill" 
-                    className="group bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 rounded-xl p-6 transition-all duration-200 hover:shadow-lg transform hover:scale-105"
-                  >
-                    <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl mb-4 mx-auto group-hover:scale-110 transition-transform">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                    <h4 className="font-bold text-lg text-blue-800 dark:text-blue-300 mb-2 text-center group-hover:text-blue-600">Learn Skills</h4>
-                    <p className="text-blue-600 dark:text-blue-400 text-sm text-center leading-relaxed">
-                      Master in-demand skills with curated courses and hands-on projects designed for the Bangladesh market.
-                    </p>
-                  </a>
-
-                  <a 
-                    href="/resume-feedback" 
-                    className="group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 hover:border-green-300 dark:hover:border-green-700 rounded-xl p-6 transition-all duration-200 hover:shadow-lg transform hover:scale-105"
-                  >
-                    <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl mb-4 mx-auto group-hover:scale-110 transition-transform">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h4 className="font-bold text-lg text-green-800 dark:text-green-300 mb-2 text-center group-hover:text-green-600">AI Resume Review</h4>
-                    <p className="text-green-600 dark:text-green-400 text-sm text-center leading-relaxed">
-                      Get another detailed analysis with our AI coach. Perfect your resume for Bangladesh employers.
-                    </p>
-                  </a>
-
-                  <a 
-                    href="/opportunities" 
-                    className="group bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 rounded-xl p-6 transition-all duration-200 hover:shadow-lg transform hover:scale-105"
-                  >
-                    <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl mb-4 mx-auto group-hover:scale-110 transition-transform">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-                      </svg>
-                    </div>
-                    <h4 className="font-bold text-lg text-purple-800 dark:text-purple-300 mb-2 text-center group-hover:text-purple-600">Find Opportunities</h4>
-                    <p className="text-purple-600 dark:text-purple-400 text-sm text-center leading-relaxed">
-                      Discover job openings, internships, and career opportunities tailored to your skills and location.
-                    </p>
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Provider Info */}
-      {providerInfo && (
-        <div className="text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-xs text-gray-500 dark:text-gray-400">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {providerInfo}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-});
-FeedbackCard.displayName = 'FeedbackCard';
-
-// --- Memoized Form Components ---
-const IndustryStep = memo(({ industryPreference, setIndustryPreference, onNext, onKeyDown }: {
-  industryPreference: string;
-  setIndustryPreference: (value: string) => void;
-  onNext: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}) => (
-  <div className="max-w-md mx-auto space-y-6">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Step 1: Your Target Industry</h2>
-      <p className="text-gray-600 dark:text-gray-400">Which industry are you aiming for?</p>
-    </div>
-    <div className="space-y-4">
-      <input
-        type="text"
-        value={industryPreference}
-        onChange={(e) => setIndustryPreference(e.target.value)}
-        onKeyDown={onKeyDown}
-        placeholder="e.g., Tech, Finance, Marketing..."
-        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
-        autoFocus
-      />
-      <button
-        onClick={onNext}
-        className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg hover:shadow-lg transition-all"
-      >
-        Next: Provide Resume
-      </button>
-    </div>
-  </div>
-));
-IndustryStep.displayName = 'IndustryStep';
-
-const ResumeStep = memo(({ resumeText, setResumeText, onNext, onBack, onKeyDown }: {
-  resumeText: string;
-  setResumeText: (value: string) => void;
-  onNext: () => void;
-  onBack: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}) => (
-  <div className="max-w-2xl mx-auto space-y-6">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Step 2: Resume Content</h2>
-      <p className="text-gray-600 dark:text-gray-400">Paste your resume content below.</p>
-      {/* Helper text for users */}
-      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          💡 <strong>Tip:</strong> Please select all the content of your resume or click <kbd className="px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-xs">Ctrl + A</kbd> to select all text, then <kbd className="px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded text-xs">Ctrl + C</kbd> to copy and paste it here.
-        </p>
-      </div>
-    </div>
-    <div className="space-y-4">
-      <textarea
-        value={resumeText}
-        onChange={(e) => setResumeText(e.target.value)}
-        onKeyDown={onKeyDown}
-        placeholder="Paste your resume content here (avoid personal details)..."
-        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
-        rows={10}
-      />
-      <div className="flex gap-3">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          Back
-        </button>
-        <button
-          onClick={onNext}
-          className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg hover:shadow-lg transition-all"
-        >
-          Next: Job Description
-        </button>
-      </div>
-    </div>
-  </div>
-));
-ResumeStep.displayName = 'ResumeStep';
-
-const JobDescriptionStep = memo(({ jobDescription, setJobDescription, onNext, onSkip, onBack, onKeyDown }: {
-  jobDescription: string;
-  setJobDescription: (value: string) => void;
-  onNext: () => void;
-  onSkip: () => void;
-  onBack: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}) => (
-  <div className="max-w-2xl mx-auto space-y-6">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Step 3: Job Description (Optional)</h2>
-      <p className="text-gray-600 dark:text-gray-400">For more targeted feedback, paste a job description below.</p>
-    </div>
-    <div className="space-y-4">
-      <textarea
-        value={jobDescription}
-        onChange={(e) => setJobDescription(e.target.value)}
-        onKeyDown={onKeyDown}
-        placeholder="Paste the job description you're targeting..."
-        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
-        rows={8}
-      />
-      <div className="flex gap-3">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          Back
-        </button>
-        <button
-          onClick={onSkip}
-          className="px-6 py-3 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
-        >
-          Skip & Analyze
-        </button>
-        <button
-          onClick={onNext}
-          className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg hover:shadow-lg transition-all"
-        >
-          Analyze Resume
-        </button>
-      </div>
-    </div>
-  </div>
-));
-JobDescriptionStep.displayName = 'JobDescriptionStep';
-
+// --- Main Page Component ---
 export default function ResumeFeedbackPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // --- State Management ---
   const [currentStep, setCurrentStep] = useState<Step>('industry');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [conversationEnded, setConversationEnded] = useState(false);
+  const [parsedFeedback, setParsedFeedback] = useState<ResumeFeedback | null>(null);
 
-  // Form data
   const [industryPreference, setIndustryPreference] = useState('');
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [userInput, setUserInput] = useState('');
 
-  // Store the initial feedback for context
-  const [initialFeedback, setInitialFeedback] = useState<ResumeFeedback | null>(null);
-
-  // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
-  // Memoized auth redirect effect
   useEffect(() => {
     if (!loading && !user) {
-      sessionStorage.setItem('redirectMessage', 'Please log in to use the AI Resume Feedback feature. We require login for fair usage.');
-      sessionStorage.setItem('redirectAfterLogin', 'resume-feedback');
+      sessionStorage.setItem('redirectMessage', 'Please log in for AI Resume Feedback.');
+      sessionStorage.setItem('redirectAfterLogin', '/resume-feedback');
       router.push('/auth');
     }
   }, [user, loading, router]);
 
-  // Optimized scroll effect - only runs when necessary
   useEffect(() => {
-    if (currentStep === 'chat' && messages.length > 0) {
-      const timeoutId = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-      return () => clearTimeout(timeoutId);
+    if (currentStep === 'chat') {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isLoading, currentStep]);
 
-  // Optimized textarea resize
-  useEffect(() => {
-    if (currentStep === 'chat' && textareaRef.current && userInput) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  // Handle Enter key press for industry input
+  const handleIndustryKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && industryPreference.trim()) {
+      e.preventDefault();
+      setCurrentStep('resume');
     }
-  }, [userInput, currentStep]);
-
-  // --- Memoized handlers ---
-  const initializeConversation = useCallback(() => {
-    setMessages([{
-      role: 'assistant',
-      content: "Perfect! I have all the information I need. I'll analyze your resume now and provide detailed feedback. After that, feel free to ask any follow-up questions!"
-    }]);
-    setCurrentStep('chat');
-  }, []);
-
-  const handleIndustryNext = useCallback(() => {
-    if (!industryPreference.trim()) {
-      setError('Please enter your preferred industry');
-      return;
-    }
-    setError('');
-    setCurrentStep('resume');
   }, [industryPreference]);
 
-  const handleResumeNext = useCallback(() => {
-    if (!resumeText.trim()) {
-      setError('Please paste your resume text');
-      return;
+  // Copy text function
+  const copyTextToClipboard = useCallback(async () => {
+    if (!parsedFeedback) return;
+    
+    try {
+      const readableText = convertJsonToReadableText(parsedFeedback);
+      await navigator.clipboard.writeText(readableText);
+      
+      // Show temporary success message
+      const button = document.getElementById('copy-text-btn');
+      if (button) {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '✅ Copied!';
+        button.classList.add('bg-green-600');
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove('bg-green-600');
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+      alert('Failed to copy text. Please try again.');
     }
-    if (resumeText.trim().length < 100) {
-      setError('Resume text seems too short. Please provide a complete resume.');
-      return;
-    }
-    setError('');
-    setCurrentStep('job-description');
-  }, [resumeText]);
+  }, [parsedFeedback]);
 
-  // --- API Call and Feedback Display ---
   const startAnalysis = useCallback(async (finalJobDescription: string | null) => {
+    if (resumeText.trim().length < 100) {
+        setError("Your resume text seems too short. Please paste the full content for an accurate analysis.");
+        return;
+    }
     setIsLoading(true);
     setError('');
-    initializeConversation();
+    setCurrentStep('chat');
+    setConversationEnded(false);
+    setParsedFeedback(null);
+    setMessages([{ role: 'assistant', content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. This might take a moment..." }]);
 
     try {
-      const requestData = {
-        resumeText,
-        industryPreference,
-        jobDescription: finalJobDescription ? finalJobDescription.trim() : null,
-        messages: []
-      };
-
       const response = await fetch('/api/resume-feedback', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeText,
+          industryPreference: industryPreference || "a general entry-level position",
+          jobDescription: finalJobDescription ? finalJobDescription.trim() : null,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(errorData.error || `An error occurred on the server.`);
       }
 
       const data = await response.json();
-      displayInitialFeedback(data);
+      
+      let feedback: ResumeFeedback;
+      
+      if (typeof data.feedback === 'string') {
+        const jsonMatch = data.feedback.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          feedback = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error("Could not find valid JSON in the AI's response.");
+        }
+      } else {
+        feedback = data.feedback;
+      }
+      
+      // Store parsed feedback and mark conversation as ended
+      setParsedFeedback(feedback);
+      setConversationEnded(data.conversationEnded || true);
+      
+      const feedbackComponent = <FeedbackCard feedback={feedback} providerInfo={data.providerInfo} />;
+      setMessages(prev => [...prev, { role: 'assistant', content: feedbackComponent }]);
+
     } catch (err: any) {
-      console.error('Analysis error:', err);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `Sorry, an error occurred: ${err.message}. Please try again.`
-      }]);
+      console.error("Analysis or Parsing Error:", err);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, there was an issue processing the analysis: ${err.message}` }]);
     } finally {
       setIsLoading(false);
     }
-  }, [resumeText, industryPreference, initializeConversation]);
+  }, [resumeText, industryPreference]);
 
-  const handleSkipJobDescription = useCallback(() => {
-    setJobDescription('');
-    startAnalysis(null);
-  }, [startAnalysis]);
-
-  const handleJobDescriptionNext = useCallback(() => {
-    startAnalysis(jobDescription);
-  }, [jobDescription, startAnalysis]);
-
-  // 🔧 CRITICAL FIX: Handle security blocks and content reset properly
-  const displayInitialFeedback = useCallback((data: any) => {
-    try {
-      let parsedFeedback: ResumeFeedback;
-      
-      // ✅ Check for security blocks and content reset FIRST
-      if (data.blocked || data.contentReset) {
-        // Don't try to parse JSON for security responses
-        const formattedFeedback = (
-          <div className="prose prose-blue dark:prose-invert max-w-none">
-            <ReactMarkdown>{data.feedback}</ReactMarkdown>
-            {data.providerInfo && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                {data.providerInfo}
-              </div>
-            )}
-          </div>
-        );
-
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: formattedFeedback
-        }]);
-        return; // Exit early for security responses
-      }
-      
-      // ✅ Original JSON parsing logic for valid resumes
-      if (data.isInitialAnalysis && typeof data.feedback === 'string') {
-        const jsonMatch = data.feedback.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsedFeedback = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error('No JSON found in response');
-        }
-      } else {
-        parsedFeedback = data.feedback;
-      }
-
-      setInitialFeedback(parsedFeedback);
-      
-      const feedbackComponent = (
-        <FeedbackCard 
-          feedback={parsedFeedback} 
-          providerInfo={data.providerInfo}
-        />
-      );
-
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: feedbackComponent
-      }]);
-    } catch (parseError) {
-      console.error('Failed to parse JSON feedback:', parseError);
-      const formattedFeedback = (
-        <div className="prose prose-blue dark:prose-invert max-w-none">
-          <ReactMarkdown>{data.feedback}</ReactMarkdown>
-          {data.providerInfo && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-              {data.providerInfo}
-            </div>
-          )}
-        </div>
-      );
-
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: formattedFeedback
-      }]);
-    }
-  }, []);
-
-  // --- Follow-up Chat Logic ---
   const handleFollowUpSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission if conversation ended
+    if (conversationEnded) {
+      return;
+    }
+    
     if (!userInput.trim() || isLoading) return;
 
-    const userMessage: Message = { role: 'user', content: userInput };
-    const newMessages = [...messages, userMessage];
+    const newMessages: Message[] = [...messages, { role: 'user', content: userInput }];
     setMessages(newMessages);
     setIsLoading(true);
-    setError('');
     setUserInput('');
 
     try {
-      const conversationHistory = messages
-        .filter(msg => typeof msg.content === 'string')
-        .map(msg => ({ role: msg.role, content: msg.content as string }));
-      
-      conversationHistory.push({ role: 'user', content: userInput });
+        const conversationHistory = newMessages.filter(msg => typeof msg.content === 'string')
+          .map(msg => ({ role: msg.role, content: msg.content as string }));
 
       const response = await fetch('/api/resume-feedback', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: conversationHistory,
+          resumeText,
           industryPreference,
           jobDescription: jobDescription.trim() || null,
         }),
@@ -875,42 +282,23 @@ export default function ResumeFeedbackPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(errorData.error || `An error occurred.`);
       }
 
       const data = await response.json();
-      const formattedFeedback = (
+      const assistantResponse = (
         <div className="prose prose-blue dark:prose-invert max-w-none">
-          <ReactMarkdown>{data.feedback}</ReactMarkdown>
-          {data.providerInfo && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-              {data.providerInfo}
-            </div>
-          )}
+            <ReactMarkdown>{data.feedback}</ReactMarkdown>
         </div>
       );
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: formattedFeedback }]);
     } catch (err: any) {
-      console.error('Follow-up error:', err);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `Sorry, an error occurred: ${err.message}`
-      }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, an error occurred: ${err.message}` }]);
     } finally {
       setIsLoading(false);
     }
-  }, [userInput, isLoading, messages, industryPreference, jobDescription]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (currentStep === 'industry') handleIndustryNext();
-      else if (currentStep === 'resume') handleResumeNext();
-      else if (currentStep === 'job-description') handleJobDescriptionNext();
-      else if (currentStep === 'chat') formRef.current?.requestSubmit();
-    }
-  }, [currentStep, handleIndustryNext, handleResumeNext, handleJobDescriptionNext]);
+  }, [userInput, isLoading, messages, resumeText, industryPreference, jobDescription, conversationEnded]);
 
   const resetFlow = useCallback(() => {
     setCurrentStep('industry');
@@ -918,158 +306,294 @@ export default function ResumeFeedbackPage() {
     setIndustryPreference('');
     setResumeText('');
     setJobDescription('');
-    setUserInput('');
     setError('');
-    setInitialFeedback(null);
+    setConversationEnded(false);
+    setParsedFeedback(null);
   }, []);
 
-  // --- Memoized step content ---
-  const stepContent = useMemo(() => {
-    switch (currentStep) {
-      case 'industry':
-        return (
-          <IndustryStep
-            industryPreference={industryPreference}
-            setIndustryPreference={setIndustryPreference}
-            onNext={handleIndustryNext}
-            onKeyDown={handleKeyDown}
-          />
-        );
-      case 'resume':
-        return (
-          <ResumeStep
-            resumeText={resumeText}
-            setResumeText={setResumeText}
-            onNext={handleResumeNext}
-            onBack={() => setCurrentStep('industry')}
-            onKeyDown={handleKeyDown}
-          />
-        );
-      case 'job-description':
-        return (
-          <JobDescriptionStep
-            jobDescription={jobDescription}
-            setJobDescription={setJobDescription}
-            onNext={handleJobDescriptionNext}
-            onSkip={handleSkipJobDescription}
-            onBack={() => setCurrentStep('resume')}
-            onKeyDown={handleKeyDown}
-          />
-        );
-      case 'chat':
-        return (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto space-y-6 mb-4 pr-2">
-              {messages.map((msg, index) => (
-                <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.role === 'assistant' && <BotIcon />}
-                  <div className={`max-w-full ${msg.role === 'user' ? 'px-4 py-3 rounded-2xl shadow-sm bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-br-none' : ''}`}>
-                    {typeof msg.content === 'string' ? (
-                      <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
-                </div>
-              ))}
-              
-              {isLoading && (
-                <div className="flex items-start gap-3">
-                  <BotIcon />
-                  <div className="max-w-lg px-4 py-3 rounded-2xl shadow-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-bl-none">
-                    <LoadingDots />
-                  </div>
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
-            </div>
-
-            <form ref={formRef} onSubmit={handleFollowUpSubmit} className="space-y-2">
-              <div className="flex items-end space-x-3 bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 p-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-                <textarea
-                  ref={textareaRef}
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask follow-up questions about your feedback..."
-                  className="flex-1 w-full px-4 py-2 bg-transparent focus:outline-none resize-none max-h-32"
-                  rows={1}
-                  disabled={isLoading}
-                />
-                <button
-                  type="submit"
-                  disabled={!userInput.trim() || isLoading}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full p-3 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-transform transform active:scale-95 flex-shrink-0"
-                >
-                  <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="flex items-center justify-between px-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Industry: <span className="font-medium">{industryPreference}</span>
-                  {jobDescription && <span> • Job-specific feedback</span>}
-                </p>
-                <button
-                  type="button"
-                  onClick={resetFlow}
-                  className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline"
-                >
-                  Start New Analysis
-                </button>
-              </div>
-            </form>
-          </div>
-        );
-      default:
-        return null;
-    }
-  }, [currentStep, industryPreference, resumeText, jobDescription, userInput, messages, isLoading, handleIndustryNext, handleResumeNext, handleJobDescriptionNext, handleSkipJobDescription, handleKeyDown, handleFollowUpSubmit, resetFlow]);
-
-  if (loading || !user) return <AuthLoadingScreen />;
+  if (loading || !user) {
+    return <AuthLoadingScreen />;
+  }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-black font-sans pt-20">
-      {/* Header */}
-      <header className="bg-white/80 dark:bg-black/50 backdrop-blur-lg border-b border-black/5 p-4 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-              SkillDash Resume <span className="font-light bg-gradient-to-r from-green-500 to-teal-500 bg-clip-text text-transparent">Feedback AI</span>
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {currentStep === 'industry' && 'Step 1 of 3: Choose your industry'}
-              {currentStep === 'resume' && 'Step 2 of 3: Provide your resume'}
-              {currentStep === 'job-description' && 'Step 3 of 3: Add job description (optional)'}
-              {currentStep === 'chat' && 'AI Analysis Complete - Ask follow-up questions'}
-            </p>
-          </div>
-          {currentStep !== 'chat' && (
-            <div className="flex space-x-2">
-              <div className={`w-3 h-3 rounded-full transition-colors ${currentStep === 'industry' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-              <div className={`w-3 h-3 rounded-full transition-colors ${currentStep === 'resume' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-              <div className={`w-3 h-3 rounded-full transition-colors ${currentStep === 'job-description' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 font-sans pt-20 transition-colors duration-200">
+      {/* Main content with mobile-friendly padding and responsive spacing */}
+      <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
+        <div className="max-w-4xl mx-auto h-full">
+          {currentStep !== 'chat' ? (
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)]">
+              {currentStep === 'industry' && (
+                <div className="w-full max-w-md text-center animate-fade-in px-4">
+                    {/* Title text as regular text - mobile optimized */}
+                    <div className="mb-6 p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-gray-200">SkillDash Resume Feedback AI</p>
+                      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Get expert feedback tailored for the Bangladeshi job market</p>
+                    </div>
+                    
+                    <h2 className="text-lg sm:text-xl font-semibold mb-6 text-gray-800 dark:text-white">Step 1: What is your target industry?</h2>
+                    <input 
+                      type="text" 
+                      value={industryPreference} 
+                      onChange={e => setIndustryPreference(e.target.value)} 
+                      onKeyPress={handleIndustryKeyPress}
+                      placeholder="e.g., Software Engineering, Marketing" 
+                      className="w-full p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm sm:text-base"
+                    />
+                    <button 
+                      onClick={() => setCurrentStep('resume')} 
+                      disabled={!industryPreference.trim()} 
+                      className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white p-3 sm:p-4 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed text-sm sm:text-base shadow-md hover:shadow-lg"
+                    >
+                      Next
+                    </button>
+                </div>
+              )}
+              {currentStep === 'resume' && (
+                <div className="w-full max-w-2xl text-center animate-fade-in px-3 sm:px-4">
+                    <h2 className="text-lg sm:text-xl font-semibold mb-6 text-gray-800 dark:text-white">Step 2: Paste your resume content</h2>
+                    
+                    {/* Enhanced instructions with mobile-friendly design */}
+                    <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3 sm:p-4 mb-4 text-left shadow-sm">
+                      {/* Bold title inside instructions box */}
+                      <div className="mb-4 text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-blue-200 dark:border-blue-600">
+                        <p className="text-base sm:text-lg font-bold text-blue-800 dark:text-blue-200">SkillDash Resume Feedback AI</p>
+                        <p className="text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-300 mt-1">Get expert feedback tailored for the Bangladeshi job market</p>
+                      </div>
+                      
+                      <h3 className="text-sm sm:text-base font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        How to copy your resume text:
+                      </h3>
+                      <div className="space-y-2 text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+                        <p className="flex items-start gap-2">
+                          <span className="font-semibold text-blue-800 dark:text-blue-200 flex-shrink-0">1.</span>
+                          <span>Open your resume document (Word, PDF, Google Docs, etc.)</span>
+                        </p>
+                        <p className="flex items-start gap-2">
+                          <span className="font-semibold text-blue-800 dark:text-blue-200 flex-shrink-0">2.</span>
+                          <span>Select all text using:</span>
+                        </p>
+                        <div className="ml-4 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <kbd className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Ctrl</kbd>
+                            <span>+</span>
+                            <kbd className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">A</kbd>
+                            <span className="text-xs text-blue-600 dark:text-blue-400">(Windows/Linux)</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <kbd className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Cmd</kbd>
+                            <span>+</span>
+                            <kbd className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">A</kbd>
+                            <span className="text-xs text-blue-600 dark:text-blue-400">(Mac)</span>
+                          </div>
+                          <p className="text-xs text-blue-600 dark:text-blue-400">Or manually select using your mouse</p>
+                        </div>
+                        <p className="flex items-start gap-2">
+                          <span className="font-semibold text-blue-800 dark:text-blue-200 flex-shrink-0">3.</span>
+                          <span>Copy and paste the text into the box below</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Future feature notice - mobile optimized */}
+                    <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-3 mb-4 shadow-sm">
+                      <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-start gap-2">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>
+                          <span className="font-semibold">Coming Soon:</span>
+                          Direct resume file upload feature for even easier analysis!
+                        </span>
+                      </p>
+                    </div>
+
+                    <textarea 
+                      value={resumeText} 
+                      onChange={e => setResumeText(e.target.value)} 
+                      placeholder="Paste your full resume text here..." 
+                      className="w-full p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg h-48 sm:h-64 text-xs sm:text-sm leading-relaxed bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors"
+                    />
+                    
+                    {/* Character count and validation - mobile friendly */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-2 text-xs text-gray-500 dark:text-gray-400 gap-1 sm:gap-0">
+                      <span>
+                        {resumeText.length} characters
+                        {resumeText.length < 100 && resumeText.length > 0 && (
+                          <span className="text-red-500 block sm:inline sm:ml-2">• Need at least 100 characters for analysis</span>
+                        )}
+                      </span>
+                      {resumeText.length >= 100 && (
+                        <span className="text-green-600 dark:text-green-400">✓ Ready for analysis</span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
+                        <button 
+                          onClick={() => setCurrentStep('industry')} 
+                          className="w-full sm:w-auto bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-3 sm:p-4 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg"
+                        >
+                          ← Back
+                        </button>
+                        <button 
+                          onClick={() => setCurrentStep('job-description')} 
+                          disabled={resumeText.trim().length < 100} 
+                          className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white p-3 sm:p-4 rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed text-sm sm:text-base shadow-md hover:shadow-lg"
+                        >
+                          Next →
+                        </button>
+                    </div>
+                </div>
+              )}
+              {currentStep === 'job-description' && (
+                <div className="w-full max-w-lg text-center animate-fade-in px-3 sm:px-4">
+                    <h2 className="text-lg sm:text-xl font-semibold mb-6 text-gray-800 dark:text-white">Step 3 (Optional): Add a Job Description</h2>
+                    
+                    <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-3 mb-4 shadow-sm">
+                      <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300">
+                        <span className="font-semibold">💡 Pro Tip:</span> Pasting a specific job description will give you much more targeted feedback and suggestions.
+                      </p>
+                    </div>
+
+                    <textarea 
+                      value={jobDescription} 
+                      onChange={e => setJobDescription(e.target.value)} 
+                      placeholder="Paste a job description here..." 
+                      className="w-full p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg h-32 sm:h-40 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors text-xs sm:text-sm"
+                    />
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
+                        <button 
+                          onClick={() => setCurrentStep('resume')} 
+                          className="w-full sm:w-auto bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-3 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg"
+                        >
+                          ← Back
+                        </button>
+                        <button 
+                          onClick={() => startAnalysis(null)} 
+                          className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg"
+                        >
+                          Skip & Analyze
+                        </button>
+                        <button 
+                          onClick={() => startAnalysis(jobDescription)} 
+                          className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg"
+                        >
+                          Analyze Now
+                        </button>
+                    </div>
+                </div>
+              )}
+               {error && (
+                 <div className="mt-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-3 max-w-2xl mx-auto shadow-sm">
+                   <p className="text-red-700 dark:text-red-300 text-center text-sm sm:text-base">{error}</p>
+                 </div>
+               )}
+            </div>
+          ) : (
+            <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 mb-4 pr-1 sm:pr-2">
+                    {messages.map((msg, index) => (
+                        <div key={index} className={`flex items-start gap-2 sm:gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            {msg.role === 'assistant' && <BotIcon />}
+                            <div className={`max-w-full ${msg.role === 'user' ? 'px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-blue-600 text-white text-sm sm:text-base' : ''}`}>
+                                {msg.content}
+                            </div>
+                        </div>
+                    ))}
+                    {isLoading && (
+                        <div className="flex items-start gap-2 sm:gap-3">
+                            <BotIcon />
+                            <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-gray-200 dark:bg-gray-700"><LoadingDots /></div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+                
+                {/* Conditional input area or completion message - mobile optimized */}
+                {conversationEnded ? (
+                  <div className="mt-auto space-y-3 sm:space-y-4">
+                    {/* Copy Button */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl sm:rounded-2xl border border-blue-200 dark:border-blue-700 p-3 sm:p-4 shadow-sm">
+                      <div className="text-center mb-3">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                          📋 Export Your Analysis
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                          Copy the analysis as readable text for your records
+                        </p>
+                      </div>
+                      
+                      <button
+                        id="copy-text-btn"
+                        onClick={copyTextToClipboard}
+                        className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base shadow-md hover:shadow-lg"
+                      >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        📄 Copy Analysis as Text
+                      </button>
+                    </div>
+
+                    {/* Start New Analysis Button - mobile optimized */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl sm:rounded-2xl border-2 border-green-200 dark:border-green-600 p-4 sm:p-6 text-center shadow-sm">
+                      <div className="mb-4">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-2">
+                          🎉 Analysis Complete!
+                        </h3>
+                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                          Ready to analyze another resume or improve this one further?
+                        </p>
+                      </div>
+                      
+                      <button
+                        onClick={resetFlow}
+                        className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl"
+                      >
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        🚀 Start New Analysis
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleFollowUpSubmit} className="mt-auto">
+                      <div className="flex items-end space-x-2 sm:space-x-3 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border border-gray-300 dark:border-gray-600 p-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                          <textarea
+                              ref={textareaRef}
+                              value={userInput}
+                              onChange={(e) => setUserInput(e.target.value)}
+                              placeholder="Ask a follow-up question..."
+                              className="flex-1 w-full p-2 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none resize-none text-sm sm:text-base"
+                              rows={1}
+                              disabled={isLoading}
+                          />
+                          <button 
+                            type="submit" 
+                            disabled={!userInput.trim() || isLoading} 
+                            className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-full p-2.5 sm:p-3 transition-all duration-200 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                          >
+                               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-12 5l7-7-7-7" />
+                               </svg>
+                          </button>
+                      </div>
+                       <button 
+                         type="button" 
+                         onClick={resetFlow} 
+                         className="text-xs text-center w-full mt-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 underline transition-colors"
+                       >
+                         Start New Analysis
+                       </button>
+                  </form>
+                )}
             </div>
           )}
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className={`flex-1 ${currentStep === 'chat' ? 'flex flex-col' : 'flex items-center justify-center'} p-4 md:p-6 transition-all duration-300`}>
-        <div className={`${currentStep === 'chat' ? 'w-full max-w-4xl mx-auto flex flex-col h-full' : 'w-full'}`}>
-          {stepContent}
-        </div>
       </main>
-
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mx-auto mb-4 w-full max-w-4xl rounded-r-lg">
-          <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
-        </div>
-      )}
     </div>
   );
 }
