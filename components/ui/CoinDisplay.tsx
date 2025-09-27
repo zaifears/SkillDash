@@ -1,113 +1,146 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { CoinManager } from '@/lib/coinManager';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useAuth } from '../../contexts/AuthContext';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
-interface CoinDisplayProps {
-  className?: string;
-  showLabel?: boolean;
-}
-
-export default function CoinDisplay({ className = '', showLabel = true }: CoinDisplayProps) {
+const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 'default' }) => {
   const { user } = useAuth();
-  const router = useRouter();
-  const [coins, setCoins] = useState<number>(0);
+  const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCoins = async () => {
-      if (!user) {
-        setCoins(0);
-        setLoading(false);
-        return;
-      }
+  // Size variants
+  const sizeClasses = {
+    small: {
+      container: 'gap-1',
+      coin: 'w-4 h-4',
+      number: 'text-xs',
+      label: 'text-[9px]'
+    },
+    default: {
+      container: 'gap-1.5',
+      coin: 'w-6 h-6',
+      number: 'text-sm',
+      label: 'text-[10px]'
+    },
+    large: {
+      container: 'gap-2',
+      coin: 'w-8 h-8',
+      number: 'text-base',
+      label: 'text-xs'
+    }
+  };
 
-      try {
-        const balance = await CoinManager.getCoinBalance(user.uid);
-        setCoins(balance);
-      } catch (error) {
+  const currentSize = sizeClasses[size] || sizeClasses.default;
+
+  // Real-time coin updates using Firestore listener
+  useEffect(() => {
+    if (!user?.uid) {
+      setCoins(0);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    
+    // Set up real-time listener for user's coin balance
+    const userDocRef = doc(db, 'users', user.uid);
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          setCoins(userData.coins || 0);
+        } else {
+          setCoins(0);
+        }
+        setLoading(false);
+      },
+      (error) => {
         console.error('Error fetching coins:', error);
         setCoins(0);
-      } finally {
         setLoading(false);
       }
-    };
+    );
 
-    fetchCoins();
-  }, [user]);
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, [user?.uid]);
 
-  // Function to refresh coin balance (can be called from parent components)
-  const refreshBalance = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const balance = await CoinManager.getCoinBalance(user.uid);
-      setCoins(balance);
-    } catch (error) {
-      console.error('Error refreshing coins:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Expose refresh function to parent
-  useEffect(() => {
-    (window as any).refreshCoinBalance = refreshBalance;
-    return () => {
-      delete (window as any).refreshCoinBalance;
-    };
-  }, [user]);
-
-  // 🆕 HANDLE CLICK - Navigate to coins page or login
-  const handleClick = () => {
-    if (!user) {
-      // Not logged in - redirect to auth with message
-      sessionStorage.setItem('redirectMessage', 'Please log in to view your coin balance and rewards.');
-      sessionStorage.setItem('redirectAfterLogin', '/coins');
-      router.push('/auth');
-    } else {
-      // Logged in - go to coins page
-      router.push('/coins');
-    }
-  };
-
+  // If not logged in, show only the coin icon
   if (!user) {
-    // Show coins for non-logged in users but make it clickable to login
     return (
-      <button
-        onClick={handleClick}
-        className={`flex items-center space-x-2 hover:scale-105 transition-transform ${className}`}
+      <div 
+        className={`flex items-center ${currentSize.container} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''} ${className}`}
+        onClick={onClick}
+        title="Join SkillDash to earn coins!"
       >
-        <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-md cursor-pointer">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <span>?</span>
-          {showLabel && <span className="hidden sm:inline">Coins</span>}
+        <div className="relative">
+          <Image
+            src="/coin/coin.png"
+            alt="SkillDash Coin"
+            width={24}
+            height={24}
+            className={`${currentSize.coin} object-contain`}
+            priority
+            unoptimized={false}
+          />
+          {/* Subtle glow effect */}
+          <div className="absolute inset-0 bg-amber-400/20 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
         </div>
-      </button>
+      </div>
     );
   }
 
+  // If logged in, show coin icon + number in modern design
   return (
-    <button
-      onClick={handleClick}
-      className={`flex items-center space-x-2 hover:scale-105 transition-transform ${className}`}
+    <div 
+      className={`flex items-center ${currentSize.container} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''} ${className}`}
+      onClick={onClick}
+      title={`You have ${coins.toLocaleString()} coins`}
     >
-      <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-md cursor-pointer">
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-        </svg>
-        {loading ? (
-          <div className="animate-pulse bg-white/30 rounded h-4 w-6"></div>
-        ) : (
-          <span>{coins}</span>
-        )}
-        {showLabel && <span className="hidden sm:inline">Coins</span>}
+      {/* Coin Icon */}
+      <div className="relative flex-shrink-0">
+        <Image
+          src="/coin/coin.png"
+          alt="SkillDash Coin"
+          width={24}
+          height={24}
+          className={`${currentSize.coin} object-contain transition-transform duration-200`}
+          priority
+          unoptimized={false}
+        />
+        {/* Subtle glow effect on hover */}
+        <div className="absolute inset-0 bg-amber-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
       </div>
-    </button>
+      
+      {/* Coin Count - Modern Style */}
+      {showLabel ? (
+        <div className="flex flex-col min-w-0">
+          <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white transition-colors duration-200`}>
+            {loading ? (
+              <div className="w-8 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            ) : (
+              coins.toLocaleString()
+            )}
+          </span>
+          <span className={`${currentSize.label} text-gray-500 dark:text-gray-400 -mt-0.5 font-medium`}>
+            Coins
+          </span>
+        </div>
+      ) : (
+        <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white min-w-0 transition-colors duration-200`}>
+          {loading ? (
+            <div className="w-6 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          ) : (
+            coins.toLocaleString()
+          )}
+        </span>
+      )}
+    </div>
   );
-}
+};
+
+export default CoinDisplay;

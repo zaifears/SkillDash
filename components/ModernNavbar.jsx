@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import AuthStatus from './AuthStatus'
 import { useAuth } from '../contexts/AuthContext'
@@ -36,7 +37,14 @@ const ModernNavbar = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
-              <img src="/skilldash-logo.png" alt="SkillDash" className="h-8 w-8" />
+              <Image
+                src="/skilldash-logo.png"
+                alt="SkillDash"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+                priority
+              />
               <span>SkillDash</span>
             </Link>
 
@@ -53,7 +61,13 @@ const ModernNavbar = () => {
                   }`}
                 >
                   {item.hasIcon && (
-                    <img src="/homepage/ai-icon.png" alt="" className="h-4 w-4 flex-shrink-0" />
+                    <Image
+                      src="/homepage/ai-icon.png"
+                      alt=""
+                      width={16}
+                      height={16}
+                      className="h-4 w-4 flex-shrink-0 object-contain"
+                    />
                   )}
                   <span>{item.name}</span>
                 </Link>
@@ -62,9 +76,12 @@ const ModernNavbar = () => {
 
             {/* Right Side - Coin Display and Auth Status */}
             <div className="flex items-center gap-3">
-              {/* 🆕 CLICKABLE Coin Display - Desktop */}
-              <div className="hidden md:flex">
-                <CoinDisplay className="flex" />
+              {/* Desktop Coin Display - Always visible with modern styling */}
+              <div className="hidden md:flex group">
+                <CoinDisplay 
+                  className="flex transition-all duration-200 hover:scale-105" 
+                  size="default"
+                />
               </div>
 
               {/* Desktop Auth Status */}
@@ -98,7 +115,7 @@ const ModernNavbar = () => {
   )
 }
 
-// Mobile Menu Button Component with Clickable Coin Display
+// Mobile Menu Button Component with Optimized Coin Display
 const MobileMenuButton = ({ navItems, pathname }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { user, logout } = useAuth()
@@ -148,7 +165,7 @@ const MobileMenuButton = ({ navItems, pathname }) => {
       {isOpen && (
         <div className="absolute top-14 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-[280px] z-60 overflow-hidden">
           
-          {/* 🆕 CLICKABLE Header - User Info & Coins */}
+          {/* Modern Header - User Info & Optimized Coins */}
           {user && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-4 py-3">
               <div className="flex items-center justify-between">
@@ -157,8 +174,12 @@ const MobileMenuButton = ({ navItems, pathname }) => {
                     Welcome back, {user.displayName?.split(' ')[0] || 'User'}
                   </span>
                 </div>
-                <div className="flex items-center">
-                  <CoinDisplay className="flex" showLabel={false} />
+                <div className="flex items-center group">
+                  <CoinDisplay 
+                    className="flex transition-all duration-200 group-hover:scale-105" 
+                    showLabel={false} 
+                    size="small"
+                  />
                 </div>
               </div>
             </div>
@@ -178,7 +199,13 @@ const MobileMenuButton = ({ navItems, pathname }) => {
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <img src="/homepage/ai-icon.png" alt="" className="h-5 w-5 flex-shrink-0" />
+                <Image
+                  src="/homepage/ai-icon.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 flex-shrink-0 object-contain"
+                />
                 <span>Discover</span>
               </Link>
               
@@ -191,7 +218,13 @@ const MobileMenuButton = ({ navItems, pathname }) => {
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <img src="/homepage/ai-icon.png" alt="" className="h-5 w-5 flex-shrink-0" />
+                <Image
+                  src="/homepage/ai-icon.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 flex-shrink-0 object-contain"
+                />
                 <span>Resume Feedback</span>
               </Link>
             </div>
