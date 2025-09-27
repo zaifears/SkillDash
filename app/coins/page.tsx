@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CoinManager } from '@/lib/coinManager';
@@ -112,8 +113,15 @@ const CoinsPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg">
-              🪙
+            <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
+              <Image
+                src="/coin/coin.png"
+                alt="SkillDash Coin"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
+                priority
+              />
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
               Your SkillCoins
@@ -129,8 +137,15 @@ const CoinsPage: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-8">
             <div className="text-center">
               <div className="inline-flex items-center gap-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-4 mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-3xl shadow-lg animate-bounce-slow">
-                  🪙
+                <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg animate-bounce-slow">
+                  <Image
+                    src="/coin/coin.png"
+                    alt="SkillDash Coin"
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-contain"
+                    priority
+                  />
                 </div>
                 <div>
                   <div className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-1">
