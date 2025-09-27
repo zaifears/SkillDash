@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import MessageBubble from '../../components/discover/MessageBubble';
 import LoadingDots from '../../components/discover/LoadingDots';
+import { CoinManager } from '@/lib/coinManager'; // 🆕 ADD THIS IMPORT
+import InsufficientCoinsModal from '@/components/ui/InsufficientCoinsModal'; // 🆕 ADD THIS IMPORT
 
 // Lazy load the redesigned, heavier SuggestionsCard component
 const SuggestionsCard = dynamic(() => import('../../components/discover/SuggestionsCard'), {
@@ -45,6 +47,10 @@ export default function DiscoverPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SkillSuggestions | null>(null);
   const [conversationEnded, setConversationEnded] = useState(false);
+  
+  // 🆕 ADD COIN-RELATED STATE
+  const [showInsufficientCoinsModal, setShowInsufficientCoinsModal] = useState(false);
+  const [coinError, setCoinError] = useState<{currentCoins: number; requiredCoins: number} | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,10 +92,24 @@ export default function DiscoverPage() {
     }
   }, [user, messages.length]);
 
-  // Form submission handler
+  // 🆕 UPDATED FORM SUBMISSION HANDLER WITH COIN LOGIC
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     if (!userInput.trim() || isLoading || suggestions || conversationEnded) return;
+
+    // 🪙 Check if we might need coins (simple heuristic based on conversation length)
+    const questionCount = messages.filter(msg => msg.role === 'assistant' && msg.content.includes('?')).length;
+    
+    // If we're likely approaching the end (5+ questions), check coins
+    if (questionCount >= 5 && user) {
+      const hasCoins = await CoinManager.hasEnoughCoins(user.uid, 1);
+      if (!hasCoins) {
+        const currentBalance = await CoinManager.getCoinBalance(user.uid);
+        setCoinError({ currentCoins: currentBalance, requiredCoins: 1 });
+        setShowInsufficientCoinsModal(true);
+        return;
+      }
+    }
 
     const userMessage: Message = { 
       id: `msg-${++messageIdCounter.current}`, 
@@ -107,7 +127,8 @@ export default function DiscoverPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: newMessages.map(({ id, ...msg }) => msg)
+          messages: newMessages.map(({ id, ...msg }) => msg),
+          userId: user?.uid // 🆕 Add user ID
         }),
       });
 
@@ -135,6 +156,11 @@ export default function DiscoverPage() {
             content: "Fantastic! Based on our chat, I've prepared a personalized analysis for you. Here are some exciting insights into your potential! 🎯" 
           };
           setMessages(prev => [...prev, finalBotMessage]);
+
+          // 🪙 Refresh coin balance if analysis completed
+          if ((window as any).refreshCoinBalance) {
+            (window as any).refreshCoinBalance();
+          }
         }
       } else {
         const botMessage: Message = { 
@@ -156,7 +182,7 @@ export default function DiscoverPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [userInput, isLoading, suggestions, messages, conversationEnded]);
+  }, [userInput, isLoading, suggestions, messages, conversationEnded, user]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -222,6 +248,20 @@ export default function DiscoverPage() {
           </form>
         </div>
       </footer>
+
+      {/* 🆕 Insufficient Coins Modal */}
+      {showInsufficientCoinsModal && coinError && (
+        <InsufficientCoinsModal
+          isOpen={showInsufficientCoinsModal}
+          onClose={() => {
+            setShowInsufficientCoinsModal(false);
+            setCoinError(null);
+          }}
+          featureName="Discover Feature"
+          currentCoins={coinError.currentCoins}
+          requiredCoins={coinError.requiredCoins}
+        />
+      )}
     </div>
   );
 }

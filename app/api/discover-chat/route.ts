@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
+import { CoinManagerServer } from '@/lib/coinManagerServer'; // 🔧 CHANGED FROM CLIENT TO SERVER
 
 // --- ENVIRONMENT VARIABLES & INITIALIZATION ---
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
 if (!GOOGLE_API_KEY) {
@@ -136,7 +136,6 @@ const checkRateLimit = (req: NextRequest): boolean => {
     return true;
 };
 
-// FIXED: Added timeout property to the returned object
 const getTimeoutConfig = () => {
     const isVercel = process.env.VERCEL === '1';
     return isVercel 
@@ -195,7 +194,6 @@ const extractContentFromPerplexity = (content: any): string => {
     return String(content || '');
 };
 
-// FIXED: Updated function signature to include timeout in config type
 interface Config {
     maxTokens: number;
     timeout: number;
@@ -241,72 +239,60 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
     return { success: true, response: responseText, provider: 'gemini-2.0-flash' };
 }
 
-// SECONDARY: OpenAI API
-async function tryOpenAIAPI(messages: any[], enhancedSystemInstruction: string, config: Config) {
-    if (!OPENAI_API_KEY) {
-        console.warn("OPENAI_API_KEY not set. Skipping OpenAI provider.");
-        return { success: false, error: "OpenAI API key not configured." };
+// SECONDARY: Groq API with openai/gpt-oss-120b
+async function tryGroqOpenAIAPI(messages: any[], enhancedSystemInstruction: string, config: Config) {
+    if (!groqClient || !GROQ_API_KEY) {
+        console.warn("GROQ_API_KEY not set. Skipping Groq OpenAI provider.");
+        return { success: false, error: "Groq API key not configured." };
     }
-    console.log("🤖 Trying secondary provider: OpenAI GPT-4...");
+    console.log("🤖 Trying secondary provider: Groq OpenAI GPT-OSS-120B...");
     
     const cleanMessages = prepareMessageHistory(messages);
     if (cleanMessages.length === 0) {
-        throw new Error("Cannot send empty message history to OpenAI.");
+        throw new Error("Cannot send empty message history to Groq OpenAI.");
     }
-
-    const systemMessage = { role: "system", content: enhancedSystemInstruction };
-    const messagesForApi = [systemMessage, ...cleanMessages.map(({ role, content }) => ({ role, content }))];
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config.timeout);
     
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${OPENAI_API_KEY}` 
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: messagesForApi,
-                max_tokens: config.maxTokens,
-                temperature: 0.8
-            }),
-            signal: controller.signal
+        const messagesWithSystem = [
+            { role: 'system', content: enhancedSystemInstruction },
+            ...cleanMessages.map(({ role, content }) => ({ role, content }))
+        ];
+
+        const completion = await groqClient.chat.completions.create({
+            model: "openai/gpt-oss-120b",
+            messages: messagesWithSystem,
+            max_tokens: config.maxTokens,
+            temperature: 0.8
         });
+
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`OpenAI API responded with status: ${response.status}. Body: ${errorBody}`);
-        }
+        const responseText = completion.choices?.[0]?.message?.content;
+        if (!responseText) throw new Error("Groq OpenAI returned an empty response.");
         
-        const data = await response.json();
-        const responseText = data.choices?.[0]?.message?.content;
-
-        if (!responseText) throw new Error("OpenAI returned an empty response.");
-        
-        console.log("✅ OpenAI success!");
-        return { success: true, response: responseText, provider: 'openai-gpt-4o-mini' };
+        console.log("✅ Groq OpenAI success!");
+        return { success: true, response: responseText, provider: 'groq-openai-gpt-oss-120b' };
     } catch (error: any) {
         clearTimeout(timeoutId);
-        console.warn("❌ OpenAI failed:", error.message);
+        console.warn("❌ Groq OpenAI failed:", error.message);
         return { success: false, error: error.message };
     }
 }
 
 // TERTIARY: Groq API with Llama
-async function tryGroqAPI(messages: any[], enhancedSystemInstruction: string, config: Config) {
+async function tryGroqLlamaAPI(messages: any[], enhancedSystemInstruction: string, config: Config) {
     if (!groqClient || !GROQ_API_KEY) {
-        console.warn("GROQ_API_KEY not set. Skipping Groq provider.");
+        console.warn("GROQ_API_KEY not set. Skipping Groq Llama provider.");
         return { success: false, error: "Groq API key not configured." };
     }
     console.log("🦙 Trying tertiary provider: Groq Llama...");
     
     const cleanMessages = prepareMessageHistory(messages);
     if (cleanMessages.length === 0) {
-        throw new Error("Cannot send empty message history to Groq.");
+        throw new Error("Cannot send empty message history to Groq Llama.");
     }
 
     const controller = new AbortController();
@@ -328,13 +314,13 @@ async function tryGroqAPI(messages: any[], enhancedSystemInstruction: string, co
         clearTimeout(timeoutId);
 
         const responseText = completion.choices?.[0]?.message?.content;
-        if (!responseText) throw new Error("Groq returned an empty response.");
+        if (!responseText) throw new Error("Groq Llama returned an empty response.");
         
-        console.log("✅ Groq success!");
+        console.log("✅ Groq Llama success!");
         return { success: true, response: responseText, provider: 'groq-llama-3.3-70b' };
     } catch (error: any) {
         clearTimeout(timeoutId);
-        console.warn("❌ Groq failed:", error.message);
+        console.warn("❌ Groq Llama failed:", error.message);
         return { success: false, error: error.message };
     }
 }
@@ -390,12 +376,19 @@ async function tryPerplexityAPI(messages: any[], enhancedSystemInstruction: stri
 export async function POST(req: NextRequest) {
     const startTime = Date.now();
     try {
+        console.log('🚀 [Discover API] Request started');
+        
         if (!checkRateLimit(req)) {
             return NextResponse.json({ error: 'Request blocked.' }, { status: 429 });
         }
 
         const body = await req.json();
-        const { messages } = body;
+        const { messages, userId } = body;
+
+        console.log('🔍 [Discover API] Request data:', {
+            messagesLength: messages?.length || 0,
+            userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
+        });
 
         const validation = validateInput(messages);
         if (!validation.isValid) {
@@ -420,6 +413,8 @@ export async function POST(req: NextRequest) {
         const config = getTimeoutConfig();
         const questionCount = validation.questionCount || 0;
 
+        console.log(`📊 [Discover API] Conversation state: ${questionCount} questions asked`);
+
         const enhancedSystemInstruction = systemInstruction +
             `\n\n**CURRENT STATE: You have asked ${questionCount} questions so far.**` +
             (questionCount >= 7 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit!' :
@@ -428,32 +423,32 @@ export async function POST(req: NextRequest) {
 
         let result;
         
-        // FOUR-TIER FALLBACK STRATEGY: Gemini → OpenAI → Llama → Perplexity
+        // ✅ FOUR-TIER FALLBACK: Gemini → Groq OpenAI → Groq Llama → Perplexity
         try {
             // 1. Try Gemini first
             result = await tryGeminiAPI(messages, enhancedSystemInstruction, config);
             if (!result.success) throw new Error(result.error);
         } catch (geminiError: any) {
-            console.warn(`Primary provider (Gemini) failed: ${geminiError.message}. Trying OpenAI...`);
+            console.warn(`Primary provider (Gemini) failed: ${geminiError.message}. Trying Groq OpenAI...`);
             
             try {
-                // 2. Try OpenAI second
-                result = await tryOpenAIAPI(messages, enhancedSystemInstruction, config);
+                // 2. Try Groq OpenAI second (openai/gpt-oss-120b)
+                result = await tryGroqOpenAIAPI(messages, enhancedSystemInstruction, config);
                 if (!result.success) throw new Error(result.error);
-            } catch (openaiError: any) {
-                console.warn(`Secondary provider (OpenAI) failed: ${openaiError.message}. Trying Groq...`);
+            } catch (groqOpenAIError: any) {
+                console.warn(`Secondary provider (Groq OpenAI) failed: ${groqOpenAIError.message}. Trying Groq Llama...`);
                 
                 try {
-                    // 3. Try Groq third
-                    result = await tryGroqAPI(messages, enhancedSystemInstruction, config);
+                    // 3. Try Groq Llama third (llama-3.3-70b-versatile)
+                    result = await tryGroqLlamaAPI(messages, enhancedSystemInstruction, config);
                     if (!result.success) throw new Error(result.error);
-                } catch (groqError: any) {
-                    console.warn(`Tertiary provider (Groq) failed: ${groqError.message}. Trying Perplexity...`);
+                } catch (groqLlamaError: any) {
+                    console.warn(`Tertiary provider (Groq Llama) failed: ${groqLlamaError.message}. Trying Perplexity...`);
                     
-                    // 4. Try Perplexity last
+                    // 4. Try Perplexity last (sonar)
                     result = await tryPerplexityAPI(messages, enhancedSystemInstruction, config);
                     if (!result.success) {
-                        throw new Error(`All providers failed. Gemini: ${geminiError.message}, OpenAI: ${openaiError.message}, Groq: ${groqError.message}, Perplexity: ${result.error}`);
+                        throw new Error(`All providers failed. Gemini: ${geminiError.message}, Groq OpenAI: ${groqOpenAIError.message}, Groq Llama: ${groqLlamaError.message}, Perplexity: ${result.error}`);
                     }
                 }
             }
@@ -461,11 +456,30 @@ export async function POST(req: NextRequest) {
 
         const responseText = result.response;
         console.log(`AI Response from [${result.provider}]:`, responseText);
-        console.log(`✅ Discover chat completed in ${Date.now() - startTime}ms via ${result.provider}`);
+        console.log(`✅ [Discover API] Completed in ${Date.now() - startTime}ms via ${result.provider}`);
 
         if (responseText.includes("COMPLETE:")) {
             try {
                 const suggestions = extractJSON(responseText);
+                
+                // 🔧 FIXED: Use CoinManagerServer for server-side coin deduction
+                if (userId) {
+                    console.log('🪙 [Discover API] Deducting coin for completed discover analysis...');
+                    
+                    try {
+                        const deductResult = await CoinManagerServer.deductCoins(userId, 1, 'discover');
+                        if (!deductResult.success) {
+                            console.error('❌ [Discover API] Failed to deduct coin:', deductResult.error);
+                            // Don't fail the request, just log the error since analysis is complete
+                        } else {
+                            console.log(`✅ [Discover API] Deducted 1 coin for discover. New balance: ${deductResult.newBalance}`);
+                        }
+                    } catch (coinError: any) {
+                        console.error('❌ [Discover API] Coin processing error:', coinError.message);
+                        // Continue with the response even if coin deduction fails
+                    }
+                }
+                
                 return NextResponse.json({ isComplete: true, ...suggestions });
             } catch (e: any) {
                 console.error("JSON extraction failed:", e.message, "Full response:", responseText);
@@ -488,7 +502,7 @@ export async function POST(req: NextRequest) {
         }
 
     } catch (error: any) {
-        console.error(`Error in discover-chat API after ${Date.now() - startTime}ms:`, error.message);
+        console.error(`❌ [Discover API] Error after ${Date.now() - startTime}ms:`, error.message);
         const isProduction = process.env.NODE_ENV === 'production';
         const errorMessage = isProduction ? 'Service temporarily unavailable. Please try again.' : error.message;
         return NextResponse.json({ error: errorMessage }, { status: 500 });

@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FeedbackCard from '../../components/resume-feedback/FeedbackCard';
+import { CoinManager } from '@/lib/coinManager'; // 🆕 ADD THIS IMPORT
+import InsufficientCoinsModal from '@/components/ui/InsufficientCoinsModal'; // 🆕 ADD THIS IMPORT
 
 // --- Type Definitions ---
 interface ResumeFeedback {
@@ -142,6 +144,10 @@ export default function ResumeFeedbackPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [userInput, setUserInput] = useState('');
 
+  // 🆕 ADD COIN-RELATED STATE
+  const [showInsufficientCoinsModal, setShowInsufficientCoinsModal] = useState(false);
+  const [coinError, setCoinError] = useState<{currentCoins: number; requiredCoins: number} | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -192,11 +198,35 @@ export default function ResumeFeedbackPage() {
     }
   }, [parsedFeedback]);
 
+  // 🔧 HANDLE GET COINS FUNCTION - Redirect to coins page
+  const handleGetCoins = useCallback(() => {
+    // Close the modal first
+    setShowInsufficientCoinsModal(false);
+    setCoinError(null);
+    
+    // Navigate to coins page
+    router.push('/coins');
+  }, [router]);
+
+  // 🆕 UPDATED startAnalysis FUNCTION WITH COIN LOGIC
   const startAnalysis = useCallback(async (finalJobDescription: string | null) => {
     if (resumeText.trim().length < 100) {
         setError("Your resume text seems too short. Please paste the full content for an accurate analysis.");
         return;
     }
+
+    // 🪙 Check coins first
+    if (user) {
+        console.log('🪙 Checking coins before analysis...');
+        const hasCoins = await CoinManager.hasEnoughCoins(user.uid, 1);
+        if (!hasCoins) {
+            const currentBalance = await CoinManager.getCoinBalance(user.uid);
+            setCoinError({ currentCoins: currentBalance, requiredCoins: 1 });
+            setShowInsufficientCoinsModal(true);
+            return;
+        }
+    }
+
     setIsLoading(true);
     setError('');
     setCurrentStep('chat');
@@ -212,11 +242,24 @@ export default function ResumeFeedbackPage() {
           resumeText,
           industryPreference: industryPreference || "a general entry-level position",
           jobDescription: finalJobDescription ? finalJobDescription.trim() : null,
+          userId: user?.uid // 🆕 Add user ID
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // 🪙 Handle insufficient coins error
+        if (response.status === 402) {
+          setCoinError({ 
+            currentCoins: errorData.currentCoins || 0, 
+            requiredCoins: errorData.requiredCoins || 1 
+          });
+          setShowInsufficientCoinsModal(true);
+          setCurrentStep('resume'); // Go back to resume step
+          return;
+        }
+        
         throw new Error(errorData.error || `An error occurred on the server.`);
       }
 
@@ -242,13 +285,19 @@ export default function ResumeFeedbackPage() {
       const feedbackComponent = <FeedbackCard feedback={feedback} providerInfo={data.providerInfo} />;
       setMessages(prev => [...prev, { role: 'assistant', content: feedbackComponent }]);
 
+      // 🪙 Refresh coin balance after successful analysis
+      if ((window as any).refreshCoinBalance) {
+        (window as any).refreshCoinBalance();
+      }
+
     } catch (err: any) {
       console.error("Analysis or Parsing Error:", err);
       setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, there was an issue processing the analysis: ${err.message}` }]);
+      setCurrentStep('resume'); // Go back to resume step on error
     } finally {
       setIsLoading(false);
     }
-  }, [resumeText, industryPreference]);
+  }, [resumeText, industryPreference, user]);
 
   const handleFollowUpSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
@@ -277,6 +326,7 @@ export default function ResumeFeedbackPage() {
           resumeText,
           industryPreference,
           jobDescription: jobDescription.trim() || null,
+          userId: user?.uid // 🆕 Add user ID for follow-up questions too
         }),
       });
 
@@ -298,7 +348,7 @@ export default function ResumeFeedbackPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [userInput, isLoading, messages, resumeText, industryPreference, jobDescription, conversationEnded]);
+  }, [userInput, isLoading, messages, resumeText, industryPreference, jobDescription, conversationEnded, user]);
 
   const resetFlow = useCallback(() => {
     setCurrentStep('industry');
@@ -309,6 +359,9 @@ export default function ResumeFeedbackPage() {
     setError('');
     setConversationEnded(false);
     setParsedFeedback(null);
+    // 🆕 Reset coin error state
+    setCoinError(null);
+    setShowInsufficientCoinsModal(false);
   }, []);
 
   if (loading || !user) {
@@ -594,6 +647,21 @@ export default function ResumeFeedbackPage() {
           )}
         </div>
       </main>
+
+      {/* 🔧 UPDATED Insufficient Coins Modal with handleGetCoins */}
+      {showInsufficientCoinsModal && coinError && (
+        <InsufficientCoinsModal
+          isOpen={showInsufficientCoinsModal}
+          onClose={() => {
+            setShowInsufficientCoinsModal(false);
+            setCoinError(null);
+          }}
+          onGetCoins={handleGetCoins} // 🔧 ADD THIS PROP
+          featureName="Resume Feedback"
+          currentCoins={coinError.currentCoins}
+          requiredCoins={coinError.requiredCoins}
+        />
+      )}
     </div>
   );
 }

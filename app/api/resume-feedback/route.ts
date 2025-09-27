@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
+import { CoinManagerServer } from '@/lib/coinManagerServer';
 
 // Force Node.js runtime for longer timeouts
 export const runtime = 'nodejs';
@@ -337,18 +338,73 @@ export async function POST(req: NextRequest) {
     let result: ProviderResult;
 
     try {
+        console.log('🚀 [API] Resume feedback request started');
+        
         const body = await req.json();
         const {
             resumeText,
             jobDescription,
             messages = [],
-            industryPreference = 'a general entry-level position in Bangladesh'
+            industryPreference = 'a general entry-level position in Bangladesh',
+            userId
         } = body;
+
+        console.log('🔍 [API] Request data:', {
+            hasResumeText: !!resumeText,
+            hasJobDescription: !!jobDescription,
+            messagesLength: messages.length,
+            industryPreference,
+            userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
+        });
+
+        // 🔧 UPDATED COIN DEDUCTION - Server-side Firebase Admin
+        const isInitialAnalysis = !!resumeText;
+        if (isInitialAnalysis && userId) {
+            console.log('🪙 [API] Checking coins for resume feedback...');
+            
+            try {
+                // Check if user has enough coins (SERVER-SIDE)
+                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, 1);
+                if (!hasCoins) {
+                    const currentBalance = await CoinManagerServer.getCoinBalance(userId);
+                    console.log(`❌ [API] Insufficient coins: user has ${currentBalance}, needs 1`);
+                    return NextResponse.json({ 
+                        error: 'Insufficient coins',
+                        currentCoins: currentBalance,
+                        requiredCoins: 1,
+                        feature: 'Resume Feedback'
+                    }, { status: 402 });
+                }
+
+                // Deduct coin before processing (SERVER-SIDE)
+                const deductResult = await CoinManagerServer.deductCoins(userId, 1, 'resume-feedback');
+                if (!deductResult.success) {
+                    console.error('❌ [API] Coin deduction failed:', deductResult.error);
+                    return NextResponse.json({ 
+                        error: 'Failed to process coin payment',
+                        details: deductResult.error
+                    }, { status: 500 });
+                }
+
+                console.log(`✅ [API] Deducted 1 coin for resume feedback. New balance: ${deductResult.newBalance}`);
+            } catch (coinError: any) {
+                console.error('❌ [API] Coin processing error:', {
+                    message: coinError.message,
+                    stack: coinError.stack,
+                    userId: userId?.substring(0, 8) + '...'
+                });
+                return NextResponse.json({ 
+                    error: 'Coin system error',
+                    details: coinError.message
+                }, { status: 500 });
+            }
+        }
 
         // Validation
         const contentToValidate = resumeText || (messages.length > 0 ? messages[messages.length - 1].content : '');
         const validation = validateResumeContent(contentToValidate);
         if (!validation.isValid) {
+            console.log('❌ [API] Content validation failed:', validation.reason);
             if (validation.isBlocked) {
                 return NextResponse.json({
                     feedback: 'My purpose is to provide professional resume feedback. Please ask a question related to your resume analysis.',
@@ -360,7 +416,6 @@ export async function POST(req: NextRequest) {
         }
 
         // Prepare API messages
-        const isInitialAnalysis = !!resumeText;
         let apiMessages: { role: string; content: string }[] = [];
         if (isInitialAnalysis) {
             let prompt = `Analyze this resume for the ${industryPreference} industry in Bangladesh.\n\n**Resume:**\n${resumeText}`;
@@ -373,51 +428,58 @@ export async function POST(req: NextRequest) {
         }
 
         if (apiMessages.length === 0) {
+            console.log('❌ [API] No content for analysis');
             return NextResponse.json({ error: 'No content for analysis.' }, { status: 400 });
         }
 
         const systemInstruction = createSystemInstruction(industryPreference, !!jobDescription);
         
+        console.log('🤖 [API] Starting AI analysis...');
+        
         // --- FOUR-TIER FALLBACK STRATEGY ---
-        // 1. Try Perplexity first (sonar model)
         result = await tryPerplexityAPI(apiMessages, systemInstruction);
 
-        // 2. If Perplexity fails, try Groq Versatile
         if (!result.success) {
-            console.log(`Primary provider (Perplexity) failed. Reason: ${result.error}. Falling back to Groq Versatile...`);
+            console.log(`❌ [API] Primary provider (Perplexity) failed. Reason: ${result.error}. Falling back to Groq Versatile...`);
             result = await tryGroqVersatileAPI(apiMessages, systemInstruction);
         }
 
-        // 3. If Groq Versatile fails, try Groq GPT
         if (!result.success) {
-            console.log(`Groq Versatile failed. Reason: ${result.error}. Falling back to Groq GPT...`);
+            console.log(`❌ [API] Groq Versatile failed. Reason: ${result.error}. Falling back to Groq GPT...`);
             result = await tryGroqGPTAPI(apiMessages, systemInstruction);
         }
 
-        // 4. If all fail, use Gemini 2.0 Flash
         if (!result.success) {
-            console.log(`All Groq models failed. Reason: ${result.error}. Falling back to Gemini 2.0 Flash.`);
+            console.log(`❌ [API] All Groq models failed. Reason: ${result.error}. Falling back to Gemini 2.0 Flash.`);
             result = await useGeminiAPI(apiMessages, systemInstruction);
         }
 
-        // 5. If everything fails, throw an error
         if (!result.success) {
             throw new Error(`All providers failed. Final error: ${result.error}`);
         }
 
-        console.log(`✅ Feedback completed in ${Date.now() - startTime}ms via ${result.provider}`);
+        console.log(`✅ [API] Feedback completed in ${Date.now() - startTime}ms via ${result.provider}`);
         
         return NextResponse.json({
             feedback: result.content,
             isInitialAnalysis,
             providerInfo: `Analysis powered by ${result.provider}`,
-            conversationEnded: isInitialAnalysis // End conversation after initial analysis
+            conversationEnded: isInitialAnalysis
         });
 
     } catch (error: any) {
-        console.error(`Resume feedback error:`, error.message);
+        console.error('❌ [API] Resume feedback error:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            timestamp: new Date().toISOString(),
+            duration: Date.now() - startTime
+        });
+        
         return NextResponse.json({ 
-            error: 'An unexpected error occurred while analyzing your resume.' 
+            error: 'An unexpected error occurred while analyzing your resume.',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 }
