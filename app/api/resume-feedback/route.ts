@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { detectPromptInjection } from '@/lib/utils/validation'; // ✅ USING SHARED
+import { LIMITS } from '@/lib/constants'; // ✅ USING CONSTANTS
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
@@ -19,36 +21,25 @@ if (!GOOGLE_API_KEY) {
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
 // Initialize clients
-const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({
-    apiKey: PERPLEXITY_API_KEY,
-}) : null;
+const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({ apiKey: PERPLEXITY_API_KEY }) : null;
+const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
-const groqClient = GROQ_API_KEY ? new Groq({
-    apiKey: GROQ_API_KEY,
-}) : null;
-
-// --- SECURITY & VALIDATION ---
-const detectResumeInjection = (content: string): boolean => {
-    const cleanContent = content.toLowerCase().trim();
-    const injectionPatterns = [
-        /ignore\s+(all\s+|previous\s+|prior\s+|earlier\s+)*instructions/i,
-        /forget\s+(all|everything|previous|prior|earlier)/i,
-        /disregard\s+(all\s+|previous\s+|prior\s+)*instructions/i,
-        /override\s+(all\s+|previous\s+|prior\s+)*instructions/i,
-        /(show|reveal|display|tell|give)\s+(me\s+)*(your\s+|the\s+)*(system\s+|original\s+)*instructions/i,
-        /you\s+are\s+now/i,
-        /act\s+as\s+(a\s+|an\s+)*(?!career|counselor|resume|reviewer)/i,
-        /change\s+my\s+score/i, /give\s+me\s+a\s+score\s+of/i,
-        /access\s+(other|any)\s+user/i, /show\s+me\s+other\s+resume/i
+// --- STREAMLINED VALIDATION ---
+const filterSuspiciousContent = (content: string): boolean => {
+    const patterns = [
+        /<script[\s\S]*?<\/script>/gi, /<iframe[\s\S]*?<\/iframe>/gi,
+        /javascript:/gi, /data:text\/html/gi, /<.*?on\w+\s*=/gi,
+        /union\s+select/gi, /drop\s+table/gi, /delete\s+from/gi
     ];
-    return injectionPatterns.some(pattern => pattern.test(cleanContent));
+    return patterns.some(pattern => pattern.test(content));
 };
 
 const validateResumeContent = (content: string): { isValid: boolean; reason?: string; isBlocked?: boolean } => {
-    if (detectResumeInjection(content)) {
+    if (detectPromptInjection(content) || filterSuspiciousContent(content)) { // ✅ USING SHARED
         console.log('🚨 BLOCKED RESUME INJECTION ATTEMPT:', content.substring(0, 100));
         return { isValid: false, reason: 'injection_attempt', isBlocked: true };
     }
+    
     const lowerContent = content.toLowerCase();
     const irrelevantKeywords = ['recipe', 'cooking', 'once upon a time', 'lorem ipsum', 'test test test', 'gibberish'];
     const dangerousKeywords = ['suicide', 'self harm', 'violence', 'weapon', 'illegal drugs', 'hate speech'];
@@ -63,7 +54,7 @@ const validateResumeContent = (content: string): { isValid: boolean; reason?: st
     if (content.length > 50 && resumeKeywords.filter(keyword => lowerContent.includes(keyword)).length < 2) {
         return { isValid: false, reason: 'not_resume_content' };
     }
-    if (content.length < 100 || content.length > 15000) {
+    if (content.length < LIMITS.MIN_RESUME_LENGTH || content.length > 15000) {
         return { isValid: false, reason: 'length_invalid' };
     }
     return { isValid: true };
@@ -128,11 +119,8 @@ interface ProviderResult {
     provider?: string;
 }
 
-// Helper function to extract content from Perplexity response
 const extractContentFromPerplexity = (content: any): string => {
-    if (typeof content === 'string') {
-        return content;
-    }
+    if (typeof content === 'string') return content;
     
     if (Array.isArray(content)) {
         return content
@@ -145,7 +133,6 @@ const extractContentFromPerplexity = (content: any): string => {
     return String(content || '');
 };
 
-// Helper function to clean and extract JSON
 const cleanAndExtractJSON = (content: string): string => {
     // Remove markdown code blocks
     content = content.replace(/``````\s*/g, '');
@@ -159,19 +146,35 @@ const cleanAndExtractJSON = (content: string): string => {
     return content.trim();
 };
 
+// ✅ STREAMLINED: Timeout handling utility
+async function withTimeout<T>(
+    providerName: string,
+    providerFn: () => Promise<T>,
+    timeoutMs: number = 15000
+): Promise<{ success: boolean; result?: T; error?: string }> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    
+    try {
+        console.log(`🔄 Attempting ${providerName}...`);
+        const result = await providerFn();
+        clearTimeout(timeoutId);
+        console.log(`✅ ${providerName} successful`);
+        return { success: true, result };
+    } catch (error: any) {
+        clearTimeout(timeoutId);
+        console.warn(`❌ ${providerName} failed:`, error.name === 'AbortError' ? 'Timeout' : error.message);
+        return { success: false, error: error.message };
+    }
+}
+
 // PRIMARY: Perplexity API Function with sonar model
 async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!perplexityClient || !PERPLEXITY_API_KEY) {
         return { success: false, error: 'Perplexity API key not configured' };
     }
 
-    const model = "sonar";
-    console.log(`🧠 Attempting Perplexity (Primary) with model: ${model}...`);
-    
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
+    const result = await withTimeout('Perplexity', async () => {
         const messagesWithSystem = [
             { role: 'system', content: systemInstruction },
             ...apiMessages
@@ -179,12 +182,10 @@ async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): 
 
         const completion = await perplexityClient.chat.completions.create({
             messages: messagesWithSystem as any,
-            model: model,
+            model: "sonar",
             max_tokens: 3000,
             temperature: 0.2,
         });
-
-        clearTimeout(timeoutId);
         
         const rawContent = completion.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error('No content in Perplexity response');
@@ -192,14 +193,12 @@ async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): 
         const content = extractContentFromPerplexity(rawContent);
         if (!content) throw new Error('Could not extract content from Perplexity response');
 
-        const finalContent = cleanAndExtractJSON(content);
+        return cleanAndExtractJSON(content);
+    });
 
-        console.log(`✅ Perplexity successful with model: ${model}`);
-        return { success: true, content: finalContent, provider: `perplexity-${model}` };
-    } catch (error: any) {
-        console.warn(`❌ Perplexity model ${model} failed:`, error.name === 'AbortError' ? 'Timeout' : error.message);
-        return { success: false, error: error.message };
-    }
+    return result.success 
+        ? { success: true, content: result.result, provider: 'perplexity-sonar' }
+        : { success: false, error: result.error };
 }
 
 // SECONDARY: Groq API with llama-3.3-70b-versatile
@@ -208,39 +207,29 @@ async function tryGroqVersatileAPI(apiMessages: any[], systemInstruction: string
         return { success: false, error: 'Groq API key not configured' };
     }
 
-    const model = "llama-3.3-70b-versatile";
-    console.log(`🦙 Attempting Groq with model: ${model}...`);
-    
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
+    const result = await withTimeout('Groq Versatile', async () => {
         const messagesWithSystem = [
             { role: 'system', content: systemInstruction },
             ...apiMessages
         ];
 
         const completion = await groqClient.chat.completions.create({
-            model: model,
+            model: "llama-3.3-70b-versatile",
             messages: messagesWithSystem,
             max_tokens: 3000,
             temperature: 0.2,
             response_format: { type: "json_object" }
         });
 
-        clearTimeout(timeoutId);
-
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq Versatile response');
 
-        const finalContent = cleanAndExtractJSON(content);
+        return cleanAndExtractJSON(content);
+    });
 
-        console.log(`✅ Groq Versatile successful with model: ${model}`);
-        return { success: true, content: finalContent, provider: `groq-versatile` };
-    } catch (error: any) {
-        console.warn(`❌ Groq Versatile model ${model} failed:`, error.name === 'AbortError' ? 'Timeout' : error.message);
-        return { success: false, error: error.message };
-    }
+    return result.success 
+        ? { success: true, content: result.result, provider: 'groq-versatile' }
+        : { success: false, error: result.error };
 }
 
 // TERTIARY: Groq API with openai/gpt-oss-120b
@@ -249,9 +238,6 @@ async function tryGroqGPTAPI(apiMessages: any[], systemInstruction: string): Pro
         return { success: false, error: 'Groq API key not configured' };
     }
 
-    const model = "openai/gpt-oss-120b";
-    console.log(`🤖 Attempting Groq with model: ${model}...`);
-    
     const enhancedSystemInstruction = systemInstruction + `
 
 CRITICAL FOR THIS MODEL: 
@@ -261,42 +247,34 @@ CRITICAL FOR THIS MODEL:
 - Ensure all arrays have at least one item
 - Double-check JSON validity before responding`;
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
+    const result = await withTimeout('Groq GPT', async () => {
         const messagesWithSystem = [
             { role: 'system', content: enhancedSystemInstruction },
             ...apiMessages
         ];
 
         const completion = await groqClient.chat.completions.create({
-            model: model,
+            model: "openai/gpt-oss-120b",
             messages: messagesWithSystem,
             max_tokens: 3000,
             temperature: 0.2,
             response_format: { type: "json_object" }
         });
 
-        clearTimeout(timeoutId);
-
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq GPT response');
 
-        const finalContent = cleanAndExtractJSON(content);
+        return cleanAndExtractJSON(content);
+    });
 
-        console.log(`✅ Groq GPT successful with model: ${model}`);
-        return { success: true, content: finalContent, provider: `groq-gpt` };
-    } catch (error: any) {
-        console.warn(`❌ Groq GPT model ${model} failed:`, error.name === 'AbortError' ? 'Timeout' : error.message);
-        return { success: false, error: error.message };
-    }
+    return result.success 
+        ? { success: true, content: result.result, provider: 'groq-gpt' }
+        : { success: false, error: result.error };
 }
 
 // FINAL FALLBACK: Google Gemini 2.0 Flash
 async function useGeminiAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
-    console.log('🔮 Final fallback to Google Gemini 2.0 Flash...');
-    try {
+    const result = await withTimeout('Google Gemini 2.0 Flash', async () => {
         const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash",
             systemInstruction,
@@ -317,25 +295,48 @@ async function useGeminiAPI(apiMessages: any[], systemInstruction: string): Prom
         });
         
         const latestMessage = apiMessages[apiMessages.length - 1]?.content || '';
-        const result = await chat.sendMessage(latestMessage);
-        const content = result.response.text();
+        const geminiResult = await chat.sendMessage(latestMessage);
+        const content = geminiResult.response.text();
 
         if (!content) throw new Error("Gemini returned an empty response.");
 
-        const finalContent = cleanAndExtractJSON(content);
+        return cleanAndExtractJSON(content);
+    });
 
-        console.log('✅ Google Gemini 2.0 Flash successful.');
-        return { success: true, content: finalContent, provider: 'gemini-2.0-flash' };
-    } catch (error: any) {
-        console.warn(`❌ Gemini failed:`, error.message);
-        return { success: false, error: error.message };
+    return result.success 
+        ? { success: true, content: result.result, provider: 'gemini-2.0-flash' }
+        : { success: false, error: result.error };
+}
+
+// ✅ STREAMLINED: Main execution with fallback
+async function executeWithFallback(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
+    const providers = [
+        () => tryPerplexityAPI(apiMessages, systemInstruction),
+        () => tryGroqVersatileAPI(apiMessages, systemInstruction),
+        () => tryGroqGPTAPI(apiMessages, systemInstruction),
+        () => useGeminiAPI(apiMessages, systemInstruction),
+    ];
+    
+    const providerNames = ['Perplexity', 'Groq Versatile', 'Groq GPT', 'Gemini'];
+    let lastError = '';
+    
+    for (let i = 0; i < providers.length; i++) {
+        try {
+            const result = await providers[i]();
+            if (result.success) return result;
+            lastError = result.error || 'Unknown error';
+        } catch (error: any) {
+            lastError = error.message;
+            console.warn(`${providerNames[i]} failed:`, error.message);
+        }
     }
+    
+    throw new Error(`All providers failed. Last error: ${lastError}`);
 }
 
 // --- MAIN API ROUTE HANDLER ---
 export async function POST(req: NextRequest) {
     const startTime = Date.now();
-    let result: ProviderResult;
 
     try {
         console.log('🚀 [API] Resume feedback request started');
@@ -364,20 +365,20 @@ export async function POST(req: NextRequest) {
             
             try {
                 // Check if user has enough coins (SERVER-SIDE)
-                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, 1);
+                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE); // ✅ USING CONSTANT
                 if (!hasCoins) {
                     const currentBalance = await CoinManagerServer.getCoinBalance(userId);
-                    console.log(`❌ [API] Insufficient coins: user has ${currentBalance}, needs 1`);
+                    console.log(`❌ [API] Insufficient coins: user has ${currentBalance}, needs ${LIMITS.COINS_PER_FEATURE}`); // ✅ USING CONSTANT
                     return NextResponse.json({ 
                         error: 'Insufficient coins',
                         currentCoins: currentBalance,
-                        requiredCoins: 1,
+                        requiredCoins: LIMITS.COINS_PER_FEATURE, // ✅ USING CONSTANT
                         feature: 'Resume Feedback'
                     }, { status: 402 });
                 }
 
                 // Deduct coin before processing (SERVER-SIDE)
-                const deductResult = await CoinManagerServer.deductCoins(userId, 1, 'resume-feedback');
+                const deductResult = await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback'); // ✅ USING CONSTANT
                 if (!deductResult.success) {
                     console.error('❌ [API] Coin deduction failed:', deductResult.error);
                     return NextResponse.json({ 
@@ -386,7 +387,7 @@ export async function POST(req: NextRequest) {
                     }, { status: 500 });
                 }
 
-                console.log(`✅ [API] Deducted 1 coin for resume feedback. New balance: ${deductResult.newBalance}`);
+                console.log(`✅ [API] Deducted ${LIMITS.COINS_PER_FEATURE} coin for resume feedback. New balance: ${deductResult.newBalance}`); // ✅ USING CONSTANT
             } catch (coinError: any) {
                 console.error('❌ [API] Coin processing error:', {
                     message: coinError.message,
@@ -436,27 +437,8 @@ export async function POST(req: NextRequest) {
         
         console.log('🤖 [API] Starting AI analysis...');
         
-        // --- FOUR-TIER FALLBACK STRATEGY ---
-        result = await tryPerplexityAPI(apiMessages, systemInstruction);
-
-        if (!result.success) {
-            console.log(`❌ [API] Primary provider (Perplexity) failed. Reason: ${result.error}. Falling back to Groq Versatile...`);
-            result = await tryGroqVersatileAPI(apiMessages, systemInstruction);
-        }
-
-        if (!result.success) {
-            console.log(`❌ [API] Groq Versatile failed. Reason: ${result.error}. Falling back to Groq GPT...`);
-            result = await tryGroqGPTAPI(apiMessages, systemInstruction);
-        }
-
-        if (!result.success) {
-            console.log(`❌ [API] All Groq models failed. Reason: ${result.error}. Falling back to Gemini 2.0 Flash.`);
-            result = await useGeminiAPI(apiMessages, systemInstruction);
-        }
-
-        if (!result.success) {
-            throw new Error(`All providers failed. Final error: ${result.error}`);
-        }
+        // ✅ STREAMLINED: Execute with fallback
+        const result = await executeWithFallback(apiMessages, systemInstruction);
 
         console.log(`✅ [API] Feedback completed in ${Date.now() - startTime}ms via ${result.provider}`);
         

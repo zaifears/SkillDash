@@ -5,27 +5,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import MessageBubble from '../../components/discover/MessageBubble';
-import LoadingDots from '../../components/discover/LoadingDots';
-import { CoinManager } from '@/lib/coinManager'; // 🆕 ADD THIS IMPORT
-import InsufficientCoinsModal from '@/components/ui/InsufficientCoinsModal'; // 🆕 ADD THIS IMPORT
+import { CoinManager } from '@/lib/coinManager';
+import InsufficientCoinsModal from '@/components/ui/InsufficientCoinsModal';
+import { LoadingScreen, LoadingDots, Message } from '@/lib/components/shared'; // ✅ SHARED COMPONENTS
+import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants'; // ✅ CONSTANTS
 
 // Lazy load the redesigned, heavier SuggestionsCard component
 const SuggestionsCard = dynamic(() => import('../../components/discover/SuggestionsCard'), {
   loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
 });
-
-// Optimized loading screen
-const AuthLoadingScreen = () => (
-  <div className="flex flex-col h-[calc(100vh-80px)] bg-gray-50 dark:bg-black items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600" />
-  </div>
-);
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  id: string;
-}
 
 // --- UPDATED INTERFACE to match the new backend response ---
 interface SkillSuggestions {
@@ -59,9 +47,9 @@ export default function DiscoverPage() {
   // Auth redirect effect
   useEffect(() => {
     if (!loading && !user) {
-      sessionStorage.setItem('redirectMessage', 'Please log in to use the Discover feature.');
-      sessionStorage.setItem('redirectAfterLogin', '/discover');
-      router.push('/auth');
+      sessionStorage.setItem('redirectMessage', MESSAGES.AUTH_REQUIRED); // ✅ USING CONSTANT
+      sessionStorage.setItem('redirectAfterLogin', ROUTES.DISCOVER); // ✅ USING CONSTANT
+      router.push(ROUTES.AUTH); // ✅ USING CONSTANT
     }
   }, [user, loading, router]);
 
@@ -98,14 +86,18 @@ export default function DiscoverPage() {
     if (!userInput.trim() || isLoading || suggestions || conversationEnded) return;
 
     // 🪙 Check if we might need coins (simple heuristic based on conversation length)
-    const questionCount = messages.filter(msg => msg.role === 'assistant' && msg.content.includes('?')).length;
+    const questionCount = messages.filter(msg => 
+  msg.role === 'assistant' && 
+  typeof msg.content === 'string' && 
+  msg.content.includes('?')
+).length;
     
     // If we're likely approaching the end (5+ questions), check coins
-    if (questionCount >= 5 && user) {
-      const hasCoins = await CoinManager.hasEnoughCoins(user.uid, 1);
+    if (questionCount >= LIMITS.QUESTION_COUNT_THRESHOLD && user) { // ✅ USING CONSTANT
+      const hasCoins = await CoinManager.hasEnoughCoins(user.uid, LIMITS.COINS_PER_FEATURE); // ✅ USING CONSTANT
       if (!hasCoins) {
         const currentBalance = await CoinManager.getCoinBalance(user.uid);
-        setCoinError({ currentCoins: currentBalance, requiredCoins: 1 });
+        setCoinError({ currentCoins: currentBalance, requiredCoins: LIMITS.COINS_PER_FEATURE }); // ✅ USING CONSTANT
         setShowInsufficientCoinsModal(true);
         return;
       }
@@ -189,7 +181,7 @@ export default function DiscoverPage() {
   }, []);
 
   if (loading || !user) {
-    return <AuthLoadingScreen />;
+    return <LoadingScreen />; // ✅ USING SHARED COMPONENT
   }
   
   const getPlaceholder = () => {
@@ -216,7 +208,7 @@ export default function DiscoverPage() {
             {messages.map((msg) => (
               <MessageBubble key={msg.id} role={msg.role} content={msg.content} />
             ))}
-            {isLoading && <MessageBubble role="assistant" content={<LoadingDots />} />}
+            {isLoading && <MessageBubble role="assistant" content={<LoadingDots />} />} {/* ✅ USING SHARED COMPONENT */}
             {suggestions && !suggestions.forceEnd && <SuggestionsCard data={suggestions} />}
             <div ref={messagesEndRef} />
           </div>
@@ -232,9 +224,9 @@ export default function DiscoverPage() {
               value={userInput}
               onChange={handleInputChange}
               placeholder={getPlaceholder()}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+              className="input-field rounded-full" // ✅ USING CSS UTILITY CLASS
               disabled={isLoading || !!suggestions || conversationEnded}
-              maxLength={500}
+              maxLength={LIMITS.MAX_MESSAGE_LENGTH} // ✅ USING CONSTANT
             />
             <button
               type="submit"

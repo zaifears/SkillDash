@@ -1,318 +1,143 @@
 'use client';
 
-import { useState, useEffect, memo } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CoinManager } from '@/lib/coinManager';
-import CoinDisplay from '@/components/ui/CoinDisplay';
-import BouncingBalls from '@/components/shared/BouncingBalls';
+import TransactionHistory from '@/components/coins/TransactionHistory';
+import { LoadingScreen } from '@/lib/components/shared';
+import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants';
 
-// TypeScript interfaces
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: string;
+interface CoinStats {
+  currentBalance: number;
+  totalEarned: number;
+  totalSpent: number;
+  featuresUsed: number;
+  lastTransaction?: Date;
 }
 
-interface TransactionHistoryItem {
-  id: string;
-  type: 'spent' | 'earned' | 'granted';
-  amount: number;
-  description: string;
-  feature: string;
-  timestamp: Date;
-  success: boolean;
-}
-
-// Memoized components
-const AuthLoadingScreen = memo(() => (
-  <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center px-4">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
-    <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
-  </div>
-));
-AuthLoadingScreen.displayName = 'AuthLoadingScreen';
-
-const CoinIcon = memo(() => (
-  <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg">
-    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-    </svg>
-  </div>
-));
-CoinIcon.displayName = 'CoinIcon';
-
-const FeatureCard = memo(({ icon, title, description, color }: FeatureCardProps) => (
-  <div className="bg-white/60 dark:bg-gray-800/60 rounded-xl p-4 backdrop-blur-sm">
-    <div className={`w-8 h-8 ${color} rounded-lg flex items-center justify-center mx-auto mb-2`}>
-      {icon}
-    </div>
-    <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">{title}</h3>
-    <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
-  </div>
-));
-FeatureCard.displayName = 'FeatureCard';
-
-// Pre-defined data for faster rendering
-const futureFeatures: FeatureCardProps[] = [
-  {
-    icon: <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-    title: "Daily Login",
-    description: "+1 coin daily",
-    color: "bg-green-100 dark:bg-green-900/30"
-  },
-  {
-    icon: <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" /></svg>,
-    title: "Referrals",
-    description: "+3 coins per friend",
-    color: "bg-blue-100 dark:bg-blue-900/30"
-  },
-  {
-    icon: <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>,
-    title: "Achievements",
-    description: "+2 coins per milestone",
-    color: "bg-purple-100 dark:bg-purple-900/30"
-  },
-  {
-    icon: <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
-    title: "Premium",
-    description: "Unlimited access",
-    color: "bg-orange-100 dark:bg-orange-900/30"
-  }
-];
-
-export default function CoinsPage() {
-  const { user, loading } = useAuth();
+const CoinsPage: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [currentBalance, setCurrentBalance] = useState<number>(0);
-  const [coinHistory, setCoinHistory] = useState<TransactionHistoryItem[]>([]);
-  const [coinStats, setCoinStats] = useState<any>(null);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  
+  const [coinBalance, setCoinBalance] = useState<number>(0);
+  const [coinStats, setCoinStats] = useState<CoinStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
+  // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
-      sessionStorage.setItem('redirectMessage', 'Please log in to view your coin balance and rewards.');
-      sessionStorage.setItem('redirectAfterLogin', '/coins');
-      router.push('/auth');
-      return;
+    if (!authLoading && !user) {
+      sessionStorage.setItem('redirectMessage', MESSAGES.AUTH_REQUIRED);
+      sessionStorage.setItem('redirectAfterLogin', ROUTES.COINS);
+      router.push(ROUTES.AUTH);
     }
+  }, [user, authLoading, router]);
 
-    // 🚀 Fetch all coin data
-    if (user) {
-      const fetchCoinData = async () => {
-        try {
-          const [balance, history, stats] = await Promise.all([
-            CoinManager.getCoinBalance(user.uid),
-            CoinManager.getTransactionHistory(user.uid),
-            CoinManager.getCoinStatistics(user.uid)
-          ]);
+  // Fetch coin data
+  const fetchCoinData = async () => {
+    if (!user) return;
 
-          setCurrentBalance(balance);
-          setCoinHistory(history);
-          setCoinStats(stats);
-        } catch (error) {
-          console.error('Error fetching coin data:', error);
-        } finally {
-          setIsLoadingBalance(false);
-        }
-      };
-      fetchCoinData();
-    }
-  }, [user, loading, router]);
+    try {
+      setLoading(true);
+      setError(null);
 
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'spent':
-        return (
-          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m0 7V3" />
-          </svg>
-        );
-      case 'earned':
-      case 'granted':
-        return (
-          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-        );
-      default:
-        return (
-          <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-        );
+      const [balance, stats] = await Promise.all([
+        CoinManager.getCoinBalance(user.uid),
+        CoinManager.getCoinStatistics(user.uid)
+      ]);
+
+      setCoinBalance(balance);
+      setCoinStats(stats);
+    } catch (err: any) {
+      console.error('Failed to fetch coin data:', err);
+      setError('Failed to load coin information. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <AuthLoadingScreen />;
+  // Initial load
+  useEffect(() => {
+    fetchCoinData();
+  }, [user, refreshKey]);
+
+  // Global refresh function for other components
+  useEffect(() => {
+    (window as any).refreshCoinBalance = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+
+    return () => {
+      delete (window as any).refreshCoinBalance;
+    };
+  }, []);
+
+  // Loading state
+  if (authLoading || loading) {
+    return <LoadingScreen />;
   }
 
-  if (!user) {
-    return null;
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 pt-20 px-4">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Something went wrong</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{error}</p>
+              <button
+                onClick={fetchCoinData}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-8 relative">
-      <BouncingBalls variant="default" />
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-        
-        {/* Header Section */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+      <div className="px-4 py-6 max-w-6xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-8">
-          <CoinIcon />
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 mt-4">Your SkillDash Coins</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">Manage your AI feature usage</p>
-        </div>
-
-        {/* Current Balance Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8">
-          <div className="p-8 text-center">
-            <div className="mb-4">
-              {isLoadingBalance ? (
-                <div className="animate-pulse">
-                  <div className="h-16 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg mx-auto mb-4"></div>
-                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mx-auto"></div>
-                </div>
-              ) : (
-                <>
-                  <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">
-                    {currentBalance}
-                  </div>
-                  <p className="text-xl text-gray-600 dark:text-gray-400">Available Coins</p>
-                </>
-              )}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg">
+              🪙
             </div>
-            
-            <div className="flex justify-center">
-              <CoinDisplay className="flex scale-125" />
-            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
+              Your SkillCoins
+            </h1>
           </div>
+          <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg max-w-2xl mx-auto">
+            Use SkillCoins to unlock powerful AI features. Complete activities to earn more coins!
+          </p>
         </div>
 
-        {/* 🆕 TRANSACTION HISTORY SECTION */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8">
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Transaction History</h2>
-            
-            {isLoadingBalance ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="animate-pulse flex items-center space-x-4 p-4">
-                    <div className="rounded-full bg-gray-200 dark:bg-gray-700 h-10 w-10"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                    </div>
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                  </div>
-                ))}
-              </div>
-            ) : coinHistory.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {coinHistory.map((transaction, index) => (
-                  <div key={transaction.id || index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        transaction.type === 'spent' 
-                          ? 'bg-red-100 dark:bg-red-900/30' 
-                          : 'bg-green-100 dark:bg-green-900/30'
-                      }`}>
-                        {getTransactionIcon(transaction.type)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {transaction.description}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(transaction.timestamp).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded-full text-gray-600 dark:text-gray-300">
-                            {transaction.feature.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`text-lg font-bold ${
-                        transaction.type === 'spent' 
-                          ? 'text-red-600 dark:text-red-400' 
-                          : 'text-green-600 dark:text-green-400'
-                      }`}>
-                        {transaction.type === 'spent' ? '−' : '+'}{transaction.amount}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {transaction.amount === 1 ? 'coin' : 'coins'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+        {/* Current Balance - Hero Card */}
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-1 mb-8 shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-8">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-4 mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-3xl shadow-lg animate-bounce-slow">
+                  🪙
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Transactions Yet</h3>
-                <p className="text-gray-600 dark:text-gray-400">Your coin transaction history will appear here once you start using AI features.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Information Card */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200 dark:border-blue-700 p-8 mb-8">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Fair Access for Everyone 🌟
-            </h2>
-            
-            <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
-              To keep SkillDash accessible for everyone to use, we currently provide <span className="font-bold text-blue-600 dark:text-blue-400">5 coins per user</span>. 
-              This ensures our AI-powered features remain available to all students while maintaining service quality.
-            </p>
-
-            {/* How Coins Work Section */}
-            <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm border border-white/20 dark:border-gray-600/20">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">💡 How Coins Work</h3>
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                <div>
+                  <div className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-1">
+                    {coinBalance}
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Resume Feedback</p>
-                    <p className="text-gray-600 dark:text-gray-400">1 coin per analysis</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">Discover Analysis</p>
-                    <p className="text-gray-600 dark:text-gray-400">1 coin per completion</p>
+                  <div className="text-lg text-gray-600 dark:text-gray-300 font-medium">
+                    SkillCoins Available
                   </div>
                 </div>
               </div>
@@ -320,45 +145,221 @@ export default function CoinsPage() {
           </div>
         </div>
 
-        {/* Future Features Card */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border border-purple-200 dark:border-purple-700 p-8 mb-12">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              </div>
+              <h3 className="text-green-600 dark:text-green-400 font-semibold text-sm sm:text-base">Earned</h3>
             </div>
-            
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Coming Soon! 🚀
-            </h2>
-            
-            <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-              We're working on exciting ways for you to earn more coins and unlock additional features!
-            </p>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.totalEarned || 0}</div>
+            <div className="text-green-600 dark:text-green-400 text-xs sm:text-sm font-medium">coins total</div>
+          </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {futureFeatures.map((feature, index) => (
-                <FeatureCard key={index} {...feature} />
-              ))}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200 dark:border-red-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+              <h3 className="text-red-600 dark:text-red-400 font-semibold text-sm sm:text-base">Spent</h3>
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.totalSpent || 0}</div>
+            <div className="text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium">coins used</div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-blue-600 dark:text-blue-400 font-semibold text-sm sm:text-base">Used</h3>
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.featuresUsed || 0}</div>
+            <div className="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-medium">times</div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-purple-600 dark:text-purple-400 font-semibold text-sm sm:text-base">Last</h3>
+            </div>
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+              {coinStats?.lastTransaction 
+                ? new Date(coinStats.lastTransaction).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })
+                : 'None'
+              }
+            </div>
+            <div className="text-purple-600 dark:text-purple-400 text-xs sm:text-sm font-medium">activity</div>
+          </div>
+        </div>
+
+        {/* How to Earn Coins */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+              💡
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">How to Earn Coins</h2>
+          </div>
+          
+          {/* Available Now */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 sm:p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
+                🎯
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="font-bold text-green-800 dark:text-green-300 text-lg">Welcome Bonus</h3>
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                    AVAILABLE NOW
+                  </span>
+                </div>
+                <p className="text-green-700 dark:text-green-300 mb-3">Get 5 coins when you create your account</p>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">+5 coins</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Coming Soon */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-4">Coming Soon</h3>
+            
+            <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl p-4 opacity-75">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center text-xl opacity-50">
+                  📅
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-gray-600 dark:text-gray-300">Daily Login</h4>
+                    <span className="bg-gray-400 text-white px-2 py-1 rounded-full text-xs font-bold">SOON</span>
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">+1 coin per day</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl p-4 opacity-75">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center text-xl opacity-50">
+                  👥
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-gray-600 dark:text-gray-300">Referrals</h4>
+                    <span className="bg-gray-400 text-white px-2 py-1 rounded-full text-xs font-bold">SOON</span>
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">+3 coins per friend</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Back Button */}
-        <div className="text-center pt-8">
+        {/* Feature Costs */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+              🔥
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">SkillDash Features</h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300">Resume Feedback AI</h3>
+                <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  {LIMITS.COINS_PER_FEATURE} coin
+                </div>
+              </div>
+              <p className="text-blue-800 dark:text-blue-200 mb-4">
+                Get comprehensive AI-powered feedback on your resume tailored for the Bangladesh job market.
+              </p>
+              <button
+                onClick={() => router.push(ROUTES.RESUME_FEEDBACK)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              >
+                Try Resume Feedback
+              </button>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-purple-900 dark:text-purple-300">Discover Career Paths</h3>
+                <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  {LIMITS.COINS_PER_FEATURE} coin
+                </div>
+              </div>
+              <p className="text-purple-800 dark:text-purple-200 mb-4">
+                Discover personalized career recommendations based on your interests and skills.
+              </p>
+              <button
+                onClick={() => router.push(ROUTES.DISCOVER)}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              >
+                Explore Discover
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Transaction History */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
+          <TransactionHistory />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <button
-            onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+            onClick={() => router.push(ROUTES.RESUME_FEEDBACK)}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 shadow-lg"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Back to Dashboard
+            Analyze Resume ({LIMITS.COINS_PER_FEATURE} coin)
+          </button>
+          
+          <button
+            onClick={() => router.push(ROUTES.DISCOVER)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Discover Careers ({LIMITS.COINS_PER_FEATURE} coin)
+          </button>
+
+          <button
+            onClick={fetchCoinData}
+            className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 shadow-lg sm:col-span-2 lg:col-span-1"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh Balance
           </button>
         </div>
-
       </div>
     </div>
   );
-}
+};
+
+export default CoinsPage;
