@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Script from 'next/script'
 import './globals.css'
 import Navbar from '../components/Navbar'
 import { AuthProvider } from '../contexts/AuthContext'
+import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
@@ -94,7 +94,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         
-        {/* SEO & OpenGraph - Keep existing ones */}
+        {/* SEO & OpenGraph */}
         <meta property="og:title" content="SkillDash - AI Gateway for Career Readiness" />
         <meta property="og:description" content="Unlock your skills, grow your career. Discover, Learn, Get Hired." />
         <meta property="og:url" content="https://skilldash.live" />
@@ -110,33 +110,22 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         
-        {/* DNS Prefetch for performance */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//www.google-analytics.com" />
-
-        {/* Google Tag Manager (head) using Next.js Script */}
-        <Script
-          id="gtm-init"
-          strategy="afterInteractive"
+        {/* 🔧 GTM HEAD SCRIPT */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function(w,d,s,l,i){
-                w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-                var f=d.getElementsByTagName(s)[0],
-                  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
-                j.async=true;
-                j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-                f.parentNode.insertBefore(j,f);
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
               })(window,document,'script','dataLayer','${GTM_ID}');
             `
           }}
         />
 
-        {/* Structured Data for Enhanced SEO */}
-        <Script
-          id="structured-data"
+        {/* Structured Data */}
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -165,17 +154,26 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
-        {/* Google Tag Manager (body) */}
+        {/* GTM Body Script */}
         <noscript>
           <iframe
             src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
           ></iframe>
         </noscript>
+        
         <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
+          {/* 🔧 EMAIL VERIFICATION BANNER */}
+          <EmailVerificationBanner />
+          
+          <div className="relative">
+            <Navbar />
+            <main>{children}</main>
+          </div>
         </AuthProvider>
+        
         <SpeedInsights />
         <Analytics />
       </body>
