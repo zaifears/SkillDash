@@ -1,22 +1,16 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Footer from '../../components/shared/Footer';
 
-// Ultra-light bouncing balls for maximum performance
-const FastBouncingBalls = React.memo(() => (
-  <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-    <div className="absolute w-6 h-6 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-60 top-20 right-10 animate-bounce" style={{animationDelay: '0s', animationDuration: '3s'}} />
-    <div className="absolute w-4 h-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full opacity-50 bottom-40 left-8 animate-bounce" style={{animationDelay: '1s', animationDuration: '4s'}} />
-    <div className="absolute w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-40 top-1/2 right-6 animate-bounce" style={{animationDelay: '2s', animationDuration: '3.5s'}} />
-    <div className="absolute w-3 h-3 bg-gradient-to-r from-red-400 to-pink-500 rounded-full opacity-45 top-1/3 left-12 animate-bounce" style={{animationDelay: '1.5s', animationDuration: '3.8s'}} />
-    <div className="absolute w-4 h-4 bg-gradient-to-r from-indigo-400 to-cyan-500 rounded-full opacity-55 bottom-60 right-20 animate-bounce" style={{animationDelay: '2.5s', animationDuration: '4.2s'}} />
-  </div>
-));
-FastBouncingBalls.displayName = 'FastBouncingBalls';
+// Dynamic import for optimal performance - only loads when needed
+const BouncingBalls = dynamic(() => import('../../components/shared/BouncingBalls'), {
+  ssr: false,
+  loading: () => null
+});
 
-// Inline quiz data for maximum performance - no external imports
+// Inline quiz data - no external imports for maximum speed
 const QUIZ_DATA = [
   {
     q: "What excites you most?",
@@ -92,7 +86,7 @@ const QUIZ_DATA = [
   }
 ];
 
-// Lightweight skill data - only what we need
+// Lightweight skill data - only essential fields
 const SKILLS = {
   "graphic-design": { name: "Graphic Design using Canva", desc: "Create stunning graphics and designs", logo: "/learn-skill/logos/canva.png" },
   "ui-ux-figma": { name: "UI/UX Design (Figma)", desc: "Design beautiful user interfaces", logo: "/learn-skill/logos/figma.png" },
@@ -113,14 +107,12 @@ const SKILLS = {
 };
 
 export default function MiniTestPage() {
-  const [step, setStep] = useState(0); // 0: intro, 1: quiz, 2: results
+  const [step, setStep] = useState(0);
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [results, setResults] = useState<string[]>([]);
 
-  const handleStart = useCallback(() => {
-    setStep(1);
-  }, []);
+  const handleStart = useCallback(() => setStep(1), []);
 
   const handleAnswer = useCallback((optionIndex: number) => {
     const newAnswers = [...answers, optionIndex];
@@ -129,9 +121,7 @@ export default function MiniTestPage() {
     if (currentQ < QUIZ_DATA.length - 1) {
       setTimeout(() => setCurrentQ(prev => prev + 1), 200);
     } else {
-      // Calculate results instantly
       const scores: Record<string, number> = {};
-      
       newAnswers.forEach((ansIdx, qIdx) => {
         QUIZ_DATA[qIdx].o[ansIdx].s.forEach(skillId => {
           scores[skillId] = (scores[skillId] || 0) + 1;
@@ -157,11 +147,11 @@ export default function MiniTestPage() {
 
   const progress = useMemo(() => ((currentQ + 1) / QUIZ_DATA.length) * 100, [currentQ]);
 
-  // Intro Screen - CLEAN WHITE/BLACK BACKGROUND
+  // Intro Screen
   if (step === 0) {
     return (
       <>
-        <FastBouncingBalls />
+        <BouncingBalls variant="default" />
         <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center px-4 pt-20 relative z-10">
           <div className="text-center max-w-2xl">
             <div className="mb-8">
@@ -181,12 +171,12 @@ export default function MiniTestPage() {
               Get personalized recommendations based on your interests and goals.
             </p>
             
-            <div className="flex items-center justify-center gap-6 mb-10 text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-center gap-6 mb-10 text-gray-500 dark:text-gray-400 flex-wrap">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>8 Quick Questions</span>
+                <span>8 Questions</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -198,7 +188,7 @@ export default function MiniTestPage() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
-                <span>Personalized Results</span>
+                <span>Personalized</span>
               </div>
             </div>
             
@@ -214,13 +204,13 @@ export default function MiniTestPage() {
     );
   }
 
-  // Quiz Screen - CLEAN WHITE/BLACK BACKGROUND
+  // Quiz Screen
   if (step === 1) {
     const question = QUIZ_DATA[currentQ];
     
     return (
       <>
-        <FastBouncingBalls />
+        <BouncingBalls variant="minimal" />
         <div className="min-h-screen bg-white dark:bg-black px-4 py-8 pt-24 relative z-10">
           <div className="max-w-3xl mx-auto">
             
@@ -251,10 +241,10 @@ export default function MiniTestPage() {
                 <button
                   key={i}
                   onClick={() => handleAnswer(i)}
-                  className="w-full p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 hover:shadow-lg transition-all duration-200 text-left group shadow-md"
+                  className="w-full p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 hover:shadow-lg transition-all duration-200 text-left group shadow-sm"
                 >
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-800">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 flex-shrink-0">
                       <span className="font-bold text-blue-600 dark:text-blue-400">
                         {String.fromCharCode(65 + i)}
                       </span>
@@ -272,10 +262,10 @@ export default function MiniTestPage() {
     );
   }
 
-  // Results Screen - CLEAN WHITE/BLACK BACKGROUND
+  // Results Screen
   return (
     <>
-      <FastBouncingBalls />
+      <BouncingBalls variant="dense" />
       <div className="min-h-screen bg-white dark:bg-black px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto pt-20">
           
@@ -302,7 +292,7 @@ export default function MiniTestPage() {
               return (
                 <div
                   key={skillId}
-                  className={`bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-2 ${
+                  className={`bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-2 transition-all duration-200 hover:shadow-xl ${
                     i === 0 ? 'border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20' : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
@@ -316,19 +306,24 @@ export default function MiniTestPage() {
                   )}
                   
                   <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                      <img src={skill.logo} alt={skill.name} className="w-10 h-10 object-contain" />
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <img 
+                        src={skill.logo} 
+                        alt={skill.name} 
+                        className="w-10 h-10 object-contain"
+                        loading="lazy"
+                      />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         {skill.name}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm sm:text-base">
                         {skill.desc}
                       </p>
                       <button
-                        onClick={() => window.open('/learn-skill', '_blank')}
-                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-2 px-6 rounded-full hover:scale-105 transition-transform"
+                        onClick={() => window.open('/learn-skill', '_blank', 'noopener,noreferrer')}
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-2 px-6 rounded-full transition-all duration-200 hover:scale-105 shadow-md"
                       >
                         Start Learning
                       </button>
@@ -339,7 +334,7 @@ export default function MiniTestPage() {
             })}
           </div>
 
-          {/* FIXED MOBILE BUTTON LAYOUT - EQUAL WIDTH */}
+          {/* FIXED MOBILE BUTTONS */}
           <div className="text-center mb-8">
             <div className="flex flex-col gap-4 max-w-md mx-auto">
               <button
@@ -349,8 +344,8 @@ export default function MiniTestPage() {
                 Take Test Again
               </button>
               <button
-                onClick={() => window.open('/learn-skill', '_blank')}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white font-semibold py-3 px-8 rounded-full hover:scale-105 transition-transform"
+                onClick={() => window.open('/learn-skill', '_blank', 'noopener,noreferrer')}
+                className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-200 hover:scale-105"
               >
                 Explore All Skills
               </button>
@@ -358,9 +353,7 @@ export default function MiniTestPage() {
           </div>
 
           <div className="mt-16">
-            <Suspense fallback={<div className="h-32" />}>
-              <Footer />
-            </Suspense>
+            <Footer />
           </div>
         </div>
       </div>
