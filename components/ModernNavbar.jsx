@@ -76,7 +76,7 @@ const ModernNavbar = () => {
 
             {/* Right Side - Coin Display and Auth Status */}
             <div className="flex items-center gap-3">
-              {/* Desktop Coin Display - Always visible with modern styling */}
+              {/* Desktop Coin Display - Simplified with automatic redirect */}
               <div className="hidden md:flex group">
                 <CoinDisplay 
                   className="flex transition-all duration-200 hover:scale-105" 

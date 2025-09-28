@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
 const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 'default' }) => {
   const { user } = useAuth();
+  const router = useRouter();
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +36,15 @@ const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 
   };
 
   const currentSize = sizeClasses[size] || sizeClasses.default;
+
+  // Fast coin redirect handler
+  const handleCoinClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      router.push('/coins');
+    }
+  };
 
   // Real-time coin updates using Firestore listener
   useEffect(() => {
@@ -69,13 +80,13 @@ const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 
     return () => unsubscribe();
   }, [user?.uid]);
 
-  // If not logged in, show only the coin icon
+  // If not logged in, show only the coin icon with updated tooltip
   if (!user) {
     return (
       <div 
-        className={`flex items-center ${currentSize.container} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''} ${className}`}
-        onClick={onClick}
-        title="Join SkillDash to earn coins!"
+        className={`flex items-center ${currentSize.container} cursor-pointer hover:scale-105 transition-transform duration-200 ${className}`}
+        onClick={handleCoinClick}
+        title="Join SkillDash to use Coins"
       >
         <div className="relative">
           <Image
@@ -94,12 +105,12 @@ const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 
     );
   }
 
-  // If logged in, show coin icon + number in modern design
+  // If logged in, show coin icon + number in modern design with click functionality
   return (
     <div 
-      className={`flex items-center ${currentSize.container} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''} ${className}`}
-      onClick={onClick}
-      title={`You have ${coins.toLocaleString()} coins`}
+      className={`flex items-center ${currentSize.container} cursor-pointer hover:scale-105 transition-transform duration-200 ${className}`}
+      onClick={handleCoinClick}
+      title={`You have ${coins.toLocaleString()} coins - Click to manage`}
     >
       {/* Coin Icon */}
       <div className="relative flex-shrink-0">
