@@ -4,13 +4,13 @@ import React, { useState, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Footer from '../../components/shared/Footer';
 
-// Dynamic import for optimal performance - only loads when needed
+// Dynamic import for optimal performance
 const BouncingBalls = dynamic(() => import('../../components/shared/BouncingBalls'), {
   ssr: false,
   loading: () => null
 });
 
-// Inline quiz data - no external imports for maximum speed
+// Inline quiz data for maximum speed
 const QUIZ_DATA = [
   {
     q: "What excites you most?",
@@ -86,7 +86,7 @@ const QUIZ_DATA = [
   }
 ];
 
-// Lightweight skill data - only essential fields
+// Lightweight skill data
 const SKILLS = {
   "graphic-design": { name: "Graphic Design using Canva", desc: "Create stunning graphics and designs", logo: "/learn-skill/logos/canva.png" },
   "ui-ux-figma": { name: "UI/UX Design (Figma)", desc: "Design beautiful user interfaces", logo: "/learn-skill/logos/figma.png" },
@@ -147,12 +147,17 @@ export default function MiniTestPage() {
 
   const progress = useMemo(() => ((currentQ + 1) / QUIZ_DATA.length) * 100, [currentQ]);
 
-  // Intro Screen
+  // Intro Screen - FIXED Z-INDEX
   if (step === 0) {
     return (
-      <>
-        <BouncingBalls variant="default" />
-        <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center px-4 pt-20 relative z-10">
+      <div className="min-h-screen bg-white dark:bg-black relative">
+        {/* Bouncing Balls - ABOVE BACKGROUND */}
+        <div className="relative z-20">
+          <BouncingBalls variant="default" />
+        </div>
+        
+        {/* Content - ABOVE BALLS */}
+        <div className="relative z-30 flex items-center justify-center min-h-screen px-4 pt-20">
           <div className="text-center max-w-2xl">
             <div className="mb-8">
               <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
@@ -200,18 +205,23 @@ export default function MiniTestPage() {
             </button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
-  // Quiz Screen
+  // Quiz Screen - FIXED Z-INDEX
   if (step === 1) {
     const question = QUIZ_DATA[currentQ];
     
     return (
-      <>
-        <BouncingBalls variant="minimal" />
-        <div className="min-h-screen bg-white dark:bg-black px-4 py-8 pt-24 relative z-10">
+      <div className="min-h-screen bg-white dark:bg-black relative">
+        {/* Bouncing Balls - ABOVE BACKGROUND */}
+        <div className="relative z-20">
+          <BouncingBalls variant="minimal" />
+        </div>
+        
+        {/* Content - ABOVE BALLS */}
+        <div className="relative z-30 px-4 py-8 pt-24">
           <div className="max-w-3xl mx-auto">
             
             {/* Progress */}
@@ -258,15 +268,20 @@ export default function MiniTestPage() {
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
-  // Results Screen
+  // Results Screen - FIXED Z-INDEX
   return (
-    <>
-      <BouncingBalls variant="dense" />
-      <div className="min-h-screen bg-white dark:bg-black px-4 py-8 relative z-10">
+    <div className="min-h-screen bg-white dark:bg-black relative">
+      {/* Bouncing Balls - ABOVE BACKGROUND */}
+      <div className="relative z-20">
+        <BouncingBalls variant="dense" />
+      </div>
+      
+      {/* Content - ABOVE BALLS */}
+      <div className="relative z-30 px-4 py-8">
         <div className="max-w-4xl mx-auto pt-20">
           
           <div className="text-center mb-12">
@@ -357,6 +372,6 @@ export default function MiniTestPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
