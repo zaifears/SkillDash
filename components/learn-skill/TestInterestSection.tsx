@@ -481,23 +481,75 @@ const TestInterestSection = memo(() => {
       <BouncingBalls variant="minimal" />
       <div className="max-w-7xl mx-auto">
         {/* Hero Header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-12">
           <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-tight tracking-tight mb-8">
             TEST YOUR
             <br />
             INTEREST
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed mb-12">
             Discover your passion through hands-on learning. Each skill comes with carefully curated courses 
             from expert educators in both <strong>Bangla</strong> and <strong>English</strong>.
           </p>
+
+          {/* Mini Test CTA - FIXED MOBILE LAYOUT */}
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-3xl p-6 sm:p-8 border border-purple-200 dark:border-purple-800 max-w-2xl mx-auto mb-20">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-center">
+                Not Sure Where to Start?
+              </h3>
+            </div>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto leading-relaxed text-center">
+              Take our quick <strong>mini-test</strong> to discover which skills match your interests perfectly. 
+              Takes just <strong>2-3 minutes!</strong>
+            </p>
+            <a
+              href="/mini-test"
+              className="inline-flex items-center justify-center gap-2 sm:gap-3 bg-gradient-to-r from-purple-500 to-blue-600 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full hover:scale-105 transform transition-all duration-200 shadow-xl hover:shadow-purple-500/25 w-full sm:w-auto"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-base sm:text-lg">Take Mini Test</span>
+              <span className="bg-white/20 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full font-medium flex-shrink-0">
+                2-3 min
+              </span>
+            </a>
+            
+            {/* FIXED MOBILE FEATURE LIST */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mt-6 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="whitespace-nowrap">8 Questions</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                <span className="whitespace-nowrap">Quick & Easy</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                </svg>
+                <span className="whitespace-nowrap">Personalized</span>
+              </div>
+            </div>
+          </div>
         </div>
+        
         {/* Skills Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {displayedSkills.map((skill, index) => (
             <SkillCard key={skill.id} skill={skill} index={index} />
           ))}
         </div>
+        
         {/* Load More Button */}
         {hasMore && (
           <div className="text-center mt-12">

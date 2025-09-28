@@ -44,10 +44,21 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID // ✅ Added this
 };
 
+// Enhanced error checking
 if (!firebaseConfig.apiKey) {
-    throw new Error("Missing Firebase configuration.");
+    console.error('🔥 Firebase configuration missing!');
+    console.error('Environment variables status:', {
+        NEXT_PUBLIC_FIREBASE_API_KEY: !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: !!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: !!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: !!process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: !!process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        NEXT_PUBLIC_FIREBASE_APP_ID: !!process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    });
+    throw new Error("Missing Firebase configuration. Check your environment variables.");
 }
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -86,7 +97,8 @@ export const signInAsGuest = async () => {
         status: 'Other', 
         phone: '',
         isGuest: true,
-        coins: 5 // <-- coins!
+        coins: 5, // ✅ Perfect!
+        createdAt: new Date().toISOString() // ✅ Added timestamp
       });
     }
     return result.user;
@@ -107,8 +119,15 @@ const handleSocialSignInResult = async (user: any) => {
             age: null, 
             status: 'Other', 
             phone: '',
-            coins: 5 // <-- coins!
+            coins: 5, // ✅ Perfect!
+            createdAt: new Date().toISOString() // ✅ Added timestamp
         });
+    } else {
+        // ✅ Handle existing users without coins field
+        const userData = docSnap.data();
+        if (userData.coins === undefined) {
+            await setDoc(userDocRef, { coins: 5 }, { merge: true });
+        }
     }
     return user;
 };
@@ -157,7 +176,8 @@ export const signUpWithEmailPasswordAndProfile = async (profileData: SignUpProfi
         status: profileData.status,
         phone: profileData.phone || null,
         email: profileData.email,
-        coins: 5 // <-- coins!
+        coins: 5, // ✅ Perfect!
+        createdAt: new Date().toISOString() // ✅ Added timestamp
     });
     await sendEmailVerification(user);
     return user;

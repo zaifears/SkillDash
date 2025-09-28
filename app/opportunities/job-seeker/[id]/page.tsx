@@ -63,7 +63,7 @@ export default function JobDetailsPage() {
 
   if (!formattedJob) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4 pt-20">
         <div className="text-center">
           <div className="text-6xl mb-4">📄</div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Job Not Found</h2>
@@ -82,7 +82,18 @@ export default function JobDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
+    <div className="min-h-screen bg-gray-50 dark:bg-black pt-20">
+      {/* Fixed Back Button - Hidden on Mobile (< 768px), Visible on Desktop (≥ 768px) */}
+      <button
+        onClick={() => router.back()}
+        className="hidden md:block fixed top-24 left-4 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-lg hover:scale-105 transition-all duration-200"
+        aria-label="Back to jobs"
+      >
+        <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+
       <JobHeader formattedJob={formattedJob} />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
