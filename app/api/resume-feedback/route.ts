@@ -134,19 +134,14 @@ const extractContentFromPerplexity = (content: any): string => {
 };
 
 const cleanAndExtractJSON = (content: string): string => {
-    // Remove markdown code blocks
-    content = content.replace(/``````\s*/g, '');
-    
-    // Extract JSON object
+    content = content.replace(/```json\s*|```\s*/g, '');
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
         return jsonMatch[0];
     }
-    
     return content.trim();
 };
 
-// ✅ STREAMLINED: Timeout handling utility
 async function withTimeout<T>(
     providerName: string,
     providerFn: () => Promise<T>,
@@ -168,147 +163,73 @@ async function withTimeout<T>(
     }
 }
 
-// PRIMARY: Perplexity API Function with sonar model
 async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!perplexityClient || !PERPLEXITY_API_KEY) {
         return { success: false, error: 'Perplexity API key not configured' };
     }
 
     const result = await withTimeout('Perplexity', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: systemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await perplexityClient.chat.completions.create({
-            messages: messagesWithSystem as any,
-            model: "sonar",
-            max_tokens: 3000,
-            temperature: 0.2,
-        });
-        
+        const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
+        const completion = await perplexityClient.chat.completions.create({ messages: messagesWithSystem as any, model: "sonar", max_tokens: 3000, temperature: 0.2 });
         const rawContent = completion.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error('No content in Perplexity response');
-
         const content = extractContentFromPerplexity(rawContent);
         if (!content) throw new Error('Could not extract content from Perplexity response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'perplexity-sonar' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'perplexity-sonar' } : { success: false, error: result.error };
 }
 
-// SECONDARY: Groq API with llama-3.3-70b-versatile
 async function tryGroqVersatileAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!groqClient || !GROQ_API_KEY) {
         return { success: false, error: 'Groq API key not configured' };
     }
 
     const result = await withTimeout('Groq Versatile', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: systemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await groqClient.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: messagesWithSystem,
-            max_tokens: 3000,
-            temperature: 0.2,
-            response_format: { type: "json_object" }
-        });
-
+        const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
+        const completion = await groqClient.chat.completions.create({ model: "llama-3.3-70b-versatile", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq Versatile response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'groq-versatile' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'groq-versatile' } : { success: false, error: result.error };
 }
 
-// TERTIARY: Groq API with openai/gpt-oss-120b
 async function tryGroqGPTAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!groqClient || !GROQ_API_KEY) {
         return { success: false, error: 'Groq API key not configured' };
     }
 
-    const enhancedSystemInstruction = systemInstruction + `
-
-CRITICAL FOR THIS MODEL: 
-- ALWAYS include "atsScore" as a number between 1-10
-- ALWAYS include "suggestedActionVerbs" as an array with at least 5 verbs
-- NEVER skip any required JSON fields
-- Ensure all arrays have at least one item
-- Double-check JSON validity before responding`;
+    const enhancedSystemInstruction = systemInstruction + `\nCRITICAL FOR THIS MODEL: ALWAYS include "atsScore" as a number, "suggestedActionVerbs" as an array. NEVER skip any required JSON fields. Ensure all arrays have at least one item. Double-check JSON validity.`;
 
     const result = await withTimeout('Groq GPT', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: enhancedSystemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await groqClient.chat.completions.create({
-            model: "openai/gpt-oss-120b",
-            messages: messagesWithSystem,
-            max_tokens: 3000,
-            temperature: 0.2,
-            response_format: { type: "json_object" }
-        });
-
+        const messagesWithSystem = [ { role: 'system', content: enhancedSystemInstruction }, ...apiMessages ];
+        const completion = await groqClient.chat.completions.create({ model: "openai/gpt-oss-120b", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq GPT response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'groq-gpt' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'groq-gpt' } : { success: false, error: result.error };
 }
 
-// FINAL FALLBACK: Google Gemini 2.0 Flash
 async function useGeminiAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     const result = await withTimeout('Google Gemini 2.0 Flash', async () => {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
-            systemInstruction,
-        });
-        
-        const history = apiMessages.slice(0, -1).map((msg: any) => ({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-        }));
-        
-        const chat = model.startChat({ 
-            history, 
-            generationConfig: { 
-                maxOutputTokens: 3000, 
-                temperature: 0.2, 
-                responseMimeType: "application/json" 
-            } 
-        });
-        
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction });
+        const history = apiMessages.slice(0, -1).map((msg: any) => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{ text: msg.content }] }));
+        const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 3000, temperature: 0.2, responseMimeType: "application/json" } });
         const latestMessage = apiMessages[apiMessages.length - 1]?.content || '';
         const geminiResult = await chat.sendMessage(latestMessage);
         const content = geminiResult.response.text();
-
         if (!content) throw new Error("Gemini returned an empty response.");
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'gemini-2.0-flash' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'gemini-2.0-flash' } : { success: false, error: result.error };
 }
 
-// ✅ STREAMLINED: Main execution with fallback
 async function executeWithFallback(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     const providers = [
         () => tryPerplexityAPI(apiMessages, systemInstruction),
@@ -316,28 +237,18 @@ async function executeWithFallback(apiMessages: any[], systemInstruction: string
         () => tryGroqGPTAPI(apiMessages, systemInstruction),
         () => useGeminiAPI(apiMessages, systemInstruction),
     ];
-    
-    const providerNames = ['Perplexity', 'Groq Versatile', 'Groq GPT', 'Gemini'];
     let lastError = '';
-    
-    for (let i = 0; i < providers.length; i++) {
-        try {
-            const result = await providers[i]();
-            if (result.success) return result;
-            lastError = result.error || 'Unknown error';
-        } catch (error: any) {
-            lastError = error.message;
-            console.warn(`${providerNames[i]} failed:`, error.message);
-        }
+    for (const providerFn of providers) {
+        const result = await providerFn();
+        if (result.success) return result;
+        lastError = result.error || 'Unknown error';
     }
-    
     throw new Error(`All providers failed. Last error: ${lastError}`);
 }
 
 // --- MAIN API ROUTE HANDLER ---
 export async function POST(req: NextRequest) {
     const startTime = Date.now();
-
     try {
         console.log('🚀 [API] Resume feedback request started');
         
@@ -350,59 +261,22 @@ export async function POST(req: NextRequest) {
             userId
         } = body;
 
-        console.log('🔍 [API] Request data:', {
-            hasResumeText: !!resumeText,
-            hasJobDescription: !!jobDescription,
-            messagesLength: messages.length,
-            industryPreference,
-            userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
-        });
-
-        // 🔧 UPDATED COIN DEDUCTION - Server-side Firebase Admin
         const isInitialAnalysis = !!resumeText;
         if (isInitialAnalysis && userId) {
             console.log('🪙 [API] Checking coins for resume feedback...');
-            
-            try {
-                // Check if user has enough coins (SERVER-SIDE)
-                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE); // ✅ USING CONSTANT
-                if (!hasCoins) {
-                    const currentBalance = await CoinManagerServer.getCoinBalance(userId);
-                    console.log(`❌ [API] Insufficient coins: user has ${currentBalance}, needs ${LIMITS.COINS_PER_FEATURE}`); // ✅ USING CONSTANT
-                    return NextResponse.json({ 
-                        error: 'Insufficient coins',
-                        currentCoins: currentBalance,
-                        requiredCoins: LIMITS.COINS_PER_FEATURE, // ✅ USING CONSTANT
-                        feature: 'Resume Feedback'
-                    }, { status: 402 });
-                }
-
-                // Deduct coin before processing (SERVER-SIDE)
-                const deductResult = await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback'); // ✅ USING CONSTANT
-                if (!deductResult.success) {
-                    console.error('❌ [API] Coin deduction failed:', deductResult.error);
-                    return NextResponse.json({ 
-                        error: 'Failed to process coin payment',
-                        details: deductResult.error
-                    }, { status: 500 });
-                }
-
-                console.log(`✅ [API] Deducted ${LIMITS.COINS_PER_FEATURE} coin for resume feedback. New balance: ${deductResult.newBalance}`); // ✅ USING CONSTANT
-            } catch (coinError: any) {
-                console.error('❌ [API] Coin processing error:', {
-                    message: coinError.message,
-                    stack: coinError.stack,
-                    userId: userId?.substring(0, 8) + '...'
-                });
+            const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE);
+            if (!hasCoins) {
+                const currentBalance = await CoinManagerServer.getCoinBalance(userId);
                 return NextResponse.json({ 
-                    error: 'Coin system error',
-                    details: coinError.message
-                }, { status: 500 });
+                    error: 'Insufficient coins',
+                    currentCoins: currentBalance,
+                    requiredCoins: LIMITS.COINS_PER_FEATURE,
+                }, { status: 402 });
             }
+            await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
         }
 
-        // Validation
-        const contentToValidate = resumeText || (messages.length > 0 ? messages[messages.length - 1].content : '');
+        const contentToValidate = resumeText || (messages[messages.length - 1]?.content || '');
         const validation = validateResumeContent(contentToValidate);
         if (!validation.isValid) {
             console.log('❌ [API] Content validation failed:', validation.reason);
@@ -416,7 +290,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: `Invalid content: ${validation.reason}` }, { status: 400 });
         }
 
-        // Prepare API messages
         let apiMessages: { role: string; content: string }[] = [];
         if (isInitialAnalysis) {
             let prompt = `Analyze this resume for the ${industryPreference} industry in Bangladesh.\n\n**Resume:**\n${resumeText}`;
@@ -429,21 +302,32 @@ export async function POST(req: NextRequest) {
         }
 
         if (apiMessages.length === 0) {
-            console.log('❌ [API] No content for analysis');
             return NextResponse.json({ error: 'No content for analysis.' }, { status: 400 });
         }
 
         const systemInstruction = createSystemInstruction(industryPreference, !!jobDescription);
         
         console.log('🤖 [API] Starting AI analysis...');
-        
-        // ✅ STREAMLINED: Execute with fallback
         const result = await executeWithFallback(apiMessages, systemInstruction);
+
+        let feedbackObject;
+        try {
+            if (!result.content) {
+                throw new Error("AI returned empty content.");
+            }
+            const cleanedJsonString = cleanAndExtractJSON(result.content);
+            feedbackObject = JSON.parse(cleanedJsonString);
+        } catch (e: any) {
+            console.error("SERVER-SIDE JSON PARSING FAILED:", e.message, "Raw content:", result.content);
+            return NextResponse.json({ 
+                error: 'The AI returned an invalid format. Please try again.' 
+            }, { status: 500 });
+        }
 
         console.log(`✅ [API] Feedback completed in ${Date.now() - startTime}ms via ${result.provider}`);
         
         return NextResponse.json({
-            feedback: result.content,
+            feedback: feedbackObject,
             isInitialAnalysis,
             providerInfo: `Analysis powered by ${result.provider}`,
             conversationEnded: isInitialAnalysis
@@ -453,15 +337,10 @@ export async function POST(req: NextRequest) {
         console.error('❌ [API] Resume feedback error:', {
             message: error.message,
             stack: error.stack,
-            name: error.name,
-            timestamp: new Date().toISOString(),
-            duration: Date.now() - startTime
         });
         
         return NextResponse.json({ 
             error: 'An unexpected error occurred while analyzing your resume.',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-            timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 }
