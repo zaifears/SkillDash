@@ -1,4 +1,4 @@
-// lib/coinManager.ts - CLIENT-SIDE (Read-only with auto-recovery)
+// lib/coinManager.ts - CLIENT-SIDE (Add getCoinStatistics method)
 
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
@@ -14,7 +14,7 @@ export class CoinManager {
       if (!userDoc.exists()) {
         console.warn('User document not found, attempting to create:', userId);
         
-        // 🔧 AUTO-CREATE missing user document (client-side safe version)
+        // 🔧 AUTO-CREATE missing user document
         await this.createMissingUserDocument(userId);
         
         // Re-fetch after creation
@@ -84,9 +84,8 @@ export class CoinManager {
     }
   }
 
-  // 📊 GET TRANSACTION HISTORY (Client-side safe)
+  // 📊 GET TRANSACTION HISTORY (Client-side safe - calls API)
   static async getTransactionHistory(userId: string, limitCount: number = 10): Promise<any[]> {
-    // This would call your API route that uses CoinManagerServer
     try {
       const response = await fetch(`/api/coins/transactions?userId=${userId}&limit=${limitCount}`);
       const data = await response.json();
@@ -94,6 +93,44 @@ export class CoinManager {
     } catch (error) {
       console.error('Error getting transaction history:', error);
       return [];
+    }
+  }
+
+  // 🆕 GET COIN STATISTICS (Client-side safe - calls API)
+  static async getCoinStatistics(userId: string): Promise<{
+    currentBalance: number;
+    totalEarned: number;
+    totalSpent: number;
+    transactionCount: number;
+    lastActivity: Date | null;
+    topFeatures: Array<{ feature: string; count: number; totalAmount: number }>;
+  }> {
+    try {
+      const response = await fetch(`/api/coins/statistics?userId=${userId}`);
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to get statistics');
+      }
+
+      return {
+        currentBalance: data.statistics.currentBalance || 0,
+        totalEarned: data.statistics.totalEarned || 0,
+        totalSpent: data.statistics.totalSpent || 0,
+        transactionCount: data.statistics.transactionCount || 0,
+        lastActivity: data.statistics.lastActivity ? new Date(data.statistics.lastActivity) : null,
+        topFeatures: data.statistics.topFeatures || []
+      };
+    } catch (error) {
+      console.error('Error getting coin statistics:', error);
+      return {
+        currentBalance: 0,
+        totalEarned: 0,
+        totalSpent: 0,
+        transactionCount: 0,
+        lastActivity: null,
+        topFeatures: []
+      };
     }
   }
 }
