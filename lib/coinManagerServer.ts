@@ -21,7 +21,7 @@ const logSuccess = (context: string, message: string, data?: any) => {
   console.log(`✅ [CoinManagerServer] ${context}: ${message}`, data || '');
 };
 
-// 🔧 CORRECTED SERVICE ACCOUNT WITH YOUR EXACT PRIVATE KEY
+// 🔧 SERVICE ACCOUNT WITH YOUR EXACT PRIVATE KEY
 const serviceAccount = {
   type: "service_account",
   project_id: "skilldash-c588d",
@@ -67,7 +67,7 @@ try {
 }
 
 export class CoinManagerServer {
-  // Check if user has enough coins
+  // ✅ EXISTING METHOD - Check if user has enough coins
   static async hasEnoughCoins(userId: string, requiredCoins: number = 1): Promise<boolean> {
     const context = 'hasEnoughCoins';
     
@@ -104,7 +104,7 @@ export class CoinManagerServer {
     }
   }
 
-  // Get user's current coin balance
+  // ✅ EXISTING METHOD - Get user's current coin balance
   static async getCoinBalance(userId: string): Promise<number> {
     const context = 'getCoinBalance';
     
@@ -119,7 +119,7 @@ export class CoinManagerServer {
       const userDoc = await db.collection('users').doc(userId).get();
       
       if (!userDoc.exists) {
-        logError(context, new Error('User document not found'), { userId });
+        logInfo(context, `User document not found for ${userId} - returning 0 balance`);
         return 0;
       }
       
@@ -134,7 +134,7 @@ export class CoinManagerServer {
     }
   }
 
-  // Deduct coins from user (atomic transaction)
+  // ✅ ENHANCED METHOD - Deduct coins from user (atomic transaction)
   static async deductCoins(
     userId: string, 
     amount: number = 1, 
@@ -182,7 +182,113 @@ export class CoinManagerServer {
         }
         
         const newBalance = currentCoins - amount;
-        transaction.update(userDocRef, { coins: newBalance });
+        
+        // ✅ UPDATE WITH TIMESTAMP for tracking
+        transaction.update(userDocRef, { 
+          coins: newBalance,
+          lastCoinUpdate: new Date(),
+          [`${feature}UsedAt`]: new Date() // Track when this feature was last used
+        });
+        
+        logSuccess(context, `Transaction successful: ${currentCoins} → ${newBalance} coins`);
+        return newBalance;
+      });
+
+      // ✅ ENHANCED TRANSACTION LOGGING
+      try {
+        await db.collection('coinTransactions').add({
+          userId,
+          amount,
+          action: 'deduct',
+          feature,
+          timestamp: new Date(),
+          success: true,
+          beforeBalance: result + amount, // Calculate the before balance
+          afterBalance: result,
+          description: description || `Used ${amount} coin(s) for ${feature.replace('-', ' ')}`,
+          metadata: {
+            userAgent: 'server-side',
+            environment: process.env.NODE_ENV || 'development'
+          }
+        });
+        logSuccess(context, 'Transaction logged successfully');
+      } catch (transactionLogError) {
+        logError(context, transactionLogError, { userId, amount, feature, phase: 'logging' });
+        // Don't fail the main operation if logging fails
+      }
+
+      logSuccess(context, `Successfully deducted ${amount} coin(s) for ${feature}. New balance: ${result}`);
+      return { success: true, newBalance: result };
+      
+    } catch (error: any) {
+      logError(context, error, { userId, amount, feature, description });
+      
+      // ✅ ENHANCED ERROR RESPONSE
+      let userFriendlyError = 'Failed to deduct coins';
+      if (error.message?.includes('Insufficient coins')) {
+        userFriendlyError = 'Insufficient coins for this action';
+      } else if (error.message?.includes('User document not found')) {
+        userFriendlyError = 'User account not found';
+      } else if (error.message?.includes('network') || error.message?.includes('timeout')) {
+        userFriendlyError = 'Network error - please try again';
+      }
+      
+      return { 
+        success: false, 
+        newBalance: 0, 
+        error: userFriendlyError
+      };
+    }
+  }
+
+  // ✅ NEW METHOD - Add coins to user (for admin/rewards)
+  static async addCoins(
+    userId: string, 
+    amount: number, 
+    reason: 'signup_bonus' | 'daily_bonus' | 'admin_grant' | 'referral' | 'promotion',
+    description?: string
+  ): Promise<{ success: boolean; newBalance: number; error?: string }> {
+    const context = 'addCoins';
+    
+    try {
+      if (!userId) {
+        const error = 'userId is required';
+        logError(context, new Error(error), { userId, amount, reason });
+        return { success: false, newBalance: 0, error };
+      }
+      
+      if (typeof amount !== 'number' || amount <= 0) {
+        const error = 'Invalid amount - must be positive number';
+        logError(context, new Error(error), { userId, amount, reason });
+        return { success: false, newBalance: 0, error };
+      }
+
+      logInfo(context, `Starting coin addition: ${amount} coins for ${reason} (user: ${userId})`);
+      
+      const result = await db.runTransaction(async (transaction) => {
+        const userDocRef = db.collection('users').doc(userId);
+        const userDoc = await transaction.get(userDocRef);
+        
+        if (!userDoc.exists) {
+          // Create user document if it doesn't exist
+          const newBalance = amount;
+          transaction.set(userDocRef, {
+            coins: newBalance,
+            createdAt: new Date(),
+            lastCoinUpdate: new Date()
+          });
+          logInfo(context, `Created new user document with ${newBalance} coins`);
+          return newBalance;
+        }
+        
+        const userData = userDoc.data();
+        const currentCoins = userData?.coins || 0;
+        const newBalance = currentCoins + amount;
+        
+        transaction.update(userDocRef, { 
+          coins: newBalance,
+          lastCoinUpdate: new Date()
+        });
         
         logSuccess(context, `Transaction successful: ${currentCoins} → ${newBalance} coins`);
         return newBalance;
@@ -193,27 +299,143 @@ export class CoinManagerServer {
         await db.collection('coinTransactions').add({
           userId,
           amount,
-          action: 'deduct',
-          feature,
+          action: 'add',
+          reason,
           timestamp: new Date(),
           success: true,
-          description: description || `Used ${amount} coin(s) for ${feature.replace('-', ' ')}`
+          beforeBalance: result - amount,
+          afterBalance: result,
+          description: description || `Received ${amount} coin(s) for ${reason.replace('_', ' ')}`,
+          metadata: {
+            userAgent: 'server-side',
+            environment: process.env.NODE_ENV || 'development'
+          }
         });
         logSuccess(context, 'Transaction logged successfully');
       } catch (transactionLogError) {
-        logError(context, transactionLogError, { userId, amount, feature, phase: 'logging' });
+        logError(context, transactionLogError, { userId, amount, reason, phase: 'logging' });
       }
 
-      logSuccess(context, `Successfully deducted ${amount} coin(s) for ${feature}. New balance: ${result}`);
+      logSuccess(context, `Successfully added ${amount} coin(s) for ${reason}. New balance: ${result}`);
       return { success: true, newBalance: result };
       
     } catch (error: any) {
-      logError(context, error, { userId, amount, feature, description });
+      logError(context, error, { userId, amount, reason, description });
       
       return { 
         success: false, 
         newBalance: 0, 
-        error: error.message || 'Failed to deduct coins'
+        error: error.message || 'Failed to add coins'
+      };
+    }
+  }
+
+  // ✅ NEW METHOD - Get user's transaction history
+  static async getUserTransactions(
+    userId: string, 
+    limit: number = 10
+  ): Promise<{ success: boolean; transactions: any[]; error?: string }> {
+    const context = 'getUserTransactions';
+    
+    try {
+      if (!userId) {
+        const error = 'userId is required';
+        logError(context, new Error(error), { userId, limit });
+        return { success: false, transactions: [], error };
+      }
+
+      logInfo(context, `Getting transaction history for user ${userId} (limit: ${limit})`);
+      
+      const transactionsQuery = await db
+        .collection('coinTransactions')
+        .where('userId', '==', userId)
+        .orderBy('timestamp', 'desc')
+        .limit(limit)
+        .get();
+
+      const transactions = transactionsQuery.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp?.toDate?.() || doc.data().timestamp
+      }));
+
+      logSuccess(context, `Retrieved ${transactions.length} transactions for user ${userId}`);
+      return { success: true, transactions };
+      
+    } catch (error: any) {
+      logError(context, error, { userId, limit });
+      
+      return { 
+        success: false, 
+        transactions: [], 
+        error: error.message || 'Failed to get transaction history'
+      };
+    }
+  }
+
+  // ✅ NEW METHOD - Bulk operation for multiple users
+  static async initializeUserCoins(userId: string, initialCoins: number = 5): Promise<{ success: boolean; error?: string }> {
+    const context = 'initializeUserCoins';
+    
+    try {
+      if (!userId) {
+        const error = 'userId is required';
+        logError(context, new Error(error), { userId, initialCoins });
+        return { success: false, error };
+      }
+
+      logInfo(context, `Initializing coins for new user ${userId} with ${initialCoins} coins`);
+      
+      const userDocRef = db.collection('users').doc(userId);
+      const userDoc = await userDocRef.get();
+      
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData?.coins !== undefined) {
+          logInfo(context, `User ${userId} already has coins (${userData.coins}) - skipping initialization`);
+          return { success: true };
+        }
+      }
+
+      // Set initial coins
+      await userDocRef.set({
+        coins: initialCoins,
+        createdAt: new Date(),
+        lastCoinUpdate: new Date(),
+        initialCoinsGranted: true
+      }, { merge: true });
+
+      // Log the initial coin grant
+      try {
+        await db.collection('coinTransactions').add({
+          userId,
+          amount: initialCoins,
+          action: 'add',
+          reason: 'signup_bonus',
+          timestamp: new Date(),
+          success: true,
+          beforeBalance: 0,
+          afterBalance: initialCoins,
+          description: `Initial signup bonus: ${initialCoins} coins`,
+          metadata: {
+            userAgent: 'server-side',
+            environment: process.env.NODE_ENV || 'development',
+            event: 'user_signup'
+          }
+        });
+      } catch (transactionLogError) {
+        logError(context, transactionLogError, { userId, initialCoins, phase: 'logging' });
+      }
+
+      logSuccess(context, `Successfully initialized ${userId} with ${initialCoins} coins`);
+      return { success: true };
+      
+    } catch (error: any) {
+      logError(context, error, { userId, initialCoins });
+      
+      return { 
+        success: false, 
+        error: error.message || 'Failed to initialize user coins'
       };
     }
   }
