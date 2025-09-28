@@ -223,7 +223,7 @@ const CoinsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* How to Earn Coins */}
+        {/* How to Earn Coins - FIXED */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
@@ -232,7 +232,7 @@ const CoinsPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">How to Earn Coins</h2>
           </div>
           
-          {/* Available Now */}
+          {/* Already Issued - FIXED TEXT */}
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 sm:p-6 mb-6">
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
@@ -241,8 +241,8 @@ const CoinsPage: React.FC = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="font-bold text-green-800 dark:text-green-300 text-lg">Welcome Bonus</h3>
-                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                    AVAILABLE NOW
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    Already Issued ✅
                   </span>
                 </div>
                 <p className="text-green-700 dark:text-green-300 mb-3">Get 5 coins when you create your account</p>
@@ -287,7 +287,7 @@ const CoinsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Feature Costs */}
+        {/* Feature Costs - FIXED MOBILE COIN BADGES */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
@@ -297,14 +297,14 @@ const CoinsPage: React.FC = () => {
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300">Resume Feedback AI</h3>
-                <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-800">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-blue-900 dark:text-blue-300 flex-1">Resume Feedback AI</h3>
+                <div className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-sm font-bold self-start flex items-center justify-center min-w-[70px]">
                   {LIMITS.COINS_PER_FEATURE} coin
                 </div>
               </div>
-              <p className="text-blue-800 dark:text-blue-200 mb-4">
+              <p className="text-blue-800 dark:text-blue-200 mb-4 text-sm sm:text-base leading-relaxed">
                 Get comprehensive AI-powered feedback on your resume tailored for the Bangladesh job market.
               </p>
               <button
@@ -315,14 +315,14 @@ const CoinsPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-purple-900 dark:text-purple-300">Discover Career Paths</h3>
-                <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 sm:p-6 border border-purple-200 dark:border-purple-800">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-purple-900 dark:text-purple-300 flex-1">Discover Career Paths</h3>
+                <div className="bg-purple-600 text-white px-3 py-1.5 rounded-full text-sm font-bold self-start flex items-center justify-center min-w-[70px]">
                   {LIMITS.COINS_PER_FEATURE} coin
                 </div>
               </div>
-              <p className="text-purple-800 dark:text-purple-200 mb-4">
+              <p className="text-purple-800 dark:text-purple-200 mb-4 text-sm sm:text-base leading-relaxed">
                 Discover personalized career recommendations based on your interests and skills.
               </p>
               <button

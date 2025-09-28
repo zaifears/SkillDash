@@ -10,6 +10,8 @@ const FastBouncingBalls = React.memo(() => (
     <div className="absolute w-6 h-6 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-60 top-20 right-10 animate-bounce" style={{animationDelay: '0s', animationDuration: '3s'}} />
     <div className="absolute w-4 h-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full opacity-50 bottom-40 left-8 animate-bounce" style={{animationDelay: '1s', animationDuration: '4s'}} />
     <div className="absolute w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-40 top-1/2 right-6 animate-bounce" style={{animationDelay: '2s', animationDuration: '3.5s'}} />
+    <div className="absolute w-3 h-3 bg-gradient-to-r from-red-400 to-pink-500 rounded-full opacity-45 top-1/3 left-12 animate-bounce" style={{animationDelay: '1.5s', animationDuration: '3.8s'}} />
+    <div className="absolute w-4 h-4 bg-gradient-to-r from-indigo-400 to-cyan-500 rounded-full opacity-55 bottom-60 right-20 animate-bounce" style={{animationDelay: '2.5s', animationDuration: '4.2s'}} />
   </div>
 ));
 FastBouncingBalls.displayName = 'FastBouncingBalls';
@@ -155,15 +157,15 @@ export default function MiniTestPage() {
 
   const progress = useMemo(() => ((currentQ + 1) / QUIZ_DATA.length) * 100, [currentQ]);
 
-  // Intro Screen
+  // Intro Screen - CLEAN WHITE/BLACK BACKGROUND
   if (step === 0) {
     return (
       <>
         <FastBouncingBalls />
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-blue-900 flex items-center justify-center px-4 pt-20 relative z-10">
+        <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center px-4 pt-20 relative z-10">
           <div className="text-center max-w-2xl">
             <div className="mb-8">
-              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
                 <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
@@ -212,14 +214,14 @@ export default function MiniTestPage() {
     );
   }
 
-  // Quiz Screen
+  // Quiz Screen - CLEAN WHITE/BLACK BACKGROUND
   if (step === 1) {
     const question = QUIZ_DATA[currentQ];
     
     return (
       <>
         <FastBouncingBalls />
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-blue-900 px-4 py-8 pt-24 relative z-10">
+        <div className="min-h-screen bg-white dark:bg-black px-4 py-8 pt-24 relative z-10">
           <div className="max-w-3xl mx-auto">
             
             {/* Progress */}
@@ -249,7 +251,7 @@ export default function MiniTestPage() {
                 <button
                   key={i}
                   onClick={() => handleAnswer(i)}
-                  className="w-full p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 hover:shadow-lg transition-all duration-200 text-left group"
+                  className="w-full p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 hover:shadow-lg transition-all duration-200 text-left group shadow-md"
                 >
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-800">
@@ -270,15 +272,15 @@ export default function MiniTestPage() {
     );
   }
 
-  // Results Screen - FIXED MOBILE BUTTON LAYOUT + BOUNCING BALLS
+  // Results Screen - CLEAN WHITE/BLACK BACKGROUND
   return (
     <>
       <FastBouncingBalls />
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-green-900 px-4 py-8 relative z-10">
+      <div className="min-h-screen bg-white dark:bg-black px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto pt-20">
           
           <div className="text-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
