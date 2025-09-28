@@ -4,7 +4,6 @@ import Script from 'next/script'
 import './globals.css'
 import Navbar from '../components/Navbar'
 import { AuthProvider } from '../contexts/AuthContext'
-import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
@@ -174,8 +173,6 @@ export default function RootLayout({
           ></iframe>
         </noscript>
         <AuthProvider>
-          {/* 🔧 EMAIL VERIFICATION BANNER - Shows for unverified users */}
-          <EmailVerificationBanner />
           <Navbar />
           <main>{children}</main>
         </AuthProvider>
