@@ -56,45 +56,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setWelcomeBonusGranted(true); // 🛡️ PROTECTION 1: Immediate session flag
             
             try {
-              // 🛡️ PROTECTION 2: Check database for existing welcome bonus
-              const { CoinManager } = await import('@/lib/coinManager');
-              const history = await CoinManager.getTransactionHistory(user.uid, 20);
-              const hasWelcomeBonus = history.some(tx => 
-                tx.feature === 'welcome-bonus' && tx.type === 'earned' && tx.success
-              );
+              console.log('🎯 Granting welcome bonus for newly verified user...');
               
-              if (!hasWelcomeBonus) {
-                console.log('🎯 Granting welcome bonus for newly verified user...');
+              // 🔧 FIXED: Use API route instead of direct CoinManager call
+              const response = await fetch('/api/coins/add', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  userId: user.uid,
+                  amount: 5,
+                  reason: 'welcome_bonus',
+                  description: 'Welcome bonus - Email verified! 🎉'
+                })
+              });
+
+              const result = await response.json();
+              
+              if (result.success) {
+                console.log('🎉 Welcome bonus successfully granted!');
                 
-                const result = await CoinManager.addCoins(
-                  user.uid, 
-                  5, 
-                  'welcome-bonus', 
-                  'Welcome bonus - Email verified! 🎉'
-                );
-                
-                if (result.success) {
-                  console.log('🎉 Welcome bonus successfully granted!');
+                // 🚀 INSTANT UI REFRESH
+                if (typeof window !== 'undefined') {
+                  // Trigger coin balance update event
+                  window.dispatchEvent(new CustomEvent('coinBalanceUpdated', { 
+                    detail: { newBalance: result.newBalance } 
+                  }));
                   
-                  // 🚀 INSTANT UI REFRESH
-                  if (typeof window !== 'undefined') {
-                    // Trigger coin balance update event
-                    window.dispatchEvent(new CustomEvent('coinBalanceUpdated', { 
-                      detail: { newBalance: result.newBalance } 
-                    }));
-                    
-                    // Refresh page to show updated balance and hide verification banner
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 1500); // 1.5 second delay to show success
-                  }
-                } else {
-                  console.error('❌ Welcome bonus transaction failed');
-                  setWelcomeBonusGranted(false); // Reset flag on failure
+                  // Refresh page to show updated balance and hide verification banner
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1500); // 1.5 second delay to show success
                 }
               } else {
-                console.log('ℹ️ Welcome bonus already exists in database - skipping duplicate');
-                // Keep flag as true since bonus was already granted
+                console.error('❌ Welcome bonus transaction failed:', result.error);
+                setWelcomeBonusGranted(false); // Reset flag on failure
               }
             } catch (error) {
               console.error('❌ Failed to process welcome bonus:', error);
