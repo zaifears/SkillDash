@@ -83,12 +83,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   window.dispatchEvent(new CustomEvent('coinBalanceUpdated', { 
                     detail: { newBalance: result.newBalance } 
                   }));
-                  
-                  // Refresh page to show updated balance and hide verification banner
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 1500); // 1.5 second delay to show success
                 }
+                
+                // FIXED: Removed the unnecessary window.location.reload()
+                
               } else {
                 console.error('❌ Welcome bonus transaction failed:', result.error);
                 setWelcomeBonusGranted(false); // Reset flag on failure

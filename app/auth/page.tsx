@@ -297,6 +297,10 @@ export default function AuthPage() {
           isLoading={isLoading}
         />
 
+        {/* ================================================================== */}
+        {/* == MANUAL SIGN-IN / SIGN-UP FORM HIDDEN AS REQUESTED == */}
+        {/* ================================================================== */}
+        {/*
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300 dark:border-gray-600" />
@@ -306,7 +310,6 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* 🔧 MODIFIED: AuthForm with inline email verification notice */}
         <AuthFormWithInlineNotice
           isSignUp={isSignUp}
           formData={formData}
@@ -331,6 +334,11 @@ export default function AuthPage() {
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
+        */}
+        {/* ================================================================== */}
+        {/* == END OF HIDDEN SECTION == */}
+        {/* ================================================================== */}
+
       </div>
     </div>
   )
