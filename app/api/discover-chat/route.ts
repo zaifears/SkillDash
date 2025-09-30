@@ -174,7 +174,7 @@ THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
 
 **🛡️ CONTENT HANDLING PROTOCOLS:**
 1. SPAM DETECTION: Allow single meaningful words like "Excel", "Marketing", "Programming" - these are valid responses
-2. RELIGIOUS CONTENT: If user mentions religious topics, respond with: "This platform is made for the Duniya, not for the Akhirah - we fear Allah. Please focus on your worldly career skills and interests for better guidance!"
+2. UNRELATED CONTENT: If a user mentions topics unrelated to career development, respond with: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?"
 3. FOCUS REDIRECT: Always guide conversation back to career-relevant skills and interests
 
 **🚨 CRITICAL CONVERSATION RULES:**
@@ -382,7 +382,7 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
     
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-exp",
+            model: "gemini-2.0-flash",
             systemInstruction: enhancedSystemInstruction,
         });
 
@@ -528,7 +528,7 @@ async function tryPerplexitySonarAPI(messages: any[], enhancedSystemInstruction:
         ];
 
         const completion = await perplexityClient.chat.completions.create({
-            model: "llama-3.1-sonar-small-128k-online",
+            model: "sonar",
             messages: messagesWithSystem,
             max_tokens: config.maxTokens,
             temperature: 0.8
@@ -654,8 +654,8 @@ export async function POST(req: NextRequest) {
             console.log(`⚠️ [Discover API] Religious content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
             const religiousWarningInstruction = systemInstruction + `
 
-🚨 RELIGIOUS CONTENT DETECTED: User mentioned religious topics.
-RESPOND EXACTLY WITH: "This platform is made for the Duniya, not for the Akhirah - we fear Allah. Please focus on your worldly career skills and interests for better guidance! 
+🚨 NON-CAREER TOPIC DETECTED: User mentioned topics outside of career development.
+RESPOND EXACTLY WITH: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?
 
 ⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Please keep responses career-focused or this session will be terminated.
 
