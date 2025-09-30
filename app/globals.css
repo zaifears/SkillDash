@@ -47,13 +47,17 @@ body{font-family:var(--font-inter);font-feature-settings:'rlig' 1,'calt' 1;backg
 .group:hover .group-hover\:animate-pulse{animation:pulse 1s infinite}
 
 @layer base{
-input[type="text"],input[type="email"],input[type="password"],input[type="number"],textarea,select{@apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600}
-input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="number"]:focus,textarea:focus,select:focus{@apply ring-2 ring-blue-500 border-blue-500 outline-none}
+  input[type="text"],input[type="email"],input[type="password"],input[type="number"],textarea,select{@apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600}
+  input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="number"]:focus,textarea:focus,select:focus{@apply ring-2 ring-blue-500 border-blue-500 outline-none}
+  
+  /* ✅ FIX: Override default prose colors correctly for light and dark mode */
+  .prose {
+    @apply text-gray-800 dark:text-gray-300;
+  }
+  .prose strong, .prose em, .prose b {
+    @apply text-gray-900 dark:text-gray-100;
+  }
 }
-
-.prose-blue.dark\:prose-invert{@apply text-gray-200}
-.prose-blue.dark\:prose-invert h1,.prose-blue.dark\:prose-invert h2,.prose-blue.dark\:prose-invert h3,.prose-blue.dark\:prose-invert h4,.prose-blue.dark\:prose-invert h5,.prose-blue.dark\:prose-invert h6,.prose-blue.dark\:prose-invert strong{@apply text-gray-100}
-.prose-blue.dark\:prose-invert code{@apply bg-gray-800 text-gray-200 px-1 py-0.5 rounded}
 
 button:focus-visible{@apply outline-2 outline-offset-2 outline-blue-500}
 input:disabled,textarea:disabled,button:disabled{@apply opacity-50 cursor-not-allowed}

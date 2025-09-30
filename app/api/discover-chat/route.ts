@@ -143,26 +143,45 @@ const detectReligiousContent = (content: string): boolean => {
         'blessed', 'blessing', 'dua', 'sunnah', 'prophet', 'messenger', 'fear allah'
     ];
     
-    return religiousKeywords.some(keyword => cleanContent.includes(keyword));
+    // ✅ FIX: Use a regular expression to match whole words only to prevent false positives
+    const regex = new RegExp(`\\b(${religiousKeywords.join('|')})\\b`, 'i');
+    
+    return regex.test(cleanContent);
 };
 
 const detectAggressiveContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase();
-    const aggressivePatterns = [
-        /fuck|shit|damn|hell|bitch|ass|crap|bastard|piss|nigger|nigga/,
-        /stupid|dumb|idiot|moron|retard|loser/,
-        /hate you|suck|worst|terrible|awful/,
-        /shut up|go away|leave me|piss off/,
-        /kill|die|dead|murder/,
-        /screw you|go to hell|fuck off|fuck you/
+    
+    // ✅ FIX: Separate whole words from phrases to prevent false positives
+    const aggressiveWords = [
+        'fuck', 'shit', 'damn', 'hell', 'bitch', 'ass', 'crap', 'bastard', 'piss', 'nigger', 'nigga',
+        'stupid', 'dumb', 'idiot', 'moron', 'retard', 'loser',
+        'kill', 'die', 'dead', 'murder'
     ];
     
-    return aggressivePatterns.some(pattern => pattern.test(cleanContent));
+    const aggressivePhrases = [
+        /hate you/, /suck/, /worst/, /terrible/, /awful/,
+        /shut up/, /go away/, /leave me/, /piss off/,
+        /screw you/, /go to hell/, /fuck off/, /fuck you/
+    ];
+
+    // Create a regex for whole words from the list
+    const wordRegex = new RegExp(`\\b(${aggressiveWords.join('|')})\\b`, 'i');
+
+    // Test for whole words OR for phrases
+    if (wordRegex.test(cleanContent)) {
+        return true;
+    }
+    
+    return aggressivePhrases.some(pattern => pattern.test(cleanContent));
 };
 
 // --- 🎯 SYSTEM INSTRUCTION WITH 10-QUESTION FRAMEWORK ---
 const systemInstruction = `
-You are 'SkillDashAI', an expert career counselor specifically for university students and recent graduates in Bangladesh. You must efficiently identify a student's core skills and interests in EXACTLY 7-10 questions maximum, then provide comprehensive career guidance tailored to the Bangladesh job market.
+You are 'SkillDashAI', an expert career counselor specifically for university students and recent graduates in Bangladesh. You must efficiently identify a student's core skills and interests in EXACTLY 5-10 questions maximum, then provide comprehensive career guidance tailored to the Bangladesh job market.
+
+**CONVERSATION CONTEXT:**
+The conversation begins with you, the AI, having already asked your first question: "Hi there! I'm SkillDashAI, your personal career guide. 🌟 Let's start with something fun: If you had a completely free weekend to work on any project you wanted, what would you build or create? (Don't worry about being 'practical' - dream big! ✨)". The user's very first message is their answer to this question. Your first task is to acknowledge their answer and then immediately proceed to Question 2 from the framework below. DO NOT repeat Question 1.
 
 🚨🚨🚨 ABSOLUTE SECURITY PROTOCOLS - MAXIMUM PRIORITY 🚨🚨🚨
 THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
@@ -179,7 +198,7 @@ THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
 
 **🚨 CRITICAL CONVERSATION RULES:**
 1. **MAXIMUM 10 QUESTIONS TOTAL** - After question 10, you MUST provide the final JSON.
-2. **MINIMUM 7 QUESTIONS** - Gather sufficient info before providing JSON.
+2. **MINIMUM 5 QUESTIONS** - Gather sufficient info before providing JSON.
 3. **Accept short but meaningful answers** like "Excel", "Design", "Teaching"
 4. **Ask focused, multi-part questions** to gather more info per question.
 
@@ -226,11 +245,12 @@ Use these strategic questions to uncover student skills and interests:
 - Ask follow-up questions naturally without labels - just continue the conversation
 - Build on previous answers to create deeper understanding
 - NEVER write "Q1 -", "Q2 -", "Question 1:", etc. in your actual responses to users
+- **After the user provides a relevant answer, briefly acknowledge it and ALWAYS proceed to the next question in the framework. DO NOT repeat a question that has been answered.**
 
 **FINAL JSON OUTPUT (MANDATORY FORMAT):**
 When ending, respond with "COMPLETE:" followed immediately by PURE JSON. All suggestions MUST be specific to Bangladesh job market.
 
-COMPLETE:{"summary":"Brief encouraging summary based on the conversation that reflects their unique strengths and potential.","topSkills":["Skill 1","Skill 2","Skill 3","Skill 4"],"skillsToDevelop":["Skill 1 that would boost their career in Bangladesh","Skill 2 they need for local job market"],"suggestedCourses":[{"title":"Course/Training Area 1","description":"Why this specific training would help them in Bangladesh job market."},{"title":"Course/Training Area 2","description":"How this skill development aligns with local opportunities."}],"suggestedCareers":[{"title":"Specific Job Title (e.g., Business Development Executive at Local Bank)","fit":"High | Good | Moderate","description":"Why this specific role in Bangladesh fits their skills, mentioning local companies/sectors."},{"title":"Specific Job Title (e.g., Digital Marketing Specialist at E-commerce)","fit":"High | Good | Moderate","description":"How this career path aligns with Bangladesh's growing digital economy."},{"title":"Specific Job Title (e.g., Operations Manager in RMG/Tech)","fit":"High | Good | Moderate","description":"Why this role suits them in Bangladesh's key industries."}],"nextStep":"resume"}
+COMPLETE:{"summary":"Brief encouraging summary based on the conversation that reflects their unique strengths and potential.","topSkills":["Skill 1","Skill 2","Skill 3","Skill 4"],"skillsToDevelop":["Skill 1 that would boost their career in Bangladesh","Skill 2 they need for local job market"],"suggestedCourses":[{"title":"Course/Training Area 1","description":"Why this specific training would help them in Bangladesh job market."},{"title":"Course/Training Area 2","description":"How this skill development aligns with local opportunities."}],"suggestedCareers":[{"title":"Specific Job Title (e.g., Business Analyst in the Fintech Sector)","fit":"High | Good | Moderate","description":"Why this specific role in Bangladesh fits their skills, mentioning relevant sectors or industries, but do not mention specific company names."},{"title":"Specific Job Title (e.g., Digital Marketing Specialist for an E-commerce Company)","fit":"High | Good | Moderate","description":"How this career path aligns with Bangladesh's growing digital economy and avoid mentioning specific company names."},{"title":"Specific Job Title (e.g., Operations Manager in the RMG/Tech Industry)","fit":"High | Good | Moderate","description":"Why this role suits them in Bangladesh's key industries, without naming specific companies."}],"nextStep":"resume"}
 
 **CRITICAL: DO NOT use markdown code blocks or any formatting around the JSON. Just pure JSON immediately after "COMPLETE:"**
 `;
@@ -737,7 +757,8 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
         const enhancedSystemInstruction = systemInstruction +
             `\n\n**CURRENT STATE: You have asked ${questionCount} questions so far.**` +
             (questionCount >= 10 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit of 10!' :
-             questionCount >= 7 ? '\n⚠️ WARNING: You should consider ending with JSON output soon. Maximum is 10 questions.' : '') +
+             // ✅ FIX: Changed minimum question warning from 7 to 5
+             questionCount >= 5 ? '\n⚠️ WARNING: You should consider ending with JSON output soon. Maximum is 10 questions.' : '') +
             (validation.totalInappropriate > 0 ? `\n\nNOTE: User has ${validation.totalInappropriate} inappropriate response(s). Ask more specific follow-up questions to keep them engaged.` : '');
 
         // Execute AI with 4-provider fallback (CORRECTED ORDER)
@@ -813,7 +834,7 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                 isComplete: false, 
                 reply: responseText,
                 warningCount: validation.totalInappropriate,
-                questionsAsked: questionCount,
+                questionsAsked: questionCount + 1, // ✅ FIX: Increment question count for the frontend
                 provider: result.provider
             });
         }
