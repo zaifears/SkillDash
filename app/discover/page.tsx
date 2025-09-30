@@ -370,6 +370,27 @@ export default function DiscoverPage() {
         setMessages(prev => prev.slice(0, -1));
         return;
       }
+      
+      // ✅ FIX: Handle the 400 "Blocked" error from the backend
+      if (response.status === 400) {
+        console.log('🚫 [DiscoverPage] Received block signal from backend');
+        const errorData = await response.json();
+        
+        setConversationEnded(true);
+        setIsInputDisabled(true);
+        setConversationBlocked(true);
+        setMaxWarningsReached(true);
+        setBlockReason(errorData.error || 'Multiple inappropriate responses (3/3 strikes)');
+        
+        const endMessage: Message = { 
+          id: `bot-${++messageIdCounter.current}`,
+          role: 'assistant', 
+          content: errorData.summary || "This conversation has been terminated."
+        };
+        setMessages(prev => [...prev, endMessage]);
+        setIsLoading(false);
+        return; // Stop further execution
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
