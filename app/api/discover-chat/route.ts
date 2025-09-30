@@ -88,20 +88,35 @@ const extractContentFromPerplexity = (content: any): string => {
     return String(content || '');
 };
 
-// --- ENHANCED CONTENT DETECTION (TRIGGERS AT 3) ---
+// --- IMPROVED SPAM DETECTION (MORE LENIENT FOR CAREER RESPONSES) ---
 const detectSpamContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase().trim();
     
-    // Block very short responses (but allow meaningful ones like "Excel")
+    // Allow any response with 10+ characters (likely meaningful)
+    if (cleanContent.length >= 10) return false;
+    
+    // Block very short responses (but allow meaningful ones like "Excel", "Design")
     if (cleanContent.length < 2) return true;
     
+    // Allow responses with career-relevant keywords
+    const careerKeywords = [
+        'data', 'analysis', 'analyze', 'study', 'learn', 'project', 'work',
+        'design', 'code', 'teach', 'help', 'manage', 'build', 'create',
+        'excel', 'write', 'research', 'financial', 'calculus', 'semester',
+        'class', 'result', 'grade', 'subject', 'skill', 'career', 'job'
+    ];
+    
+    if (careerKeywords.some(keyword => cleanContent.includes(keyword))) {
+        return false; // Not spam if contains career-related words
+    }
+    
     const spamPatterns = [
-        // Meaningless responses
+        // Meaningless responses (only exact matches)
         /^(idk|dk|dunno|whatever|nothing|nah|lol|haha|meh|hmm|ok|yes|no|maybe)$/,
         // Single word negative responses
         /^(nope|never|will|not|wont|cant|dont|stop|quit|fine)$/,
-        // Non-serious responses
-        /^(sure|yeah|yep|uh|um|er|well|like|just)$/,
+        // Non-serious responses (only exact matches, NOT in longer sentences)
+        /^(sure|yeah|yep|uh|um|er|well)$/,
         // Keyboard mashing - multiple chars repeated
         /^(.)\1{3,}$/, // aaaa, bbbb, etc
         // Random keyboard patterns
@@ -110,9 +125,9 @@ const detectSpamContent = (content: string): boolean => {
         /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
         // Single meaningless characters
         /^[bcfghjklmnpqrstvwxyz]$/, // Allow vowels and meaningful letters
-        // Gibberish (3+ consonants with no vowels)
+        // Gibberish (3+ consonants with no vowels, only if short)
         /^[bcdfghjklmnpqrstvwxyz]{3,}$/,
-        // Common dismissive responses
+        // Common dismissive single-word responses
         /^(boring|stupid|dumb|hate|bad|worst|terrible|awful)$/
     ];
     
@@ -183,31 +198,34 @@ Focus on these growing sectors:
 **🎯 IMPROVED 10-QUESTION DISCOVERY FRAMEWORK:**
 Use these strategic questions to uncover student skills and interests:
 
-**Q1 - PASSION DISCOVERY**: "If you had a completely free weekend to work on any project you wanted, what would you build or create? (Dream big! ✨)"
+**IMPORTANT: NEVER include "Q1", "Q2", "Q3" etc. in your responses. Write naturally without question labels.**
 
-**Q2 - ACADEMIC FOUNDATION**: "What subjects in university/HSC did you find easiest to excel in, and which ones felt like a struggle? Also, any subjects you loved even if they were challenging?"
+**Question 1 - PASSION DISCOVERY**: "If you had a completely free weekend to work on any project you wanted, what would you build or create? (Dream big! ✨)"
 
-**Q3 - PRACTICAL SKILLS**: "Rate your comfort level with: Excel/data analysis, social media/content creation, presenting to groups, writing reports, coding/tech tools, and hands-on problem-solving. Which feels most natural?"
+**Question 2 - ACADEMIC FOUNDATION**: "What subjects in university/HSC did you find easiest to excel in, and which ones felt like a struggle? Also, any subjects you loved even if they were challenging?"
 
-**Q4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
+**Question 3 - PRACTICAL SKILLS**: "Rate your comfort level with: Excel/data analysis, social media/content creation, presenting to groups, writing reports, coding/tech tools, and hands-on problem-solving. Which feels most natural?"
 
-**Q5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, Grameenphone, Brac Bank, etc.)?"
+**Question 4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
 
-**Q6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
+**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, Grameenphone, Brac Bank, etc.)?"
 
-**Q7 - PROBLEM-SOLVING STYLE**: "When facing a challenge, do you prefer: researching extensively first, diving in and experimenting, asking experts for guidance, or brainstorming creative solutions? Give me an example."
+**Question 6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
 
-**Q8 - CAREER PRIORITIES**: "What matters most to you in your ideal career: high salary potential, work-life balance, creative freedom, job security, rapid career growth, or making a social impact? Rank your top 3 priorities."
+**Question 7 - PROBLEM-SOLVING STYLE**: "When facing a challenge, do you prefer: researching extensively first, diving in and experimenting, asking experts for guidance, or brainstorming creative solutions? Give me an example."
 
-**Q9 - GROWTH & LEARNING**: "Think about skills you've developed quickly in the past - was it through formal training, hands-on practice, watching others, or self-study? What's your preferred way to learn new things, and what skill would you most like to develop next?"
+**Question 8 - CAREER PRIORITIES**: "What matters most to you in your ideal career: high salary potential, work-life balance, creative freedom, job security, rapid career growth, or making a social impact? Rank your top 3 priorities."
 
-**Q10 - FUTURE VISION**: "Fast-forward 5 years: describe your ideal workday. Where are you working, what tasks are you doing, who are you working with, and what achievement would make you feel most proud? What role would suit this vision best in Bangladesh's job market?"
+**Question 9 - GROWTH & LEARNING**: "Think about skills you've developed quickly in the past - was it through formal training, hands-on practice, watching others, or self-study? What's your preferred way to learn new things, and what skill would you most like to develop next?"
+
+**Question 10 - FUTURE VISION**: "Fast-forward 5 years: describe your ideal workday. Where are you working, what tasks are you doing, who are you working with, and what achievement would make you feel most proud? What role would suit this vision best in Bangladesh's job market?"
 
 **QUESTION STRATEGY:**
 - Start broad (dreams/passions) then narrow down systematically
 - Explore academic strengths → practical skills → work preferences → market fit
-- Ask follow-up questions within the same numbered question if needed
+- Ask follow-up questions naturally without labels - just continue the conversation
 - Build on previous answers to create deeper understanding
+- NEVER write "Q1 -", "Q2 -", "Question 1:", etc. in your actual responses to users
 
 **FINAL JSON OUTPUT (MANDATORY FORMAT):**
 When ending, respond with "COMPLETE:" followed immediately by PURE JSON. All suggestions MUST be specific to Bangladesh job market.
@@ -364,7 +382,7 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
     
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
+            model: "gemini-2.0-flash-exp",
             systemInstruction: enhancedSystemInstruction,
         });
 
@@ -510,7 +528,7 @@ async function tryPerplexitySonarAPI(messages: any[], enhancedSystemInstruction:
         ];
 
         const completion = await perplexityClient.chat.completions.create({
-            model: "sonar",
+            model: "llama-3.1-sonar-small-128k-online",
             messages: messagesWithSystem,
             max_tokens: config.maxTokens,
             temperature: 0.8
@@ -681,11 +699,13 @@ Please tell me about your genuine career interests or skills you'd like to devel
             const warningInstruction = systemInstruction + `
 
 🚨 NOTICE: User has given ${validation.spamCount} spam responses and ${validation.totalInappropriate} total inappropriate responses. 
-RESPOND WITH: "I need more meaningful responses to give you the best career recommendations. Single words like 'Excel' or 'Design' are fine, but please avoid responses like 'no', 'whatever', or profanity.
+RESPOND WITH: "I appreciate your response, but I need a bit more detail to give you personalized career guidance. Can you expand on that a bit?
 
-⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Please provide career-focused responses.
+⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. 
 
-What specific skills, subjects, or career interests would you like to explore?"
+For example, if you mentioned 'data analysis', tell me: What aspect interests you? Is it finding patterns, creating visualizations, or solving real-world problems with data?"
+
+DO NOT ask Question 1 again. Build on their previous answer and ask a relevant follow-up question.
 `;
 
             const result = await executeWithFallback(messages, warningInstruction, getTimeoutConfig());
