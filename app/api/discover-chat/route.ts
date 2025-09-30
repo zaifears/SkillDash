@@ -149,7 +149,7 @@ const detectReligiousContent = (content: string): boolean => {
 const detectAggressiveContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase();
     const aggressivePatterns = [
-        /fuck|shit|damn|hell|bitch|ass|crap|bastard|piss/,
+        /fuck|shit|damn|hell|bitch|ass|crap|bastard|piss|nigger|nigga/,
         /stupid|dumb|idiot|moron|retard|loser/,
         /hate you|suck|worst|terrible|awful/,
         /shut up|go away|leave me|piss off/,
@@ -529,7 +529,7 @@ async function tryPerplexitySonarAPI(messages: any[], enhancedSystemInstruction:
 
         const completion = await perplexityClient.chat.completions.create({
             model: "sonar",
-            messages: messagesWithSystem,
+            messages: messagesWithSystem as any,
             max_tokens: config.maxTokens,
             temperature: 0.8
         });
@@ -635,17 +635,21 @@ export async function POST(req: NextRequest) {
 
         // Validate input (blocks at 3 inappropriate responses)
         const validation = validateDiscoverInput(messages);
+        
+        // ✅ BUG FIX: Check for blocking condition immediately after validation
+        if (validation.shouldBlock) {
+            console.log(`🚫 [Discover API] Blocking user after ${validation.totalInappropriate} inappropriate responses`);
+            return NextResponse.json({
+                isComplete: true,
+                forceEnd: true,
+                blocked: true,
+                summary: `This session has been terminated after ${validation.totalInappropriate} inappropriate responses. Please start fresh when you're ready to engage seriously with your career discovery! 🛑`,
+                error: "Conversation blocked due to repeated inappropriate responses"
+            }, { status: 400 });
+        }
+
+        // Continue with other validation checks if not blocked
         if (!validation.isValid) {
-            if (validation.shouldBlock) {
-                console.log(`🚫 [Discover API] Blocking user after ${validation.totalInappropriate} inappropriate responses`);
-                return NextResponse.json({
-                    isComplete: true,
-                    forceEnd: true,
-                    blocked: true,
-                    summary: `This session has been terminated after ${validation.totalInappropriate} inappropriate responses. Please start fresh when you're ready to engage seriously with your career discovery! 🛑`,
-                    error: "Conversation blocked due to repeated inappropriate responses"
-                }, { status: 400 });
-            }
             return NextResponse.json({ error: validation.error }, { status: 400 });
         }
 
