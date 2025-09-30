@@ -178,20 +178,20 @@ export default function ResumeFeedbackPage() {
     router.push(ROUTES.COINS); // ✅ USING CONSTANT
   }, [router]);
 
-  // 🆕 UPDATED startAnalysis FUNCTION WITH COIN LOGIC
+  // 🆕 UPDATED startAnalysis FUNCTION WITH BETTER ERROR HANDLING
   const startAnalysis = useCallback(async (finalJobDescription: string | null) => {
-    if (resumeText.trim().length < LIMITS.MIN_RESUME_LENGTH) { // ✅ USING CONSTANT
-        setError(`Your resume text seems too short. Please paste at least ${LIMITS.MIN_RESUME_LENGTH} characters for an accurate analysis.`); // ✅ USING CONSTANT
+    if (resumeText.trim().length < LIMITS.MIN_RESUME_LENGTH) {
+        setError(`Your resume text seems too short. Please paste at least ${LIMITS.MIN_RESUME_LENGTH} characters for an accurate analysis.`);
         return;
     }
 
     // 🪙 Check coins first
     if (user) {
         console.log('🪙 Checking coins before analysis...');
-        const hasCoins = await CoinManager.hasEnoughCoins(user.uid, LIMITS.COINS_PER_FEATURE); // ✅ USING CONSTANT
+        const hasCoins = await CoinManager.hasEnoughCoins(user.uid, LIMITS.COINS_PER_FEATURE);
         if (!hasCoins) {
             const currentBalance = await CoinManager.getCoinBalance(user.uid);
-            setCoinError({ currentCoins: currentBalance, requiredCoins: LIMITS.COINS_PER_FEATURE }); // ✅ USING CONSTANT
+            setCoinError({ currentCoins: currentBalance, requiredCoins: LIMITS.COINS_PER_FEATURE });
             setShowInsufficientCoinsModal(true);
             return;
         }
@@ -230,7 +230,47 @@ export default function ResumeFeedbackPage() {
           return;
         }
         
-        throw new Error(errorData.error || `An error occurred on the server.`);
+        // ✨ ENHANCED ERROR HANDLING FOR VALIDATION ERRORS
+        const errorMessage = errorData.error || 'An error occurred on the server.';
+        
+        if (errorMessage.includes('not_resume_content')) {
+          setError(`❌ This doesn't appear to be resume content.
+
+📋 **Please ensure your content includes typical resume sections like:**
+
+• **Professional Summary** or Objective Statement
+• **Work Experience** or Employment History  
+• **Education** or Academic Background
+• **Skills** or Core Competencies
+• **Projects** or Key Achievements
+• **Certifications** (if applicable)
+
+💡 **Tip:** Copy your complete resume text including all headings and sections for accurate analysis.`);
+        } else if (errorMessage.includes('length_invalid')) {
+          setError(`📏 **Resume length issue detected.**
+
+Your resume content is either too short or too long. Please provide a complete resume between **${LIMITS.MIN_RESUME_LENGTH}-15,000 characters** for accurate analysis.
+
+💡 **Current length:** ${resumeText.length} characters`);
+        } else if (errorMessage.includes('irrelevant_content')) {
+          setError(`🚫 **Irrelevant content detected.**
+
+The content appears to be unrelated to professional resume material. Please paste your **actual resume text** with proper career information, skills, and experience.`);
+        } else if (errorMessage.includes('inappropriate_content')) {
+          setError(`⚠️ **Content policy violation.**
+
+The content contains inappropriate material. Please provide **professional resume content only** with your work experience, education, and skills.`);
+        } else if (errorMessage.includes('injection_attempt')) {
+          setError(`🛡️ **Security warning.**
+
+Invalid input detected. Please provide **plain resume text** without any code, scripts, or special formatting. Just copy and paste your regular resume content.`);
+        } else {
+          // Generic error handling
+          setError(errorMessage.includes('HTTP') ? 'Network error occurred. Please try again.' : errorMessage);
+        }
+        
+        setCurrentStep('resume'); // Go back to resume step for user to fix the issue
+        return;
       }
 
       const data = await response.json();
@@ -262,7 +302,19 @@ export default function ResumeFeedbackPage() {
 
     } catch (err: any) {
       console.error("Analysis or Parsing Error:", err);
-      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, there was an issue processing the analysis: ${err.message}` }]);
+      
+      // Handle different types of errors with user-friendly messages
+      let userFriendlyError = "Sorry, there was an issue processing the analysis.";
+      
+      if (err.message.includes('not_resume_content')) {
+        userFriendlyError = "The content doesn't appear to be a proper resume. Please include sections like experience, education, and skills.";
+      } else if (err.message.includes('network') || err.message.includes('fetch')) {
+        userFriendlyError = "Network connection issue. Please check your internet and try again.";
+      } else if (err.message.includes('JSON')) {
+        userFriendlyError = "Server response format error. Please try again in a moment.";
+      }
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: userFriendlyError }]);
       setCurrentStep('resume');
     } finally {
       setIsLoading(false);
@@ -506,8 +558,76 @@ export default function ResumeFeedbackPage() {
               )}
               
                {error && (
-                 <div className="mt-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-3 max-w-2xl mx-auto shadow-sm">
-                   <p className="text-red-700 dark:text-red-300 text-center text-sm sm:text-base">{error}</p>
+                 <div className="mt-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4 sm:p-6 max-w-2xl mx-auto shadow-lg">
+                   <div className="flex items-start gap-3">
+                     {/* Error Icon */}
+                     <div className="flex-shrink-0 w-8 h-8 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center">
+                       <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                     </div>
+                     
+                     {/* Error Content */}
+                     <div className="flex-1">
+                       {error.includes('not_resume_content') ? (
+                         <div className="space-y-4">
+                           <div>
+                             <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+                               Content Not Recognized as Resume
+                             </h3>
+                             <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                               This doesn't appear to be resume content. Please ensure your content includes typical resume sections:
+                             </p>
+                           </div>
+                           
+                           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-600">
+                             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                               <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                               </svg>
+                               Required Resume Sections:
+                             </h4>
+                             
+                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                               {[
+                                 'Professional Summary',
+                                 'Work Experience', 
+                                 'Education Background',
+                                 'Skills & Competencies',
+                                 'Projects & Achievements',
+                                 'Certifications'
+                               ].map((section, index) => (
+                                 <div key={index} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                   <span>{section}</span>
+                                 </div>
+                               ))}
+                             </div>
+                           </div>
+                           
+                           <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border border-blue-200 dark:border-blue-600">
+                             <div className="flex items-start gap-2">
+                               <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                               </svg>
+                               <p className="text-sm text-blue-700 dark:text-blue-300">
+                                 <span className="font-medium">Tip:</span> Copy your complete resume text including all headings and sections for accurate analysis.
+                               </p>
+                             </div>
+                           </div>
+                         </div>
+                       ) : (
+                         <div className="space-y-3">
+                           <h3 className="text-lg font-semibold text-red-800 dark:text-red-200">
+                             Validation Error
+                           </h3>
+                           <p className="text-sm text-red-700 dark:text-red-300 whitespace-pre-line leading-relaxed">
+                             {error}
+                           </p>
+                         </div>
+                       )}
+                     </div>
+                   </div>
                  </div>
                )}
             </div>
