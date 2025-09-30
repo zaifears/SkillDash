@@ -31,6 +31,7 @@ interface SkillSuggestions {
   fallback?: boolean;
   questionsAsked?: number;
   inappropriateCount?: number;
+  provider?: string; // NEW: AI provider used
 }
 
 export default function DiscoverPage() {
@@ -58,8 +59,13 @@ export default function DiscoverPage() {
   const [maxWarningsReached, setMaxWarningsReached] = useState(false);
   const [blockReason, setBlockReason] = useState<string>('');
   
+  // 🚦 NEW: Rate limiting state
+  const [rateLimitError, setRateLimitError] = useState<{ message: string; retryAfter?: number } | null>(null);
+  const [rateLimitCountdown, setRateLimitCountdown] = useState<number>(0);
+  
   // Session tracking
   const [questionsAsked, setQuestionsAsked] = useState(0);
+  const [currentProvider, setCurrentProvider] = useState<string>(''); // NEW: Track AI provider
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -147,6 +153,27 @@ export default function DiscoverPage() {
     performCoinCheck();
   }, [user, coinCheckRetries]);
 
+  // 🚦 NEW: Rate limit countdown effect
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+    
+    if (rateLimitCountdown > 0) {
+      countdownInterval = setInterval(() => {
+        setRateLimitCountdown(prev => {
+          if (prev <= 1) {
+            setRateLimitError(null);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (countdownInterval) clearInterval(countdownInterval);
+    };
+  }, [rateLimitCountdown]);
+
   // 🔄 Periodic coin refresh for better UX
   useEffect(() => {
     let coinRefreshInterval: NodeJS.Timeout;
@@ -227,10 +254,10 @@ export default function DiscoverPage() {
 
   // Auto-focus input when enabled
   useEffect(() => {
-    if (!isLoading && !isInputDisabled && hasEnoughCoins && coinsChecked && inputRef.current && !conversationBlocked) {
+    if (!isLoading && !isInputDisabled && hasEnoughCoins && coinsChecked && inputRef.current && !conversationBlocked && rateLimitCountdown === 0) {
       inputRef.current.focus();
     }
-  }, [isLoading, isInputDisabled, hasEnoughCoins, coinsChecked, conversationBlocked]);
+  }, [isLoading, isInputDisabled, hasEnoughCoins, coinsChecked, conversationBlocked, rateLimitCountdown]);
 
   // Auto-scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -252,12 +279,12 @@ export default function DiscoverPage() {
     }
   }, [user, messages.length, conversationBlocked, hasEnoughCoins, coinsChecked]);
 
-  // 📝 MAIN FORM SUBMISSION HANDLER WITH 3-TRIGGER ANTI-SPAM
+  // 📝 MAIN FORM SUBMISSION HANDLER WITH 3-TRIGGER ANTI-SPAM + RATE LIMITING
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     
     // Comprehensive validation
-    if (!userInput.trim() || isLoading || suggestions || conversationEnded || isInputDisabled || conversationBlocked || !hasEnoughCoins || maxWarningsReached) {
+    if (!userInput.trim() || isLoading || suggestions || conversationEnded || isInputDisabled || conversationBlocked || !hasEnoughCoins || maxWarningsReached || rateLimitCountdown > 0) {
       console.log('🚫 [DiscoverPage] Submit blocked:', {
         hasInput: !!userInput.trim(),
         isLoading,
@@ -266,7 +293,8 @@ export default function DiscoverPage() {
         isInputDisabled,
         conversationBlocked,
         hasEnoughCoins,
-        maxWarningsReached
+        maxWarningsReached,
+        rateLimitActive: rateLimitCountdown > 0
       });
       return;
     }
@@ -281,6 +309,7 @@ export default function DiscoverPage() {
     setMessages(newMessages);
     setUserInput('');
     setIsLoading(true);
+    setRateLimitError(null); // Clear any previous rate limit errors
 
     try {
       console.log('📤 [DiscoverPage] Sending message to API...');
@@ -293,6 +322,24 @@ export default function DiscoverPage() {
           userId: user?.uid
         }),
       });
+
+      // 🚦 NEW: Handle rate limiting (429)
+      if (response.status === 429) {
+        console.log('🚦 [DiscoverPage] Rate limit exceeded');
+        const rateLimitData = await response.json();
+        const retryAfter = rateLimitData.retryAfter || parseInt(response.headers.get('Retry-After') || '60');
+        
+        setRateLimitError({
+          message: rateLimitData.error || 'Too many requests. Please slow down.',
+          retryAfter
+        });
+        setRateLimitCountdown(retryAfter);
+        
+        // Remove the user message since it wasn't processed
+        setMessages(prev => prev.slice(0, -1));
+        setIsLoading(false);
+        return;
+      }
 
       // Handle authentication errors
       if (response.status === 401) {
@@ -330,6 +377,12 @@ export default function DiscoverPage() {
 
       const data = await response.json();
       const botMessageId = `bot-${++messageIdCounter.current}`;
+
+      // NEW: Track AI provider
+      if (data.provider) {
+        setCurrentProvider(data.provider);
+        console.log(`🤖 [DiscoverPage] Response from: ${data.provider}`);
+      }
 
       // 🛡️ HANDLE BLOCKED CONVERSATIONS (3-TRIGGER SYSTEM)
       if (data.isComplete && (data.forceEnd || data.blocked)) {
@@ -434,7 +487,7 @@ export default function DiscoverPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [userInput, isLoading, suggestions, messages, conversationEnded, isInputDisabled, conversationBlocked, hasEnoughCoins, user, router, maxWarningsReached]);
+  }, [userInput, isLoading, suggestions, messages, conversationEnded, isInputDisabled, conversationBlocked, hasEnoughCoins, user, router, maxWarningsReached, rateLimitCountdown]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
@@ -465,7 +518,7 @@ export default function DiscoverPage() {
       }
     }
     
-    // Reset all state including anti-spam tracking
+    // Reset all state including anti-spam tracking and rate limiting
     setMessages([]);
     setUserInput('');
     setSuggestions(null);
@@ -478,6 +531,9 @@ export default function DiscoverPage() {
     setQuestionsAsked(0);
     setCoinError(null);
     setShowInsufficientCoinsModal(false);
+    setRateLimitError(null);
+    setRateLimitCountdown(0);
+    setCurrentProvider('');
     
     // Re-initialize conversation
     setTimeout(() => {
@@ -534,11 +590,12 @@ export default function DiscoverPage() {
     );
   }
   
-  // 🔧 FIXED DISABLE LOGIC - SEPARATE CONDITIONS FOR INPUT AND SUBMIT
-  const inputFieldDisabled = !hasEnoughCoins || isInputDisabled || conversationBlocked || maxWarningsReached;
-  const submitButtonDisabled = isLoading || !userInput.trim() || !!suggestions || conversationEnded || isInputDisabled || conversationBlocked || !hasEnoughCoins || maxWarningsReached;
+  // 🔧 IMPROVED DISABLE LOGIC
+  const inputFieldDisabled = !hasEnoughCoins || isInputDisabled || conversationBlocked || maxWarningsReached || rateLimitCountdown > 0;
+  const submitButtonDisabled = isLoading || !userInput.trim() || !!suggestions || conversationEnded || isInputDisabled || conversationBlocked || !hasEnoughCoins || maxWarningsReached || rateLimitCountdown > 0;
   
   const getPlaceholder = () => {
+    if (rateLimitCountdown > 0) return `Rate limit - wait ${rateLimitCountdown}s... ⏳`;
     if (!hasEnoughCoins) return "Need coins to chat - get coins first! 🪙";
     if (maxWarningsReached) return "Session blocked after 3 inappropriate responses 🚫";
     if (conversationBlocked) return "Session ended - restart to continue";
@@ -561,12 +618,26 @@ export default function DiscoverPage() {
             {hasEnoughCoins ? ' 🟢' : ' 🔴'}
             {questionsAsked > 0 && ` • Questions: ${questionsAsked}/10`}
             {warningCount > 0 && ` • Warnings: ${warningCount}/3`}
+            {currentProvider && <span className="text-xs opacity-60"> • {currentProvider}</span>}
           </p>
         </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20">
         <div className="max-w-3xl mx-auto">
+          
+          {/* 🚦 NEW: RATE LIMIT BANNER */}
+          {rateLimitError && rateLimitCountdown > 0 && (
+            <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl p-6 mb-6 text-center shadow-lg border border-orange-500 animate-pulse">
+              <div className="text-3xl mb-3">⏳</div>
+              <h3 className="text-xl font-bold mb-3">Slow Down!</h3>
+              <p className="text-sm opacity-90 mb-4">
+                {rateLimitError.message}
+              </p>
+              <div className="text-4xl font-bold mb-2">{rateLimitCountdown}s</div>
+              <p className="text-xs opacity-75">Please wait before sending another message</p>
+            </div>
+          )}
           
           {/* 🚫 BLOCKED CONVERSATION BANNER */}
           {(conversationBlocked || maxWarningsReached) && !conversationEnded && (
@@ -673,7 +744,7 @@ export default function DiscoverPage() {
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed border-gray-300 dark:border-gray-700' 
                   : 'hover:border-blue-400 focus:border-blue-500'
               }`}
-              disabled={inputFieldDisabled} // Includes blocking conditions
+              disabled={inputFieldDisabled}
               maxLength={LIMITS.MAX_MESSAGE_LENGTH}
             />
             <button
@@ -692,6 +763,14 @@ export default function DiscoverPage() {
           </form>
           
           {/* STATUS INDICATORS */}
+          {rateLimitCountdown > 0 && (
+            <div className="text-center mt-2">
+              <p className="text-xs text-orange-600 dark:text-orange-400 font-semibold">
+                ⏳ Rate limit active - wait {rateLimitCountdown}s before sending
+              </p>
+            </div>
+          )}
+          
           {!hasEnoughCoins && coinsChecked && !conversationBlocked && (
             <div className="text-center mt-2">
               <p className="text-xs text-red-600 dark:text-red-400">
@@ -700,7 +779,7 @@ export default function DiscoverPage() {
             </div>
           )}
           
-          {warningCount > 0 && !conversationBlocked && hasEnoughCoins && warningCount < 3 && (
+          {warningCount > 0 && !conversationBlocked && hasEnoughCoins && warningCount < 3 && rateLimitCountdown === 0 && (
             <div className="text-center mt-2">
               <p className="text-xs text-amber-600 dark:text-amber-400">
                 ⚠️ {warningCount}/3 warnings - Please provide career-focused responses
@@ -716,10 +795,18 @@ export default function DiscoverPage() {
             </div>
           )}
           
-          {questionsAsked > 0 && questionsAsked < 10 && !conversationEnded && hasEnoughCoins && !conversationBlocked && (
+          {questionsAsked > 0 && questionsAsked < 10 && !conversationEnded && hasEnoughCoins && !conversationBlocked && rateLimitCountdown === 0 && (
             <div className="text-center mt-2">
               <p className="text-xs text-blue-600 dark:text-blue-400">
                 📊 Question {questionsAsked}/10 - Analysis will be ready soon!
+              </p>
+            </div>
+          )}
+          
+          {currentProvider && questionsAsked > 0 && (
+            <div className="text-center mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-600">
+                Powered by {currentProvider}
               </p>
             </div>
           )}
