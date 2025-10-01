@@ -134,7 +134,7 @@ const extractContentFromPerplexity = (content: any): string => {
 };
 
 const cleanAndExtractJSON = (content: string): string => {
-    content = content.replace(/```json\s*|```\s*/g, '');
+    content = content.replace(/``````\s*/g, '');
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
         return jsonMatch[0];
@@ -262,20 +262,8 @@ export async function POST(req: NextRequest) {
         } = body;
 
         const isInitialAnalysis = !!resumeText;
-        if (isInitialAnalysis && userId) {
-            console.log('🪙 [API] Checking coins for resume feedback...');
-            const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE);
-            if (!hasCoins) {
-                const currentBalance = await CoinManagerServer.getCoinBalance(userId);
-                return NextResponse.json({ 
-                    error: 'Insufficient coins',
-                    currentCoins: currentBalance,
-                    requiredCoins: LIMITS.COINS_PER_FEATURE,
-                }, { status: 402 });
-            }
-            await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
-        }
 
+        // VALIDATE CONTENT FIRST BEFORE DEDUCTING COINS
         const contentToValidate = resumeText || (messages[messages.length - 1]?.content || '');
         const validation = validateResumeContent(contentToValidate);
         if (!validation.isValid) {
@@ -288,6 +276,21 @@ export async function POST(req: NextRequest) {
                 });
             }
             return NextResponse.json({ error: `Invalid content: ${validation.reason}` }, { status: 400 });
+        }
+
+        // NOW CHECK AND DEDUCT COINS AFTER VALIDATION PASSES
+        if (isInitialAnalysis && userId) {
+            console.log('🪙 [API] Checking coins for resume feedback...');
+            const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE);
+            if (!hasCoins) {
+                const currentBalance = await CoinManagerServer.getCoinBalance(userId);
+                return NextResponse.json({ 
+                    error: 'Insufficient coins',
+                    currentCoins: currentBalance,
+                    requiredCoins: LIMITS.COINS_PER_FEATURE,
+                }, { status: 402 });
+            }
+            await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
         }
 
         let apiMessages: { role: string; content: string }[] = [];
