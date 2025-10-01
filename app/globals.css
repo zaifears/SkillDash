@@ -2,96 +2,433 @@
 @tailwind components;
 @tailwind utilities;
 
-:root{--font-inter:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-html{font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background-color:white}
-@media (prefers-color-scheme:dark){html{background-color:#111827}}
-body{font-family:var(--font-inter);font-feature-settings:'rlig' 1,'calt' 1;background-color:inherit;color:#111827;transition:background-color .3s ease,color .3s ease}
-@media (prefers-color-scheme:dark){body{color:#f9fafb}}
+/* ============================================
+   PERFORMANCE OPTIMIZED CSS
+   ============================================ */
 
-::-webkit-scrollbar{width:8px}
-::-webkit-scrollbar-track{background-color:#f3f4f6}
-@media (prefers-color-scheme:dark){::-webkit-scrollbar-track{background-color:#1f2937}}
-::-webkit-scrollbar-thumb{background-color:#d1d5db;border-radius:9999px}
-@media (prefers-color-scheme:dark){::-webkit-scrollbar-thumb{background-color:#4b5563}}
-::-webkit-scrollbar-thumb:hover{background-color:#9ca3af}
-@media (prefers-color-scheme:dark){::-webkit-scrollbar-thumb:hover{background-color:#6b7280}}
+/* Optimized CSS Variables */
+:root {
+  --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --primary-blue: #2563eb;
+  --primary-purple: #7c3aed;
+  --primary-emerald: #059669;
+  --primary-orange: #ea580c;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+}
 
-@media (prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.animate-bounce-slow,.animate-bounce-medium,.animate-bounce-fast,.animate-optimized-bounce{animation:none!important;opacity:.3}}
-
-@keyframes fade-in-up{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
-@keyframes bounce-slow{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.05)}}
-@keyframes bounce-medium{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-15px) scale(1.03)}}
-@keyframes bounce-fast{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.05)}}
-@keyframes optimized-bounce{0%,20%,50%,80%,100%{transform:translateY(0) translateX(0)}10%{transform:translateY(-15px) translateX(5px)}30%{transform:translateY(-8px) translateX(-3px)}60%{transform:translateY(-12px) translateX(8px)}70%{transform:translateY(-5px) translateX(-2px)}}
-@keyframes optimized-pulse{0%,100%{opacity:.4}50%{opacity:.8}}
-
-.animate-fade-in-up{animation:fade-in-up .6s ease-out forwards}
-.animate-bounce-slow{animation:bounce-slow 6s ease-in-out infinite}
-.animate-bounce-medium{animation:bounce-medium 4s ease-in-out infinite}
-.animate-bounce-fast{animation:bounce-fast 2s ease-in-out infinite}
-.animate-optimized-bounce{animation:optimized-bounce 4s ease-in-out infinite}
-.animate-optimized-pulse{animation:optimized-pulse 3s cubic-bezier(.4,0,.6,1) infinite}
-
-.animate-optimized-bounce:nth-child(2){animation-duration:3.5s}
-.animate-optimized-bounce:nth-child(3){animation-duration:5s}
-.animate-optimized-bounce:nth-child(4){animation-duration:4.5s}
-.animate-optimized-bounce:nth-child(5){animation-duration:3.8s}
-.animate-optimized-bounce:nth-child(6){animation-duration:4.2s}
-
-.animate-optimized-bounce::before{content:'';position:absolute;inset:-2px;border-radius:inherit;background:inherit;filter:blur(4px);opacity:.3;z-index:-1}
-
-@media (max-width:768px){.animate-optimized-bounce{transform:scale(.7)}}
-@media (max-width:640px){.animate-bounce-slow,.animate-bounce-medium,.animate-bounce-fast{opacity:.25;animation-duration:150%!important}}
-
-.grayscale{filter:grayscale(70%) brightness(.8)}
-.group:hover .group-hover\:animate-pulse{animation:pulse 1s infinite}
-
-@layer base{
-  input[type="text"],input[type="email"],input[type="password"],input[type="number"],textarea,select{@apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600}
-  input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="number"]:focus,textarea:focus,select:focus{@apply ring-2 ring-blue-500 border-blue-500 outline-none}
-  
-  /* ✅ FIX: Override default prose colors correctly for light and dark mode */
-  .prose {
-    @apply text-gray-800 dark:text-gray-300;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
   }
+}
+
+/* Optimized HTML and Body */
+html {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-inter);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  background-color: inherit;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  line-height: 1.6;
+}
+
+/* ============================================
+   IMPROVED SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background-color: #1f2937;
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+  }
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE ANIMATIONS
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-bounce-slow,
+  .animate-bounce-medium,
+  .animate-bounce-fast,
+  .animate-optimized-bounce {
+    animation: none !important;
+    opacity: 0.3;
+  }
+}
+
+/* ============================================
+   OPTIMIZED KEYFRAMES
+   ============================================ */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes optimized-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  10% {
+    transform: translateY(-12px) translateX(3px);
+  }
+  30% {
+    transform: translateY(-6px) translateX(-2px);
+  }
+  60% {
+    transform: translateY(-8px) translateX(4px);
+  }
+  70% {
+    transform: translateY(-3px) translateX(-1px);
+  }
+}
+
+@keyframes optimized-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* ============================================
+   ANIMATION CLASSES
+   ============================================ */
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-optimized-bounce {
+  animation: optimized-bounce 4s ease-in-out infinite;
+}
+
+.animate-optimized-pulse {
+  animation: optimized-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200px 100%;
+}
+
+/* Staggered animation delays for performance */
+.animate-optimized-bounce:nth-child(2) { animation-duration: 3.5s; }
+.animate-optimized-bounce:nth-child(3) { animation-duration: 5s; }
+.animate-optimized-bounce:nth-child(4) { animation-duration: 4.5s; }
+
+/* ============================================
+   IMPROVED CONTRAST BADGES
+   ============================================ */
+.badge-blue {
+  @apply bg-blue-600 hover:bg-blue-700 text-white border border-blue-600;
+}
+
+.badge-purple {
+  @apply bg-purple-600 hover:bg-purple-700 text-white border border-purple-600;
+}
+
+.badge-emerald {
+  @apply bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-600;
+}
+
+.badge-orange {
+  @apply bg-orange-600 hover:bg-orange-700 text-white border border-orange-600;
+}
+
+/* ============================================
+   FORM ELEMENT IMPROVEMENTS
+   ============================================ */
+@layer base {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+           placeholder-gray-500 dark:placeholder-gray-400 
+           border-gray-300 dark:border-gray-600
+           transition-all duration-200;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    @apply ring-2 ring-blue-500 border-blue-500 outline-none
+           transform scale-[1.02];
+  }
+  
+  /* Better typography for prose content */
+  .prose {
+    @apply text-gray-800 dark:text-gray-300 leading-relaxed;
+  }
+  
   .prose strong, .prose em, .prose b {
     @apply text-gray-900 dark:text-gray-100;
   }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply text-gray-900 dark:text-gray-100 font-semibold;
+  }
 }
 
-button:focus-visible{@apply outline-2 outline-offset-2 outline-blue-500}
-input:disabled,textarea:disabled,button:disabled{@apply opacity-50 cursor-not-allowed}
-@media (prefers-color-scheme:dark){input:disabled,textarea:disabled{@apply bg-gray-900 text-gray-500}}
-
-*{transition:background-color .2s ease,color .2s ease,border-color .2s ease}
-
-@supports (backdrop-filter:blur(10px)){
-.backdrop-blur-xs{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-.backdrop-blur-sm{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.backdrop-blur{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.backdrop-blur-md{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.backdrop-blur-lg{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.backdrop-blur-xl{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
-.backdrop-blur-2xl{backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px)}
-.backdrop-blur-3xl{backdrop-filter:blur(64px);-webkit-backdrop-filter:blur(64px)}
+/* ============================================
+   FOCUS MANAGEMENT
+   ============================================ */
+button:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-500;
 }
 
-@supports not (backdrop-filter:blur(10px)){
-.backdrop-blur-xs,.backdrop-blur-sm,.backdrop-blur,.backdrop-blur-md,.backdrop-blur-lg,.backdrop-blur-xl,.backdrop-blur-2xl,.backdrop-blur-3xl{background-color:rgba(255,255,255,.95)!important}
-@media (prefers-color-scheme:dark){.backdrop-blur-xs,.backdrop-blur-sm,.backdrop-blur,.backdrop-blur-md,.backdrop-blur-lg,.backdrop-blur-xl,.backdrop-blur-2xl,.backdrop-blur-3xl{background-color:rgba(17,24,39,.95)!important}}
+input:disabled,
+textarea:disabled,
+button:disabled {
+  @apply opacity-50 cursor-not-allowed;
 }
 
-.navbar-backdrop{backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);background-color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2)}
-@media (prefers-color-scheme:dark){.navbar-backdrop{background-color:rgba(17,24,39,.8);border:1px solid rgba(75,85,99,.3)}}
+@media (prefers-color-scheme: dark) {
+  input:disabled,
+  textarea:disabled {
+    @apply bg-gray-900 text-gray-500;
+  }
+}
 
-.glass-effect{backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);background-color:rgba(255,255,255,.75);border:1px solid rgba(209,213,219,.3)}
-@media (prefers-color-scheme:dark){.glass-effect{background-color:rgba(31,41,55,.75);border:1px solid rgba(75,85,99,.3)}}
+/* ============================================
+   BACKDROP FILTER SUPPORT
+   ============================================ */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-xs { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+  .backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .backdrop-blur { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .backdrop-blur-lg { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  .backdrop-blur-xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+  .backdrop-blur-2xl { backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
+  .backdrop-blur-3xl { backdrop-filter: blur(64px); -webkit-backdrop-filter: blur(64px); }
+}
 
-@media screen and (-webkit-min-device-pixel-ratio:0){.backdrop-blur-xl{backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important}}
+@supports not (backdrop-filter: blur(10px)) {
+  .backdrop-blur-xs,
+  .backdrop-blur-sm,
+  .backdrop-blur,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .backdrop-blur-xs,
+    .backdrop-blur-sm,
+    .backdrop-blur,
+    .backdrop-blur-md,
+    .backdrop-blur-lg,
+    .backdrop-blur-xl,
+    .backdrop-blur-2xl,
+    .backdrop-blur-3xl {
+      background-color: rgba(17, 24, 39, 0.95) !important;
+    }
+  }
+}
 
-@layer utilities{
-.btn-primary{@apply bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 hover:scale-105 font-medium}
-.btn-secondary{@apply bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-all duration-200 hover:scale-105 font-medium}
-.input-field{@apply w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors}
-.card-glass{@apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700}
+/* ============================================
+   GLASS EFFECTS
+   ============================================ */
+.navbar-backdrop {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  .navbar-backdrop {
+    background-color: rgba(17, 24, 39, 0.85);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+}
+
+.glass-effect {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(209, 213, 219, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-effect {
+    background-color: rgba(31, 41, 55, 0.80);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+@layer utilities {
+  /* Enhanced button styles */
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800
+           text-white px-6 py-3 rounded-lg 
+           transition-all duration-200 
+           hover:scale-105 active:scale-95
+           font-medium shadow-lg hover:shadow-xl
+           focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-600 hover:bg-gray-700 active:bg-gray-800
+           text-white px-6 py-3 rounded-lg 
+           transition-all duration-200 
+           hover:scale-105 active:scale-95
+           font-medium shadow-lg hover:shadow-xl
+           focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+  
+  /* Enhanced input field */
+  .input-field {
+    @apply w-full px-4 py-3 
+           border border-gray-300 dark:border-gray-600 
+           rounded-lg 
+           bg-white dark:bg-gray-800 
+           text-gray-900 dark:text-white 
+           placeholder-gray-500 dark:placeholder-gray-400
+           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+           transition-all duration-200
+           hover:border-gray-400 dark:hover:border-gray-500;
+  }
+  
+  /* Enhanced glass card */
+  .card-glass {
+    @apply bg-white/90 dark:bg-gray-800/90 
+           backdrop-blur-sm rounded-xl 
+           border border-gray-200 dark:border-gray-700
+           shadow-lg hover:shadow-xl
+           transition-all duration-200;
+  }
+  
+  /* Loading skeleton */
+  .skeleton {
+    @apply bg-gray-200 dark:bg-gray-700 rounded animate-pulse;
+  }
+  
+  /* Text with improved readability */
+  .text-readable {
+    @apply text-gray-800 dark:text-gray-200 leading-relaxed;
+  }
+}
+
+/* ============================================
+   RESPONSIVE OPTIMIZATIONS
+   ============================================ */
+@media (max-width: 768px) {
+  .animate-optimized-bounce {
+    transform: scale(0.7);
+    animation-duration: 150% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .animate-optimized-bounce {
+    opacity: 0.25;
+  }
+}
+
+/* High DPI screen optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .backdrop-blur-xl {
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .animate-optimized-bounce,
+  .backdrop-blur-xl {
+    display: none !important;
+  }
 }

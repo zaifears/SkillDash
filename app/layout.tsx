@@ -8,13 +8,22 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
 const GTM_ID = 'GTM-MT2LDFM3'
-const inter = Inter({ subsets: ['latin'] })
+// Optimize font loading with display swap
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter'
+})
 
 export const metadata: Metadata = {
-  title: 'SkillDash: AI-Powered Skill Platform for Bangladesh\'s Youth',
-  description: 'The AI-Powered platform for Bangladesh\'s youth to discover skills, learn new courses, get resume feedback, and find opportunities.',
+  title: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
+  description: 'Discover skills, learn courses, get AI resume feedback, and find job opportunities. The leading career development platform for Bangladesh\'s youth with personalized learning paths.',
   keywords: [
-    "skills", "Bangladesh", "youth", "AI", "jobs", "resume", "courses", "freelancing", "digital skills", "career development"
+    "Bangladesh jobs", "skill development", "AI career platform", "resume feedback", 
+    "digital skills Bangladesh", "youth employment", "career opportunities", 
+    "freelancing Bangladesh", "job training", "professional development",
+    "AI powered learning", "career readiness", "skill assessment"
   ],
   authors: [{ name: 'SkillDash Team' }],
   creator: 'SkillDash',
@@ -32,7 +41,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "SkillDash - AI Gateway for Career Readiness",
-    description: "Unlock your skills, grow your career. Discover, Learn, Get Hired.",
+    description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
     url: "https://skilldash.live",
     siteName: "SkillDash",
     type: "website",
@@ -49,8 +58,9 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'SkillDash - AI Gateway for Career Readiness',
-    description: 'Unlock your skills, grow your career. Discover, Learn, Get Hired.',
+    description: 'Unlock your potential with AI-powered skill discovery and career opportunities for Bangladesh\'s youth.',
     images: ['https://skilldash.live/web-app-manifest-512x512.png'],
+    creator: '@SkillDashBD',
   },
   icons: {
     icon: [
@@ -71,46 +81,44 @@ export const metadata: Metadata = {
     google: 'NRcmZt1gkRaisYql52KCRUqEJCyGeTGyXsntWkqYFFk',
   },
   category: 'education',
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+  },
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* Essential Meta Tags */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         <meta name="theme-color" content="#8b5cf6" />
         <meta name="msapplication-TileColor" content="#8b5cf6" />
         <meta name="application-name" content="SkillDash" />
         <meta name="apple-mobile-web-app-title" content="SkillDash" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        
+        {/* Performance optimizations */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
 
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         
-        {/* SEO & OpenGraph */}
-        <meta property="og:title" content="SkillDash - AI Gateway for Career Readiness" />
-        <meta property="og:description" content="Unlock your skills, grow your career. Discover, Learn, Get Hired." />
-        <meta property="og:url" content="https://skilldash.live" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://skilldash.live/web-app-manifest-512x512.png" />
-        <meta name="keywords" content="skills, Bangladesh, youth, AI, jobs, resume, courses, freelancing, digital skills" />
-        
         {/* Canonical URL */}
         <link rel="canonical" href="https://skilldash.live" />
         
-        {/* Preconnect to external domains for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        
-        {/* 🔧 GTM HEAD SCRIPT */}
+        {/* 🔧 GTM HEAD SCRIPT - Optimized */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -123,7 +131,7 @@ export default function RootLayout({
           }}
         />
 
-        {/* Structured Data */}
+        {/* Enhanced Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -134,21 +142,62 @@ export default function RootLayout({
               "alternateName": "SkillDash - AI Gateway for Career Readiness",
               "description": "AI-Powered platform for Bangladesh's youth to discover skills, learn new courses, get resume feedback, and find opportunities.",
               "url": "https://skilldash.live",
+              "sameAs": [
+                "https://www.facebook.com/skilldash",
+                "https://twitter.com/skilldashbd",
+                "https://www.linkedin.com/company/skilldash"
+              ],
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://skilldash.live/search?q={search_term_string}",
+                "target": "https://skilldash.live/discover?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               },
               "publisher": {
                 "@type": "Organization",
                 "name": "SkillDash",
+                "url": "https://skilldash.live",
                 "logo": {
                   "@type": "ImageObject",
                   "url": "https://skilldash.live/web-app-manifest-512x512.png",
                   "width": 512,
                   "height": 512
+                },
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "contactType": "customer service",
+                  "areaServed": "BD",
+                  "availableLanguage": ["English", "Bengali"]
                 }
               }
+            })
+          }}
+        />
+
+        {/* Additional Structured Data for Educational Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "EducationalOrganization",
+              "name": "SkillDash",
+              "description": "AI-powered skill development and career platform for Bangladesh's youth",
+              "url": "https://skilldash.live",
+              "logo": "https://skilldash.live/web-app-manifest-512x512.png",
+              "areaServed": "BD",
+              "educationalCredentialAwarded": "Digital Skills Certificate",
+              "offers": [
+                {
+                  "@type": "Course",
+                  "name": "AI-Powered Skill Discovery",
+                  "description": "Discover your hidden talents and potential career paths"
+                },
+                {
+                  "@type": "Course", 
+                  "name": "Resume Feedback Service",
+                  "description": "Get AI-powered feedback on your resume"
+                }
+              ]
             })
           }}
         />
@@ -161,16 +210,17 @@ export default function RootLayout({
             height="0"
             width="0"
             style={{ display: 'none', visibility: 'hidden' }}
+            title="Google Tag Manager"
           ></iframe>
         </noscript>
         
         <AuthProvider>
-          {/* 🔧 EMAIL VERIFICATION BANNER */}
+          {/* Email Verification Banner */}
           <EmailVerificationBanner />
           
-          <div className="relative">
+          <div className="relative min-h-screen">
             <Navbar />
-            <main>{children}</main>
+            <main role="main">{children}</main>
           </div>
         </AuthProvider>
         
