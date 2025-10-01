@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const baseUrl = 'https://www.skilldash.live';
+const baseUrl = 'https://skilldash.live';
 
 const staticPages = [
   { url: '/', priority: '1.00' },
