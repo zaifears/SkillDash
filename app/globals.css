@@ -432,3 +432,8 @@ button:disabled {
     display: none !important;
   }
 }
+/* Improve contrast - SAFE FIX */
+.bg-blue-500 { background-color: #1d4ed8 !important; }
+.bg-purple-500 { background-color: #6d28d9 !important; }
+.bg-emerald-500 { background-color: #047857 !important; }
+.bg-orange-500 { background-color: #c2410c !important; }

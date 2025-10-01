@@ -109,6 +109,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
+        
+        {/* SAFE FIX: CSS preload for performance */}
+        <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
 
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -118,7 +121,7 @@ export default function RootLayout({
         {/* Canonical URL */}
         <link rel="canonical" href="https://skilldash.live" />
         
-        {/* 🔧 GTM HEAD SCRIPT - Optimized */}
+        {/* 🔧 GTM HEAD SCRIPT - UNCHANGED (Don't touch this!) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -203,7 +206,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
-        {/* GTM Body Script */}
+        {/* GTM Body Script - UNCHANGED */}
         <noscript>
           <iframe
             src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
@@ -215,7 +218,6 @@ export default function RootLayout({
         </noscript>
         
         <AuthProvider>
-          {/* Email Verification Banner */}
           <EmailVerificationBanner />
           
           <div className="relative min-h-screen">
