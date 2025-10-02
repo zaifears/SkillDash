@@ -317,17 +317,47 @@ export default function DiscoverPage() {
 
       // Handle rate limiting (429)
       if (response.status === 429) {
-        // ... (existing rate limit logic is fine)
+        const errorData = await response.json();
+        setRateLimitError({
+          message: errorData.error || 'Too many requests. Please slow down.',
+          retryAfter: errorData.retryAfter
+        });
+        
+        if (errorData.retryAfter) {
+          setRateLimitCountdown(errorData.retryAfter);
+        }
+        
+        setMessages(prev => prev.slice(0, -1)); // Remove the user message
+        setIsLoading(false);
+        return;
       }
 
       // Handle authentication errors
       if (response.status === 401) {
-        // ... (existing auth error logic is fine)
+        console.log('🔐 [DiscoverPage] Authentication required - redirecting to login');
+        sessionStorage.setItem('redirectMessage', 'Please log in to continue your career discovery session.');
+        sessionStorage.setItem('redirectAfterLogin', ROUTES.DISCOVER);
+        router.push(ROUTES.AUTH);
+        return;
       }
 
       // Handle coin errors from backend
       if (response.status === 402) {
-        // ... (existing coin error logic is fine)
+        console.log('🪙 [DiscoverPage] Insufficient coins detected');
+        const errorData = await response.json();
+        
+        setHasEnoughCoins(false);
+        setIsInputDisabled(true);
+        setCoinError({ 
+          currentCoins: errorData.currentCoins || 0, 
+          requiredCoins: errorData.requiredCoins || 1 
+        });
+        setShowInsufficientCoinsModal(true);
+        
+        // Remove the user message since it wasn't processed
+        setMessages(prev => prev.slice(0, -1));
+        setIsLoading(false);
+        return;
       }
       
       // ✅ FIX: Handle the 400 "Blocked" error from the backend
@@ -358,20 +388,94 @@ export default function DiscoverPage() {
       const data = await response.json();
       const botMessageId = `bot-${++messageIdCounter.current}`;
 
+      // DEBUG: Log the API response (WRAPPED FOR PRODUCTION)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔍 [FRONTEND DEBUG] API Response:', {
+          dataKeys: Object.keys(data),
+          isComplete: data.isComplete,
+          hasTopSkills: !!data.topSkills,
+          hasSuggestedCareers: !!data.suggestedCareers,
+          fullData: data
+        });
+      }
+
       if (data.provider) {
         setCurrentProvider(data.provider);
       }
 
       if (data.isComplete && (data.forceEnd || data.blocked)) {
-        // ... (existing logic is fine)
+        console.log('🔚 [DiscoverPage] Conversation force-ended or blocked');
+        
+        setConversationEnded(true);
+        setIsInputDisabled(true);
+        setConversationBlocked(data.blocked || false);
+        setMaxWarningsReached(data.blocked || false);
+        setBlockReason(data.blockReason || 'Session terminated');
+        
+        const endMessage: Message = { 
+          id: botMessageId,
+          role: 'assistant', 
+          content: data.reply || data.summary || "This session has ended."
+        };
+        setMessages(prev => [...prev, endMessage]);
+        
+        setIsLoading(false);
+        return;
       }
 
       if (data.religiousWarning || data.spamWarning || data.aggressiveWarning) {
-        // ... (existing warning logic is fine)
+        console.log('⚠️ [DiscoverPage] Warning received from backend');
+        
+        setWarningCount(data.warningCount || 0);
+        
+        if (data.warningCount >= 3) {
+          setMaxWarningsReached(true);
+          setConversationBlocked(true);
+          setIsInputDisabled(true);
+          setConversationEnded(true);
+          setBlockReason('Maximum warnings reached (3/3 strikes)');
+        }
+        
+        const warningMessage: Message = { 
+          id: botMessageId,
+          role: 'assistant', 
+          content: data.reply 
+        };
+        setMessages(prev => [...prev, warningMessage]);
+        
+        setIsLoading(false);
+        return;
       }
 
       if (data.isComplete) {
-        // ... (existing completion logic is fine)
+        console.log('🎉 [DiscoverPage] Career analysis complete!', data);
+        
+        // Create the suggestions object from the API response
+        const careerSuggestions: SkillSuggestions = {
+          summary: data.summary || '',
+          topSkills: data.topSkills || [],
+          skillsToDevelop: data.skillsToDevelop || [],
+          suggestedCourses: data.suggestedCourses || [],
+          suggestedCareers: data.suggestedCareers || [],
+          nextStep: data.nextStep || 'resume',
+          coinDeducted: data.coinDeducted || false,
+          newBalance: data.newBalance,
+          questionsAsked: data.questionsAsked,
+          inappropriateCount: data.inappropriateCount,
+          provider: data.provider
+        };
+        
+        // Set suggestions state to trigger SuggestionsCard display
+        setSuggestions(careerSuggestions);
+        setConversationEnded(true);
+        setIsInputDisabled(true);
+        
+        // Update global coin balance if available
+        if ((window as any).refreshCoinBalance) {
+          (window as any).refreshCoinBalance();
+        }
+        
+        console.log('✅ [DiscoverPage] Suggestions set successfully');
       } else {
         // Continue conversation
         
@@ -413,8 +517,6 @@ export default function DiscoverPage() {
 
   // 🔄 RESTART CONVERSATION FUNCTION
   const handleRestart = useCallback(async () => {
-    // ... (existing restart logic is mostly fine)
-    
     // Reset all state including anti-spam tracking and rate limiting
     setMessages([]);
     setUserInput('');
@@ -445,7 +547,33 @@ export default function DiscoverPage() {
 
   // Handle modal close with coin re-check
   const handleModalClose = useCallback(async () => {
-    // ... (existing modal logic is fine)
+    setShowInsufficientCoinsModal(false);
+    setCoinError(null);
+    
+    // Re-check coins when modal is closed
+    if (user) {
+      try {
+        const currentBalance = await CoinManager.getCoinBalance(user.uid);
+        const hasCoins = currentBalance >= LIMITS.COINS_PER_FEATURE;
+        
+        if (hasCoins) {
+          setHasEnoughCoins(true);
+          setIsInputDisabled(false);
+          
+          // Start conversation if no messages yet
+          if (messages.length === 0) {
+            setMessages([{
+              id: 'welcome-modal-closed',
+              role: 'assistant',
+              content: "Great! I see you have coins now. Let's discover your career path! 🌟\n\nFirst question: What type of work environment makes you feel most productive and happy?"
+            }]);
+            setQuestionsAsked(1);
+          }
+        }
+      } catch (error) {
+        console.error('❌ [DiscoverPage] Failed to re-check coins:', error);
+      }
+    }
   }, [user, messages.length]);
 
   // Loading states
@@ -465,9 +593,6 @@ export default function DiscoverPage() {
       </div>
     );
   }
-  
-  // ... (rest of the component, including placeholder logic and JSX, is fine)
-  // ... (The UI will automatically update because the `questionsAsked` state is now correct)
 
   const inputFieldDisabled = !hasEnoughCoins || isInputDisabled || conversationBlocked || maxWarningsReached || rateLimitCountdown > 0;
   const submitButtonDisabled = isLoading || !userInput.trim() || !!suggestions || conversationEnded || isInputDisabled || conversationBlocked || !hasEnoughCoins || maxWarningsReached || rateLimitCountdown > 0;

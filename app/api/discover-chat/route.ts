@@ -335,7 +335,8 @@ const validateDiscoverInput = (messages: any[]): {
             if (detectAggressiveContent(msg.content)) aggressiveCount++;
         }
         
-        if (msg.role === 'assistant' && i > 0 && msg.content.includes('?')) questionCount++;
+        // FIXED: Count assistant questions without i > 0
+        if (msg.role === 'assistant' && msg.content.includes('?')) questionCount++;
     }
     
     const totalInappropriate = spamCount + religiousCount + aggressiveCount;
@@ -757,18 +758,43 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
         const enhancedSystemInstruction = systemInstruction +
             `\n\n**CURRENT STATE: You have asked ${questionCount} questions so far.**` +
             (questionCount >= 10 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit of 10!' :
-             // ✅ FIX: Changed minimum question warning from 7 to 5
              questionCount >= 5 ? '\n⚠️ WARNING: You should consider ending with JSON output soon. Maximum is 10 questions.' : '') +
             (validation.totalInappropriate > 0 ? `\n\nNOTE: User has ${validation.totalInappropriate} inappropriate response(s). Ask more specific follow-up questions to keep them engaged.` : '');
+
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('🔍 [DEBUG] Conversation Decision:', {
+                shouldEndConversation: questionCount >= 10,
+                questionCount,
+                messagesLength: messages.length,
+                willTriggerJSON: questionCount >= 10
+            });
+        }
 
         // Execute AI with 4-provider fallback (CORRECTED ORDER)
         const result = await executeWithFallback(messages, enhancedSystemInstruction, config);
         const responseText = result.response;
         
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('🔍 [DEBUG] Raw AI Response:', {
+                aiResponse: responseText?.substring(0, 500),
+                isComplete: responseText?.includes('COMPLETE:'),
+                hasCareerData: responseText?.includes('suggestedCareers'),
+                responseLength: responseText?.length
+            });
+        }
+        
         console.log(`✅ [Discover API] Completed in ${Date.now() - startTime}ms via ${result.provider}`);
 
         // Handle completion with coin deduction
         if (responseText.includes("COMPLETE:")) {
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('🔍 [DEBUG] About to deduct coin. Response contains:', {
+                    hasTopSkills: responseText?.includes('topSkills'),
+                    hasCareerSuggestions: responseText?.includes('suggestedCareers'),
+                    responsePreview: responseText?.substring(0, 200)
+                });
+            }
+
             try {
                 const suggestions = extractJSON(responseText);
                 
@@ -816,9 +842,9 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                         { title: "Business Communication", description: "Enhance professional communication skills valued in local corporate environments." }
                     ],
                     suggestedCareers: [
-                        { title: "Business Development Executive at Local Banks (Brac Bank, City Bank)", fit: "High", description: "Your communication skills align perfectly with Bangladesh's expanding banking sector and financial services." },
-                        { title: "Digital Marketing Specialist at E-commerce (Daraz, Chaldal)", fit: "Good", description: "Perfect for Bangladesh's booming e-commerce industry with companies like Daraz and local startups." },
-                        { title: "Operations Coordinator in RMG/Textile Industry", fit: "Good", description: "Leverage your organizational skills in Bangladesh's largest export industry with major companies like Beximco, Square Group." }
+                        { title: "Business Development Executive", fit: "High", description: "Your communication skills align perfectly with Bangladesh's expanding banking sector and financial services." },
+                        { title: "Digital Marketing Specialist", fit: "Good", description: "Perfect for Bangladesh's booming e-commerce industry and local startups." },
+                        { title: "Operations Coordinator", fit: "Good", description: "Leverage your organizational skills in Bangladesh's largest export industry." }
                     ],
                     nextStep: "resume",
                     fallback: true,
@@ -834,7 +860,7 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                 isComplete: false, 
                 reply: responseText,
                 warningCount: validation.totalInappropriate,
-                questionsAsked: questionCount + 1, // ✅ FIX: Increment question count for the frontend
+                questionsAsked: questionCount + 1,
                 provider: result.provider
             });
         }

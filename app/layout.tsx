@@ -207,7 +207,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`}>
+      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`} suppressHydrationWarning={true}>
         {/* GTM Body Script - UNCHANGED */}
         <noscript>
           <iframe
