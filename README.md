@@ -165,9 +165,9 @@ The opportunities portal connects students with real-world experience through ca
 
 ## 🏆 About This Project
 
-SkillDash is proudly developed for the [**GP AI Future Maker**](https://gpfuturemakers.com/) competition, showcasing innovative AI solutions for Bangladesh's youth development. This platform represents our vision of using cutting-edge artificial intelligence to solve real-world challenges in career development and skills gap bridging.
+SkillDash is an innovative platform showcasing cutting-edge AI solutions for Bangladesh's youth development. This platform represents our vision of using artificial intelligence to solve real-world challenges in career development and skills gap bridging.
 
-**Competition Focus:**
+**Our Focus:**
 - **Problem Statement:** Addressing unemployment and underemployment among university graduates in Bangladesh
 - **AI Innovation:** Multi-model AI approach for personalized career guidance
 - **Local Impact:** Tailored solutions for Bangladesh's unique job market landscape

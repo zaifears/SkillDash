@@ -227,7 +227,7 @@ Use these strategic questions to uncover student skills and interests:
 
 **Question 4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
 
-**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, Grameenphone, Brac Bank, etc.)?"
+**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, GP, Brac Bank, etc.)?"
 
 **Question 6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
 

@@ -249,29 +249,22 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* GPFutureMaker Badge - Only above guest login */}
-        <div className="relative">
-          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
-            GPFutureMaker
-          </div>
+        {/* Guest Login Button */}
+        <div className="pt-4">
+          <button
+            onClick={handleGuestLogin}
+            disabled={isLoading}
+            className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <span className="text-orange-500 text-lg">👤</span>
+            </span>
+            {isLoading ? 'Signing in...' : 'Continue as Guest'}
+          </button>
           
-          {/* Guest Login Button */}
-          <div className="pt-4">
-            <button
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <span className="text-orange-500 text-lg">👤</span>
-              </span>
-              {isLoading ? 'Signing in...' : 'Continue as Guest'}
-            </button>
-            
-            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-              Quick access to explore all features + instant 5 coins 🪙
-            </p>
-          </div>
+          <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+            Quick access to explore all features + instant 5 coins 🪙
+          </p>
         </div>
 
         {/* Divider */}
