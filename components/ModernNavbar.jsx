@@ -22,8 +22,7 @@ const ModernNavbar = () => {
     { name: 'Discover', href: '/discover', hasIcon: true },
     { name: 'Learn Skills', href: '/learn-skill', hasIcon: false },
     { name: 'Resume Feedback', href: '/resume-feedback', hasIcon: true },
-    { name: 'Opportunities', href: '/opportunities', hasIcon: false },
-    { name: 'About Us', href: '/about-us', hasIcon: false }
+    { name: 'Opportunities', href: '/opportunities', hasIcon: false }
   ]
 
   const isActive = (href) => pathname === href
@@ -260,29 +259,15 @@ const MobileMenuButton = ({ navItems, pathname }) => {
                 </Link>
               </div>
               
-              <div className="grid grid-cols-2 gap-2">
+              {user && (
                 <Link
-                  href="/about-us"
+                  href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center justify-center px-3 py-3 rounded-lg text-xs font-medium transition-all duration-200 ${
-                    isActive('/about-us')
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
+                  className="flex items-center justify-center px-3 py-3 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
                 >
-                  About Us
+                  Profile
                 </Link>
-
-                {user && (
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center px-3 py-3 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
-                  >
-                    Profile
-                  </Link>
-                )}
-              </div>
+              )}
             </div>
 
             {/* Logout Section */}

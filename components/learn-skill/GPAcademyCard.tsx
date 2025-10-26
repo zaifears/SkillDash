@@ -20,9 +20,9 @@ const GPAcademyCard = React.memo(() => {
               />
             </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4">Our Top Recommendation</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4">GP Academy</h2>
           <p className="max-w-xl mx-auto text-gray-600 dark:text-gray-400 mb-8">
-            Grameenphone Academy offers a wide range of courses focused on future-ready skills, the perfect place to turn your potential into proficiency.
+            GP Academy offers a wide range of courses focused on future-ready skills, the perfect place to turn your potential into proficiency.
           </p>
           <a 
             href="https://www.grameenphone.academy/" 

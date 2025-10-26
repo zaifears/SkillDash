@@ -206,6 +206,7 @@ export default function AuthPage() {
           </p>
         </div>
 
+<<<<<<< Updated upstream
         {/* GPFutureMaker Badge - Only above guest login */}
         <div className="relative">
           <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
@@ -229,6 +230,59 @@ export default function AuthPage() {
               Quick access to explore all features
             </p>
           </div>
+=======
+        {/* 🆕 EMAIL VERIFICATION BONUS NOTICE - Only show after successful signup */}
+        {showSignupSuccess && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">🎉</span>
+              </div>
+              <div className="flex-1 text-sm">
+                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-2">
+                  Welcome to SkillDash! 
+                </h4>
+                <div className="text-green-700 dark:text-green-400 space-y-2">
+                  <p className="flex items-center gap-2">
+                    <span>📧</span>
+                    <span><strong>Step 1:</strong> Check your email and click the verification link</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span>🪙</span>
+                    <span><strong>Step 2:</strong> After verification, your 5 welcome coins may take up to 5 minutes to appear</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span>🔄</span>
+                    <span><strong>Step 3:</strong> Refresh the page if coins don't appear after verification</span>
+                  </p>
+                </div>
+                <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-700">
+                  <p className="text-blue-800 dark:text-blue-300 text-xs font-medium">
+                    💡 <strong>Note:</strong> Social login users (Google/GitHub) and guests receive coins immediately!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Guest Login Button */}
+        <div className="pt-4">
+          <button
+            onClick={handleGuestLogin}
+            disabled={isLoading}
+            className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <span className="text-orange-500 text-lg">👤</span>
+            </span>
+            {isLoading ? 'Signing in...' : 'Continue as Guest'}
+          </button>
+          
+          <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+            Quick access to explore all features + instant 5 coins 🪙
+          </p>
+>>>>>>> Stashed changes
         </div>
 
         {/* Divider */}

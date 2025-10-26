@@ -16,7 +16,7 @@ const SkillsSection = () => {
         </h2>
         
         <p className="text-xl text-slate-300 mb-12 max-w-4xl mx-auto">
-          Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from partners like Grameenphone Academy to build job-ready skills and turn your potential into certified proficiency.
+          Once you've discovered your strengths, SkillDash guides you to curated learning paths. Access top-tier courses from trusted partners like GP Academy to build job-ready skills and turn your potential into certified proficiency.
         </p>
 
         <Link

@@ -16,34 +16,13 @@ interface FooterSection {
 }
 
 const FOOTER_LINKS: FooterSection = {
-  about: [
-    { label: 'About Us', href: '/about-us' },
-    { 
-      label: 'GP AI Future Maker', 
-      href: 'https://gpfuturemakers.com/',
-      external: true,
-      underlined: true
-    }
-  ],
+  about: [],
   useful: [
     { label: 'Discover', href: '/discover' },
     { label: 'AI Resume Feedback', href: '/resume-feedback' },
     { label: 'Find Opportunities', href: '/opportunities' }
   ],
-  contact: [
-    { 
-      label: 'MD AL SHAHORIAR HOSSAIN',
-      href: 'mailto:alshahoriar.hossain@gmail.com'
-    },
-    {
-      label: 'TASNUVA JAHAN LAMIYA',
-      href: 'mailto:tasnuvajahanlamiya@gmail.com'
-    },
-    {
-      label: 'TAZRIAN RAHMAN GUNJON',
-      href: 'mailto:tazrianrahman28@gmail.com'
-    }
-  ]
+  contact: []
 };
 
 const Footer = React.memo(() => {
@@ -66,37 +45,12 @@ const Footer = React.memo(() => {
           </div>
           <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">SkillDash</span>
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
-            Built for the{' '}
-            <a 
-              href="https://gpfuturemakers.com/" 
-              className="underline font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              GP AI Future Maker
-            </a>
-            {' '}competition.
+            Empowering students with AI-driven career guidance and skill development.
           </p>
         </div>
         
         {/* Footer Links */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 flex-1">
-          <div>
-            <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">About</h4>
-            <ul className="flex flex-col gap-1 text-gray-500 dark:text-gray-400 text-sm">
-              {FOOTER_LINKS.about.map((link) => (
-                <li key={link.label}>
-                  <a 
-                    href={link.href}
-                    className={`hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 ${link.underlined ? 'underline' : ''}`}
-                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div className="flex justify-center flex-1">
           <div>
             <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Useful Links</h4>
             <ul className="flex flex-col gap-1 text-gray-500 dark:text-gray-400 text-sm">
@@ -105,22 +59,6 @@ const Footer = React.memo(() => {
                   <a 
                     href={link.href} 
                     className={`hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300 ${link.underlined ? 'underline' : ''}`}
-                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Contact</h4>
-            <ul className="flex flex-col gap-1 text-gray-500 dark:text-gray-400 text-sm">
-              {FOOTER_LINKS.contact.map((link) => (
-                <li key={link.label}>
-                  <a 
-                    href={link.href} 
-                    className={`hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors duration-300 ${link.underlined ? 'underline' : ''}`}
                     {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     {link.label}

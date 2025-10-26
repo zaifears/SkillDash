@@ -65,16 +65,7 @@ const StorySection = () => {
           The Spark
         </h2>
         <p className="max-w-4xl mx-auto text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
-          The{' '}
-          <a
-            href="https://gpfuturemakers.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-orange-600 hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300 underline decoration-2 underline-offset-4 hover:decoration-wavy transition-all duration-300"
-          >
-            GP AI Future Maker
-          </a>
-          {' '}competition gave us the perfect challenge to turn our idea into reality. It inspired us to harness AI to solve real problems and empower the future leaders of Bangladesh.
+          Our passion for solving real-world problems inspired us to create SkillDash. We harness AI to bridge the gap between education and employment, empowering the future leaders of Bangladesh with personalized career guidance and skill development.
         </p>
       </section>
     </>
