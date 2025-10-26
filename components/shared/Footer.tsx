@@ -9,20 +9,18 @@ interface FooterLink {
   underlined?: boolean;
 }
 
+// REMOVED: about and contact sections from the interface as they are no longer used
 interface FooterSection {
-  about: FooterLink[];
   useful: FooterLink[];
-  contact: FooterLink[];
 }
 
 const FOOTER_LINKS: FooterSection = {
-  about: [],
+  // REMOVED: about: [] and contact: []
   useful: [
     { label: 'Discover', href: '/discover' },
     { label: 'AI Resume Feedback', href: '/resume-feedback' },
     { label: 'Find Opportunities', href: '/opportunities' }
   ],
-  contact: []
 };
 
 const Footer = React.memo(() => {
@@ -49,7 +47,8 @@ const Footer = React.memo(() => {
           </p>
         </div>
         
-        {/* Footer Links */}
+        {/* Footer Links (Only 'Useful Links' remains) */}
+        {/* Note: The 'flex-1' container is kept to push the links to the center/right */}
         <div className="flex justify-center flex-1">
           <div>
             <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Useful Links</h4>
