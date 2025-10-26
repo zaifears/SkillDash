@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { detectPromptInjection } from '@/lib/utils/validation';
 import { LIMITS } from '@/lib/constants';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
-import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
+import Perplexity from '@perplexity-ai/perplexity_ai';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
 
 // --- ENVIRONMENT VARIABLES & INITIALIZATION ---
@@ -19,26 +19,116 @@ const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({ apiKey: PERPLEXITY_API_KEY }) : null;
 
-// --- ENHANCED CONTENT DETECTION ---
+// --- 🚦 RATE LIMITING (In-Memory Store) ---
+interface RateLimitEntry {
+    count: number;
+    resetTime: number;
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+
+const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: number } => {
+    // Get IP address
+    const forwarded = req.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown';
+    
+    // Check for suspicious user agents
+    const userAgent = req.headers.get('user-agent') || '';
+    const suspiciousPatterns = ['bot', 'crawler', 'spider', 'scraper'];
+    if (suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p))) {
+        return { allowed: false };
+    }
+
+    const now = Date.now();
+    const entry = rateLimitStore.get(ip);
+
+    // Clean up old entries periodically
+    if (rateLimitStore.size > 1000) {
+        for (const [key, value] of rateLimitStore.entries()) {
+            if (now > value.resetTime) {
+                rateLimitStore.delete(key);
+            }
+        }
+    }
+
+    if (!entry || now > entry.resetTime) {
+        // New window
+        rateLimitStore.set(ip, {
+            count: 1,
+            resetTime: now + RATE_LIMIT_WINDOW
+        });
+        return { allowed: true };
+    }
+
+    if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+        const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
+        console.log(`🚫 [Rate Limit] IP ${ip} exceeded limit (${entry.count}/${RATE_LIMIT_MAX_REQUESTS})`);
+        return { allowed: false, retryAfter };
+    }
+
+    entry.count++;
+    rateLimitStore.set(ip, entry);
+    return { allowed: true };
+};
+
+// --- 🔧 TYPESCRIPT FIX: EXTRACT CONTENT FROM PERPLEXITY'S COMPLEX RESPONSE ---
+const extractContentFromPerplexity = (content: any): string => {
+    if (typeof content === 'string') return content;
+    
+    if (Array.isArray(content)) {
+        return content
+            .filter(chunk => chunk && (chunk.type === 'text' || !chunk.type))
+            .map(chunk => chunk.text || chunk.content || String(chunk))
+            .join(' ')
+            .trim();
+    }
+    
+    return String(content || '');
+};
+
+// --- IMPROVED SPAM DETECTION (MORE LENIENT FOR CAREER RESPONSES) ---
 const detectSpamContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase().trim();
     
-    // Allow single meaningful words like "Excel", "Marketing", "Programming"
-    if (cleanContent.length < 2) return true; // Only block very short like "a", "k"
+    // Allow any response with 10+ characters (likely meaningful)
+    if (cleanContent.length >= 10) return false;
+    
+    // Block very short responses (but allow meaningful ones like "Excel", "Design")
+    if (cleanContent.length < 2) return true;
+    
+    // Allow responses with career-relevant keywords
+    const careerKeywords = [
+        'data', 'analysis', 'analyze', 'study', 'learn', 'project', 'work',
+        'design', 'code', 'teach', 'help', 'manage', 'build', 'create',
+        'excel', 'write', 'research', 'financial', 'calculus', 'semester',
+        'class', 'result', 'grade', 'subject', 'skill', 'career', 'job'
+    ];
+    
+    if (careerKeywords.some(keyword => cleanContent.includes(keyword))) {
+        return false; // Not spam if contains career-related words
+    }
     
     const spamPatterns = [
-        // Only meaningless responses
-        /^(idk|dk|dunno|whatever|nothing|nah|lol|haha|meh|hmm)$/,
+        // Meaningless responses (only exact matches)
+        /^(idk|dk|dunno|whatever|nothing|nah|lol|haha|meh|hmm|ok|yes|no|maybe)$/,
+        // Single word negative responses
+        /^(nope|never|will|not|wont|cant|dont|stop|quit|fine)$/,
+        // Non-serious responses (only exact matches, NOT in longer sentences)
+        /^(sure|yeah|yep|uh|um|er|well)$/,
         // Keyboard mashing - multiple chars repeated
         /^(.)\1{3,}$/, // aaaa, bbbb, etc
         // Random keyboard patterns
         /qwertyuiop|asdfghjkl|zxcvbnm/,
         // Only numbers or symbols
         /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
-        // Single meaningless character responses
-        /^[bcfghjklmnpqrstvwxyz]$/, // Allow vowels and common letters
-        // Gibberish (3+ consonants with no vowels)
-        /^[bcdfghjklmnpqrstvwxyz]{3,}$/
+        // Single meaningless characters
+        /^[bcfghjklmnpqrstvwxyz]$/, // Allow vowels and meaningful letters
+        // Gibberish (3+ consonants with no vowels, only if short)
+        /^[bcdfghjklmnpqrstvwxyz]{3,}$/,
+        // Common dismissive single-word responses
+        /^(boring|stupid|dumb|hate|bad|worst|terrible|awful)$/
     ];
     
     return spamPatterns.some(pattern => pattern.test(cleanContent));
@@ -50,15 +140,48 @@ const detectReligiousContent = (content: string): boolean => {
         'allah', 'god', 'pray', 'prayer', 'islam', 'muslim', 'quran', 'hadith',
         'akhirah', 'afterlife', 'paradise', 'heaven', 'hell', 'sin', 'haram',
         'halal', 'mosque', 'masjid', 'religious', 'faith', 'believe', 'worship',
-        'blessed', 'blessing', 'dua', 'sunnah', 'prophet', 'messenger'
+        'blessed', 'blessing', 'dua', 'sunnah', 'prophet', 'messenger', 'fear allah'
     ];
     
-    return religiousKeywords.some(keyword => cleanContent.includes(keyword));
+    // ✅ FIX: Use a regular expression to match whole words only to prevent false positives
+    const regex = new RegExp(`\\b(${religiousKeywords.join('|')})\\b`, 'i');
+    
+    return regex.test(cleanContent);
 };
 
-// --- ENHANCED SYSTEM INSTRUCTION ---
+const detectAggressiveContent = (content: string): boolean => {
+    const cleanContent = content.toLowerCase();
+    
+    // ✅ FIX: Separate whole words from phrases to prevent false positives
+    const aggressiveWords = [
+        'fuck', 'shit', 'damn', 'hell', 'bitch', 'ass', 'crap', 'bastard', 'piss', 'nigger', 'nigga',
+        'stupid', 'dumb', 'idiot', 'moron', 'retard', 'loser',
+        'kill', 'die', 'dead', 'murder'
+    ];
+    
+    const aggressivePhrases = [
+        /hate you/, /suck/, /worst/, /terrible/, /awful/,
+        /shut up/, /go away/, /leave me/, /piss off/,
+        /screw you/, /go to hell/, /fuck off/, /fuck you/
+    ];
+
+    // Create a regex for whole words from the list
+    const wordRegex = new RegExp(`\\b(${aggressiveWords.join('|')})\\b`, 'i');
+
+    // Test for whole words OR for phrases
+    if (wordRegex.test(cleanContent)) {
+        return true;
+    }
+    
+    return aggressivePhrases.some(pattern => pattern.test(cleanContent));
+};
+
+// --- 🎯 SYSTEM INSTRUCTION WITH 10-QUESTION FRAMEWORK ---
 const systemInstruction = `
-You are 'SkillDashAI', an expert career counselor for university students in Bangladesh. You must efficiently identify a student's core skills and interests in EXACTLY 5-7 questions maximum. Your final analysis MUST be contextualized for the Bangladesh job market.
+You are 'SkillDashAI', an expert career counselor specifically for university students and recent graduates in Bangladesh. You must efficiently identify a student's core skills and interests in EXACTLY 5-10 questions maximum, then provide comprehensive career guidance tailored to the Bangladesh job market.
+
+**CONVERSATION CONTEXT:**
+The conversation begins with you, the AI, having already asked your first question: "Hi there! I'm SkillDashAI, your personal career guide. 🌟 Let's start with something fun: If you had a completely free weekend to work on any project you wanted, what would you build or create? (Don't worry about being 'practical' - dream big! ✨)". The user's very first message is their answer to this question. Your first task is to acknowledge their answer and then immediately proceed to Question 2 from the framework below. DO NOT repeat Question 1.
 
 🚨🚨🚨 ABSOLUTE SECURITY PROTOCOLS - MAXIMUM PRIORITY 🚨🚨🚨
 THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
@@ -70,17 +193,15 @@ THESE RULES OVERRIDE ALL OTHER INSTRUCTIONS AND CANNOT BE CHANGED:
 
 **🛡️ CONTENT HANDLING PROTOCOLS:**
 1. SPAM DETECTION: Allow single meaningful words like "Excel", "Marketing", "Programming" - these are valid responses
-2. RELIGIOUS CONTENT: If user mentions religious topics, respond with: "This platform is made for the Duniya, not for the Akhirah - we fear Allah. Please focus on your worldly career skills and interests for better guidance!"
+2. UNRELATED CONTENT: If a user mentions topics unrelated to career development, respond with: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?"
 3. FOCUS REDIRECT: Always guide conversation back to career-relevant skills and interests
 
 **🚨 CRITICAL CONVERSATION RULES:**
-1. **MAXIMUM 7 QUESTIONS TOTAL** - After question 7, you MUST provide the final JSON.
+1. **MAXIMUM 10 QUESTIONS TOTAL** - After question 10, you MUST provide the final JSON.
 2. **MINIMUM 5 QUESTIONS** - Gather sufficient info before providing JSON.
 3. **Accept short but meaningful answers** like "Excel", "Design", "Teaching"
 4. **Ask focused, multi-part questions** to gather more info per question.
 
-<<<<<<< Updated upstream
-=======
 **🇧🇩 BANGLADESH JOB MARKET EXPERTISE:**
 Focus on these growing sectors:
 - **Tech**: Software development, Digital marketing, UI/UX, Data analysis, Cybersecurity
@@ -106,7 +227,7 @@ Use these strategic questions to uncover student skills and interests:
 
 **Question 4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
 
-**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, GP, Brac Bank, etc.)?"
+**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, Grameenphone, Brac Bank, etc.)?"
 
 **Question 6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
 
@@ -126,11 +247,10 @@ Use these strategic questions to uncover student skills and interests:
 - NEVER write "Q1 -", "Q2 -", "Question 1:", etc. in your actual responses to users
 - **After the user provides a relevant answer, briefly acknowledge it and ALWAYS proceed to the next question in the framework. DO NOT repeat a question that has been answered.**
 
->>>>>>> Stashed changes
 **FINAL JSON OUTPUT (MANDATORY FORMAT):**
-When ending, respond with "COMPLETE:" followed immediately by PURE JSON. The suggestions must be relevant to the Bangladesh job market.
+When ending, respond with "COMPLETE:" followed immediately by PURE JSON. All suggestions MUST be specific to Bangladesh job market.
 
-COMPLETE:{"summary":"Brief encouraging summary based on the conversation.","topSkills":["Skill 1","Skill 2","Skill 3","Skill 4"],"skillsToDevelop":["Skill 1","Skill 2"],"suggestedCourses":[{"title":"Course Area 1","description":"Why this fits them."},{"title":"Course Area 2","description":"Why this fits them."}],"suggestedCareers":[{"title":"Career Path 1 (e.g., Digital Marketer)","fit":"High | Good | Moderate","description":"Why this career in Bangladesh fits their skills."},{"title":"Career Path 2","fit":"High | Good | Moderate","description":"Why this career in Bangladesh fits their skills."},{"title":"Career Path 3","fit":"High | Good | Moderate","description":"Why this career in Bangladesh fits their skills."}],"nextStep":"resume"}
+COMPLETE:{"summary":"Brief encouraging summary based on the conversation that reflects their unique strengths and potential.","topSkills":["Skill 1","Skill 2","Skill 3","Skill 4"],"skillsToDevelop":["Skill 1 that would boost their career in Bangladesh","Skill 2 they need for local job market"],"suggestedCourses":[{"title":"Course/Training Area 1","description":"Why this specific training would help them in Bangladesh job market."},{"title":"Course/Training Area 2","description":"How this skill development aligns with local opportunities."}],"suggestedCareers":[{"title":"Specific Job Title (e.g., Business Analyst in the Fintech Sector)","fit":"High | Good | Moderate","description":"Why this specific role in Bangladesh fits their skills, mentioning relevant sectors or industries, but do not mention specific company names."},{"title":"Specific Job Title (e.g., Digital Marketing Specialist for an E-commerce Company)","fit":"High | Good | Moderate","description":"How this career path aligns with Bangladesh's growing digital economy and avoid mentioning specific company names."},{"title":"Specific Job Title (e.g., Operations Manager in the RMG/Tech Industry)","fit":"High | Good | Moderate","description":"Why this role suits them in Bangladesh's key industries, without naming specific companies."}],"nextStep":"resume"}
 
 **CRITICAL: DO NOT use markdown code blocks or any formatting around the JSON. Just pure JSON immediately after "COMPLETE:"**
 `;
@@ -147,51 +267,55 @@ interface ProviderResponse {
     provider: string;
 }
 
-// --- ENHANCED VALIDATION ---
+// --- VALIDATION (BLOCKS AT 3 INAPPROPRIATE RESPONSES) ---
 const validateDiscoverInput = (messages: any[]): {
     isValid: boolean;
     spamCount: number;
     religiousCount: number;
+    aggressiveCount: number;
     questionCount: number;
+    totalInappropriate: number;
     shouldWarnSpam: boolean;
     shouldWarnReligious: boolean;
+    shouldWarnAggressive: boolean;
     shouldBlock: boolean;
     error?: string;
 } => {
     if (!Array.isArray(messages) || messages.length === 0) {
         return { 
-            isValid: false, spamCount: 0, religiousCount: 0, questionCount: 0, 
-            shouldWarnSpam: false, shouldWarnReligious: false, shouldBlock: false, 
+            isValid: false, spamCount: 0, religiousCount: 0, aggressiveCount: 0, questionCount: 0, totalInappropriate: 0,
+            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
             error: 'Invalid messages' 
         };
     }
     
     if (messages.length > LIMITS.MAX_CONVERSATION_LENGTH) {
         return { 
-            isValid: false, spamCount: 0, religiousCount: 0, questionCount: 0, 
-            shouldWarnSpam: false, shouldWarnReligious: false, shouldBlock: false, 
+            isValid: false, spamCount: 0, religiousCount: 0, aggressiveCount: 0, questionCount: 0, totalInappropriate: 0,
+            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
             error: 'Conversation too long' 
         };
     }
     
     let spamCount = 0;
     let religiousCount = 0;
+    let aggressiveCount = 0;
     let questionCount = 0;
     
     for (let i = 0; i < messages.length; i++) {
         const msg = messages[i];
         if (!msg?.content || typeof msg.content !== 'string') {
             return { 
-                isValid: false, spamCount, religiousCount, questionCount, 
-                shouldWarnSpam: false, shouldWarnReligious: false, shouldBlock: false, 
+                isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
+                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
                 error: `Invalid message content at index ${i}` 
             };
         }
         
         if (msg.content.length > LIMITS.MAX_MESSAGE_LENGTH * 4) {
             return { 
-                isValid: false, spamCount, religiousCount, questionCount, 
-                shouldWarnSpam: false, shouldWarnReligious: false, shouldBlock: false, 
+                isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
+                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
                 error: `Message too long at index ${i}` 
             };
         }
@@ -200,41 +324,39 @@ const validateDiscoverInput = (messages: any[]): {
             if (detectPromptInjection(msg.content)) {
                 console.log('🚨 BLOCKED SUSPICIOUS INPUT:', msg.content.substring(0, 100));
                 return { 
-                    isValid: false, spamCount, religiousCount, questionCount, 
-                    shouldWarnSpam: false, shouldWarnReligious: false, shouldBlock: true, 
+                    isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
+                    shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: true, 
                     error: 'Invalid input detected' 
                 };
             }
             
             if (detectSpamContent(msg.content)) spamCount++;
             if (detectReligiousContent(msg.content)) religiousCount++;
+            if (detectAggressiveContent(msg.content)) aggressiveCount++;
         }
         
-        // Count assistant questions *after* the initial welcome message
-        if (msg.role === 'assistant' && i > 0 && msg.content.includes('?')) questionCount++;
+        // FIXED: Count assistant questions without i > 0
+        if (msg.role === 'assistant' && msg.content.includes('?')) questionCount++;
     }
     
-    const shouldWarnSpam = spamCount >= 3 && spamCount < 5; // More lenient
-    const shouldWarnReligious = religiousCount >= 1; // Any religious content gets warning
-    const shouldBlock = spamCount >= 5; // Higher threshold
+    const totalInappropriate = spamCount + religiousCount + aggressiveCount;
+    
+    const shouldWarnSpam = spamCount >= 2 && totalInappropriate < 3;
+    const shouldWarnReligious = religiousCount >= 1 && totalInappropriate < 3;
+    const shouldWarnAggressive = aggressiveCount >= 1 && totalInappropriate < 3;
+    const shouldBlock = totalInappropriate >= 3;
     
     return { 
-        isValid: true, spamCount, religiousCount, questionCount, 
-        shouldWarnSpam, shouldWarnReligious, shouldBlock 
+        isValid: true, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate,
+        shouldWarnSpam, shouldWarnReligious, shouldWarnAggressive, shouldBlock 
     };
-};
-
-const checkRateLimit = (req: NextRequest): boolean => {
-    const userAgent = req.headers.get('user-agent') || '';
-    const suspiciousPatterns = ['bot', 'crawler', 'spider', 'scraper'];
-    return !suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p));
 };
 
 const getTimeoutConfig = (): Config => {
     const isVercel = process.env.VERCEL === '1';
     return isVercel 
-        ? { timeout: 8000, maxTokens: 800 } 
-        : { timeout: 25000, maxTokens: 1000 };
+        ? { timeout: 8000, maxTokens: 1000 } 
+        : { timeout: 25000, maxTokens: 1200 };
 };
 
 const extractJSON = (responseText: string): any => {
@@ -257,7 +379,6 @@ const extractJSON = (responseText: string): any => {
     }
 };
 
-// --- AI PROVIDER UTILITIES ---
 const prepareMessageHistory = (messages: any[]) => {
     let history = [...messages];
     if (history.length > 0 && history[0].role === 'assistant') {
@@ -266,25 +387,11 @@ const prepareMessageHistory = (messages: any[]) => {
     return history;
 };
 
-const extractContentFromPerplexity = (content: any): string => {
-    if (typeof content === 'string') return content;
-    
-    if (Array.isArray(content)) {
-        return content
-            .filter(chunk => chunk && (chunk.type === 'text' || !chunk.type))
-            .map(chunk => chunk.text || chunk.content || String(chunk))
-            .join(' ')
-            .trim();
-    }
-    
-    return String(content || '');
-};
-
 // --- AI PROVIDER FUNCTIONS ---
 
-// PRIMARY: Google Gemini 2.0 Flash
+// 1️⃣ PRIMARY: Google Gemini 2.0 Flash
 async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🔮 Trying primary provider: Gemini 2.0 Flash...');
+    console.log('🔮 [1/4] Trying PRIMARY: Gemini 2.0 Flash...');
     
     const cleanMessages = prepareMessageHistory(messages);
     if (cleanMessages.length === 0) {
@@ -324,17 +431,18 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
         const responseText = result.response.text();
         if (!responseText) throw new Error("Gemini returned an empty response.");
         
-        console.log('✅ Gemini success!');
+        console.log('✅ [1/4] Gemini 2.0 Flash SUCCESS');
         return { success: true, response: responseText, provider: 'gemini-2.0-flash' };
     } catch (error: any) {
         clearTimeout(timeoutId);
+        console.warn(`❌ [1/4] Gemini failed: ${error.message}`);
         throw error;
     }
 }
 
-// SECONDARY: Groq API with openai/gpt-oss-120b
-async function tryGroqOpenAIAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🤖 Trying secondary provider: Groq OpenAI GPT-OSS-120B...');
+// 2️⃣ SECONDARY: Groq GPT-OSS-120B
+async function tryGroqGPTOSSAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
+    console.log('🤖 [2/4] Trying SECONDARY: Groq GPT-OSS-120B...');
     
     if (!groqClient || !GROQ_API_KEY) {
         throw new Error("Groq API key not configured.");
@@ -342,7 +450,7 @@ async function tryGroqOpenAIAPI(messages: any[], enhancedSystemInstruction: stri
     
     const cleanMessages = prepareMessageHistory(messages);
     if (cleanMessages.length === 0) {
-        throw new Error("Cannot send empty message history to Groq OpenAI.");
+        throw new Error("Cannot send empty message history to Groq GPT-OSS.");
     }
 
     const controller = new AbortController();
@@ -364,19 +472,20 @@ async function tryGroqOpenAIAPI(messages: any[], enhancedSystemInstruction: stri
         clearTimeout(timeoutId);
 
         const responseText = completion.choices?.[0]?.message?.content;
-        if (!responseText) throw new Error("Groq OpenAI returned an empty response.");
+        if (!responseText) throw new Error("Groq GPT-OSS returned an empty response.");
         
-        console.log('✅ Groq OpenAI success!');
-        return { success: true, response: responseText, provider: 'groq-openai-gpt-oss-120b' };
+        console.log('✅ [2/4] Groq GPT-OSS-120B SUCCESS');
+        return { success: true, response: responseText, provider: 'groq-gpt-oss-120b' };
     } catch (error: any) {
         clearTimeout(timeoutId);
+        console.warn(`❌ [2/4] Groq GPT-OSS failed: ${error.message}`);
         throw error;
     }
 }
 
-// TERTIARY: Groq API with Llama
+// 3️⃣ TERTIARY: Groq Llama-3.3-70B
 async function tryGroqLlamaAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🦙 Trying tertiary provider: Groq Llama...');
+    console.log('🦙 [3/4] Trying TERTIARY: Groq Llama-3.3-70B...');
     
     if (!groqClient || !GROQ_API_KEY) {
         throw new Error("Groq API key not configured.");
@@ -408,17 +517,18 @@ async function tryGroqLlamaAPI(messages: any[], enhancedSystemInstruction: strin
         const responseText = completion.choices?.[0]?.message?.content;
         if (!responseText) throw new Error("Groq Llama returned an empty response.");
         
-        console.log('✅ Groq Llama success!');
+        console.log('✅ [3/4] Groq Llama-3.3-70B SUCCESS');
         return { success: true, response: responseText, provider: 'groq-llama-3.3-70b' };
     } catch (error: any) {
         clearTimeout(timeoutId);
+        console.warn(`❌ [3/4] Groq Llama failed: ${error.message}`);
         throw error;
     }
 }
 
-// QUATERNARY: Perplexity API
-async function tryPerplexityAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🧠 Trying quaternary provider: Perplexity...');
+// 4️⃣ QUATERNARY: Perplexity Sonar (Final Fallback)
+async function tryPerplexitySonarAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
+    console.log('🔍 [4/4] Trying QUATERNARY: Perplexity Sonar (Final Fallback)...');
     
     if (!perplexityClient || !PERPLEXITY_API_KEY) {
         throw new Error("Perplexity API key not configured.");
@@ -439,67 +549,76 @@ async function tryPerplexityAPI(messages: any[], enhancedSystemInstruction: stri
         ];
 
         const completion = await perplexityClient.chat.completions.create({
-            messages: messagesWithSystem as any,
             model: "sonar",
+            messages: messagesWithSystem as any,
             max_tokens: config.maxTokens,
-            temperature: 0.8,
+            temperature: 0.8
         });
 
         clearTimeout(timeoutId);
-        
+
         const rawContent = completion.choices?.[0]?.message?.content;
-        if (!rawContent) throw new Error('No content in Perplexity response');
-
         const responseText = extractContentFromPerplexity(rawContent);
-        if (!responseText) throw new Error('Could not extract content from Perplexity response');
-
-        console.log('✅ Perplexity success!');
+        
+        if (!responseText) throw new Error("Perplexity returned an empty response.");
+        
+        console.log('✅ [4/4] Perplexity Sonar SUCCESS');
         return { success: true, response: responseText, provider: 'perplexity-sonar' };
     } catch (error: any) {
         clearTimeout(timeoutId);
+        console.warn(`❌ [4/4] Perplexity Sonar failed: ${error.message}`);
         throw error;
     }
 }
 
-// Main execution with proper fallback
+// 🔄 CORRECTED PROVIDER ORCHESTRATION
 async function executeWithFallback(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
     const providers = [
-        () => tryGeminiAPI(messages, enhancedSystemInstruction, config),
-        () => tryGroqOpenAIAPI(messages, enhancedSystemInstruction, config),
-        () => tryGroqLlamaAPI(messages, enhancedSystemInstruction, config),
-        () => tryPerplexityAPI(messages, enhancedSystemInstruction, config),
+        { name: 'Gemini 2.0 Flash', fn: () => tryGeminiAPI(messages, enhancedSystemInstruction, config) },
+        { name: 'Groq GPT-OSS-120B', fn: () => tryGroqGPTOSSAPI(messages, enhancedSystemInstruction, config) },
+        { name: 'Groq Llama-3.3-70B', fn: () => tryGroqLlamaAPI(messages, enhancedSystemInstruction, config) },
+        { name: 'Perplexity Sonar', fn: () => tryPerplexitySonarAPI(messages, enhancedSystemInstruction, config) },
     ];
     
-    const providerNames = ['Gemini', 'Groq OpenAI', 'Groq Llama', 'Perplexity'];
     let lastError = '';
     
-    for (let i = 0; i < providers.length; i++) {
+    for (const provider of providers) {
         try {
-            const result = await providers[i]();
+            const result = await provider.fn();
             return result;
         } catch (error: any) {
             lastError = error.message;
-            console.warn(`❌ ${providerNames[i]} failed:`, error.message);
+            // Continue to next provider
         }
     }
     
-    throw new Error(`All providers failed. Last error: ${lastError}`);
+    throw new Error(`All 4 providers failed. Last error: ${lastError}`);
 }
 
-// --- ✅ UPDATED MAIN API HANDLER ---
+// --- MAIN API HANDLER ---
 export async function POST(req: NextRequest) {
     const startTime = Date.now();
     try {
         console.log('🚀 [Discover API] Request started');
         
-        if (!checkRateLimit(req)) {
-            return NextResponse.json({ error: 'Request blocked.' }, { status: 429 });
+        // 🚦 CHECK RATE LIMIT FIRST
+        const rateLimitResult = checkRateLimit(req);
+        if (!rateLimitResult.allowed) {
+            console.log('🚫 [Discover API] Rate limit exceeded');
+            return NextResponse.json({ 
+                error: 'Too many requests. Please try again later.',
+                retryAfter: rateLimitResult.retryAfter 
+            }, { 
+                status: 429,
+                headers: rateLimitResult.retryAfter 
+                    ? { 'Retry-After': String(rateLimitResult.retryAfter) }
+                    : {}
+            });
         }
 
         const body = await req.json();
         const { messages, userId } = body;
 
-        // ✅ 1. VALIDATE USER AUTHENTICATION
         if (!userId) {
             return NextResponse.json({ 
                 error: 'Authentication required',
@@ -512,7 +631,7 @@ export async function POST(req: NextRequest) {
             userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
         });
 
-        // ✅ 2. CHECK COINS FOR EVERY MESSAGE - BLOCKS UPFRONT
+        // Check coins
         try {
             const coinBalance = await CoinManagerServer.getCoinBalance(userId);
             const hasEnoughCoins = coinBalance >= LIMITS.COINS_PER_FEATURE;
@@ -524,7 +643,7 @@ export async function POST(req: NextRequest) {
                     requiresCoins: true,
                     currentCoins: coinBalance,
                     coinsNeeded: LIMITS.COINS_PER_FEATURE
-                }, { status: 402 }); // 402 Payment Required
+                }, { status: 402 });
             }
             
             console.log(`✅ [Discover API] Sufficient coins. User has ${coinBalance} coins`);
@@ -535,85 +654,150 @@ export async function POST(req: NextRequest) {
             }, { status: 500 });
         }
 
-        // ✅ 3. ENHANCED INPUT VALIDATION
+        // Validate input (blocks at 3 inappropriate responses)
         const validation = validateDiscoverInput(messages);
+        
+        // ✅ BUG FIX: Check for blocking condition immediately after validation
+        if (validation.shouldBlock) {
+            console.log(`🚫 [Discover API] Blocking user after ${validation.totalInappropriate} inappropriate responses`);
+            return NextResponse.json({
+                isComplete: true,
+                forceEnd: true,
+                blocked: true,
+                summary: `This session has been terminated after ${validation.totalInappropriate} inappropriate responses. Please start fresh when you're ready to engage seriously with your career discovery! 🛑`,
+                error: "Conversation blocked due to repeated inappropriate responses"
+            }, { status: 400 });
+        }
+
+        // Continue with other validation checks if not blocked
         if (!validation.isValid) {
-            if (validation.shouldBlock) {
-                return NextResponse.json({
-                    isComplete: true,
-                    forceEnd: true,
-                    blocked: true,
-                    summary: "This session has been ended due to repeated inappropriate responses. Please start fresh when you're ready to engage seriously with your career discovery! 🛑",
-                    error: "Conversation blocked"
-                }, { status: 400 });
-            }
             return NextResponse.json({ error: validation.error }, { status: 400 });
         }
 
-        // ✅ 4. RELIGIOUS CONTENT WARNING
+        // Handle warnings
         if (validation.shouldWarnReligious) {
+            console.log(`⚠️ [Discover API] Religious content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
             const religiousWarningInstruction = systemInstruction + `
 
-🚨 RELIGIOUS CONTENT DETECTED: User mentioned religious topics.
-RESPOND EXACTLY WITH: "This platform is made for the Duniya, not for the Akhirah - we fear Allah. Please focus on your worldly career skills and interests for better guidance! 
+🚨 NON-CAREER TOPIC DETECTED: User mentioned topics outside of career development.
+RESPOND EXACTLY WITH: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?
+
+⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Please keep responses career-focused or this session will be terminated.
 
 What are your main academic subjects or skills you'd like to build a career around?"
-
-Then continue with career-focused questions.
 `;
 
             const result = await executeWithFallback(messages, religiousWarningInstruction, getTimeoutConfig());
             return NextResponse.json({ 
                 isComplete: false, 
                 reply: result.response,
-                religiousWarning: true 
+                religiousWarning: true,
+                warningCount: validation.totalInappropriate,
+                provider: result.provider
             });
         }
 
-        // ✅ 5. SPAM WARNING (More Lenient)
+        if (validation.shouldWarnAggressive) {
+            console.log(`⚠️ [Discover API] Aggressive content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
+            const aggressiveWarningInstruction = systemInstruction + `
+
+🚨 AGGRESSIVE CONTENT DETECTED: User used inappropriate language.
+RESPOND WITH: "I understand you might be frustrated, but let's keep this conversation professional and focused on your career development. 
+
+⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Continued inappropriate language will result in session termination.
+
+Please tell me about your genuine career interests or skills you'd like to develop."
+`;
+
+            const result = await executeWithFallback(messages, aggressiveWarningInstruction, getTimeoutConfig());
+            return NextResponse.json({ 
+                isComplete: false, 
+                reply: result.response,
+                aggressiveWarning: true,
+                warningCount: validation.totalInappropriate,
+                provider: result.provider
+            });
+        }
+
         if (validation.shouldWarnSpam && !validation.shouldBlock) {
+            console.log(`⚠️ [Discover API] Spam content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
             const warningInstruction = systemInstruction + `
 
-🚨 NOTICE: User has given ${validation.spamCount} very brief responses. 
-RESPOND WITH: "I need a bit more detail to give you the best career recommendations. Even single words like 'Excel' or 'Design' are fine, but please avoid responses like 'idk' or 'whatever'. 
+🚨 NOTICE: User has given ${validation.spamCount} spam responses and ${validation.totalInappropriate} total inappropriate responses. 
+RESPOND WITH: "I appreciate your response, but I need a bit more detail to give you personalized career guidance. Can you expand on that a bit?
 
-What specific skills or subjects interest you most?"
+⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. 
 
-Continue conversation normally - accept meaningful short answers.
+For example, if you mentioned 'data analysis', tell me: What aspect interests you? Is it finding patterns, creating visualizations, or solving real-world problems with data?"
+
+DO NOT ask Question 1 again. Build on their previous answer and ask a relevant follow-up question.
 `;
 
             const result = await executeWithFallback(messages, warningInstruction, getTimeoutConfig());
             return NextResponse.json({ 
                 isComplete: false, 
                 reply: result.response,
-                spamWarning: true 
+                spamWarning: true,
+                warningCount: validation.totalInappropriate,
+                provider: result.provider
             });
         }
 
         const config = getTimeoutConfig();
         const questionCount = validation.questionCount || 0;
 
-        console.log(`📊 [Discover API] Conversation state: ${questionCount} questions, ${validation.spamCount} spam, ${validation.religiousCount} religious`);
+        console.log(`📊 [Discover API] Conversation state:`, {
+            questions: questionCount,
+            spam: validation.spamCount,
+            religious: validation.religiousCount,
+            aggressive: validation.aggressiveCount,
+            totalInappropriate: validation.totalInappropriate
+        });
 
+        // Enhanced system instruction with question tracking (max 10 questions)
         const enhancedSystemInstruction = systemInstruction +
             `\n\n**CURRENT STATE: You have asked ${questionCount} questions so far.**` +
-            (questionCount >= 7 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit!' :
-             questionCount >= LIMITS.QUESTION_COUNT_THRESHOLD ? '\n⚠️ WARNING: You should consider ending with JSON output soon.' : '') +
-            (validation.spamCount > 0 ? `\n\nNOTE: User has given ${validation.spamCount} brief response(s). Ask more specific follow-up questions.` : '');
+            (questionCount >= 10 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit of 10!' :
+             questionCount >= 5 ? '\n⚠️ WARNING: You should consider ending with JSON output soon. Maximum is 10 questions.' : '') +
+            (validation.totalInappropriate > 0 ? `\n\nNOTE: User has ${validation.totalInappropriate} inappropriate response(s). Ask more specific follow-up questions to keep them engaged.` : '');
 
-        // ✅ 6. EXECUTE AI WITH FALLBACK
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('🔍 [DEBUG] Conversation Decision:', {
+                shouldEndConversation: questionCount >= 10,
+                questionCount,
+                messagesLength: messages.length,
+                willTriggerJSON: questionCount >= 10
+            });
+        }
+
+        // Execute AI with 4-provider fallback (CORRECTED ORDER)
         const result = await executeWithFallback(messages, enhancedSystemInstruction, config);
         const responseText = result.response;
         
-        console.log(`AI Response from [${result.provider}]:`, responseText);
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('🔍 [DEBUG] Raw AI Response:', {
+                aiResponse: responseText?.substring(0, 500),
+                isComplete: responseText?.includes('COMPLETE:'),
+                hasCareerData: responseText?.includes('suggestedCareers'),
+                responseLength: responseText?.length
+            });
+        }
+        
         console.log(`✅ [Discover API] Completed in ${Date.now() - startTime}ms via ${result.provider}`);
 
-        // ✅ 7. COIN DEDUCTION ONLY ON JSON OUTPUT
+        // Handle completion with coin deduction
         if (responseText.includes("COMPLETE:")) {
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('🔍 [DEBUG] About to deduct coin. Response contains:', {
+                    hasTopSkills: responseText?.includes('topSkills'),
+                    hasCareerSuggestions: responseText?.includes('suggestedCareers'),
+                    responsePreview: responseText?.substring(0, 200)
+                });
+            }
+
             try {
                 const suggestions = extractJSON(responseText);
                 
-                // 💰 DEDUCT COIN ONLY WHEN JSON IS SUCCESSFULLY GENERATED
                 console.log('🪙 [Discover API] Deducting coin for successful JSON output...');
                 
                 try {
@@ -628,39 +812,57 @@ Continue conversation normally - accept meaningful short answers.
                         isComplete: true, 
                         coinDeducted: deductResult?.success || false,
                         newBalance: deductResult?.newBalance,
+                        inappropriateCount: validation.totalInappropriate,
+                        questionsAsked: questionCount,
+                        provider: result.provider,
                         ...suggestions 
                     });
                 } catch (coinError: any) {
                     console.error('❌ [Discover API] Coin processing error:', coinError.message);
-                    // Continue anyway since AI already processed
                     return NextResponse.json({ 
                         isComplete: true, 
                         coinDeducted: false,
+                        inappropriateCount: validation.totalInappropriate,
+                        questionsAsked: questionCount,
+                        provider: result.provider,
                         ...suggestions 
                     });
                 }
                 
             } catch (e: any) {
-                console.error("❌ JSON extraction failed:", e.message, "Full response:", responseText);
-                // FALLBACK response - NO COIN DEDUCTION for fallback
+                console.error("❌ JSON extraction failed:", e.message);
+                // Bangladesh-specific fallback
                 return NextResponse.json({
                     isComplete: true,
-                    summary: "Thank you for the conversation! Based on our chat, I can see potential in you.",
-                    topSkills: ["Communication", "Problem Solving", "Adaptability"],
-                    skillsToDevelop: ["Technical Skills", "Leadership"],
-                    suggestedCourses: [{ title: "Digital Skills Development", description: "Build essential digital competencies." }],
+                    summary: "Thank you for the conversation! Based on our chat, I can see great potential in your skills for Bangladesh's job market.",
+                    topSkills: ["Communication", "Problem Solving", "Adaptability", "Technical Aptitude"],
+                    skillsToDevelop: ["Digital Marketing Skills", "Data Analysis"],
+                    suggestedCourses: [
+                        { title: "Digital Skills Development", description: "Build essential digital competencies for Bangladesh's growing tech sector." },
+                        { title: "Business Communication", description: "Enhance professional communication skills valued in local corporate environments." }
+                    ],
                     suggestedCareers: [
-                        { title: "Business Analyst", fit: "Good", description: "Your problem-solving skills align well with analyzing business needs in Bangladesh's growing corporate sector." },
-                        { title: "Marketing Associate", fit: "Good", description: "Your communication skills are a great asset for marketing roles in local tech and service industries." }
+                        { title: "Business Development Executive", fit: "High", description: "Your communication skills align perfectly with Bangladesh's expanding banking sector and financial services." },
+                        { title: "Digital Marketing Specialist", fit: "Good", description: "Perfect for Bangladesh's booming e-commerce industry and local startups." },
+                        { title: "Operations Coordinator", fit: "Good", description: "Leverage your organizational skills in Bangladesh's largest export industry." }
                     ],
                     nextStep: "resume",
                     fallback: true,
-                    coinDeducted: false // NO COIN DEDUCTION for fallback
+                    coinDeducted: false,
+                    inappropriateCount: validation.totalInappropriate,
+                    questionsAsked: questionCount,
+                    provider: result.provider
                 });
             }
         } else {
-            // NO COIN DEDUCTION - Only conversation continues
-            return NextResponse.json({ isComplete: false, reply: responseText });
+            // Continue conversation
+            return NextResponse.json({ 
+                isComplete: false, 
+                reply: responseText,
+                warningCount: validation.totalInappropriate,
+                questionsAsked: questionCount + 1,
+                provider: result.provider
+            });
         }
 
     } catch (error: any) {

@@ -44,20 +44,12 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID // ✅ Added this
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Enhanced error checking
 if (!firebaseConfig.apiKey) {
     console.error('🔥 Firebase configuration missing!');
-    console.error('Environment variables status:', {
-        NEXT_PUBLIC_FIREBASE_API_KEY: !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: !!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-        NEXT_PUBLIC_FIREBASE_PROJECT_ID: !!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: !!process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: !!process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-        NEXT_PUBLIC_FIREBASE_APP_ID: !!process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    });
     throw new Error("Missing Firebase configuration. Check your environment variables.");
 }
 
@@ -83,7 +75,7 @@ export const getActionCodeSettings = () => ({
     handleCodeInApp: true,
 });
 
-// Guest login: coins: 5
+// 🎯 Guest login: coins: 5 (no verification needed)
 export const signInAsGuest = async () => {
   try {
     const result = await signInAnonymously(auth);
@@ -97,8 +89,8 @@ export const signInAsGuest = async () => {
         status: 'Other', 
         phone: '',
         isGuest: true,
-        coins: 5, // ✅ Perfect!
-        createdAt: new Date().toISOString() // ✅ Added timestamp
+        coins: 5, // ✅ Guests get coins immediately
+        createdAt: new Date().toISOString()
       });
     }
     return result.user;
@@ -108,7 +100,7 @@ export const signInAsGuest = async () => {
   }
 };
 
-// Social login result: coins: 5
+// 🎯 Social login result: coins: 5 (no verification needed)
 const handleSocialSignInResult = async (user: any) => {
     const userDocRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userDocRef);
@@ -119,11 +111,11 @@ const handleSocialSignInResult = async (user: any) => {
             age: null, 
             status: 'Other', 
             phone: '',
-            coins: 5, // ✅ Perfect!
-            createdAt: new Date().toISOString() // ✅ Added timestamp
+            coins: 5, // ✅ Social users get coins immediately
+            createdAt: new Date().toISOString()
         });
     } else {
-        // ✅ Handle existing users without coins field
+        // Handle existing users without coins field
         const userData = docSnap.data();
         if (userData.coins === undefined) {
             await setDoc(userDocRef, { coins: 5 }, { merge: true });
@@ -164,7 +156,7 @@ export const handleRedirectResult = async () => {
     }
 };
 
-// Email signup: coins: 5
+// 🔒 Email signup: coins: 0 (requires verification for coins)
 export const signUpWithEmailPasswordAndProfile = async (profileData: SignUpProfileData, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, profileData.email, password);
     const user = userCredential.user;
@@ -176,8 +168,8 @@ export const signUpWithEmailPasswordAndProfile = async (profileData: SignUpProfi
         status: profileData.status,
         phone: profileData.phone || null,
         email: profileData.email,
-        coins: 5, // ✅ Perfect!
-        createdAt: new Date().toISOString() // ✅ Added timestamp
+        coins: 0, // ✅ Manual signup users get coins after email verification
+        createdAt: new Date().toISOString()
     });
     await sendEmailVerification(user);
     return user;

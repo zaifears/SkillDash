@@ -24,6 +24,7 @@ export default function AuthPage() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [redirectMessage, setRedirectMessage] = useState<string | null>(null)
+  const [showSignupSuccess, setShowSignupSuccess] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -50,12 +51,14 @@ export default function AuthPage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     setError('') // Clear error on input change
+    setShowSignupSuccess(false) // Clear success state on input change
   }, [])
 
   // Guest login handler
   const handleGuestLogin = async () => {
     setIsLoading(true)
     setError('')
+    setShowSignupSuccess(false)
     
     try {
       await signInAsGuest()
@@ -98,6 +101,7 @@ export default function AuthPage() {
 
     setIsLoading(true)
     setError('')
+    setShowSignupSuccess(false)
 
     try {
       const profileData = {
@@ -110,6 +114,7 @@ export default function AuthPage() {
 
       await signUpWithEmailPasswordAndProfile(profileData, formData.password)
       setMessage('Account created! Please check your email for verification.')
+      setShowSignupSuccess(true)
     } catch (err: any) {
       setError(sanitizeError(err))
     } finally {
@@ -131,6 +136,7 @@ export default function AuthPage() {
 
     setIsLoading(true)
     setError('')
+    setShowSignupSuccess(false)
 
     try {
       await signInWithEmailAndPassword(auth, formData.email.trim().toLowerCase(), formData.password)
@@ -149,6 +155,7 @@ export default function AuthPage() {
 
     setIsLoading(true)
     setError('')
+    setShowSignupSuccess(false)
 
     try {
       await signInWithSocialProviderAndCreateProfile(googleProvider)
@@ -167,6 +174,7 @@ export default function AuthPage() {
 
     setIsLoading(true)
     setError('')
+    setShowSignupSuccess(false)
 
     try {
       await signInWithSocialProviderAndCreateProfile(githubProvider)
@@ -206,31 +214,6 @@ export default function AuthPage() {
           </p>
         </div>
 
-<<<<<<< Updated upstream
-        {/* GPFutureMaker Badge - Only above guest login */}
-        <div className="relative">
-          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
-            GPFutureMaker
-          </div>
-          
-          {/* Guest Login Button */}
-          <div className="pt-4">
-            <button
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <span className="text-orange-500 text-lg">👤</span>
-              </span>
-              {isLoading ? 'Signing in...' : 'Continue as Guest'}
-            </button>
-            
-            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-              Quick access to explore all features
-            </p>
-          </div>
-=======
         {/* 🆕 EMAIL VERIFICATION BONUS NOTICE - Only show after successful signup */}
         {showSignupSuccess && (
           <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50">
@@ -266,23 +249,29 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* Guest Login Button */}
-        <div className="pt-4">
-          <button
-            onClick={handleGuestLogin}
-            disabled={isLoading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-              <span className="text-orange-500 text-lg">👤</span>
-            </span>
-            {isLoading ? 'Signing in...' : 'Continue as Guest'}
-          </button>
+        {/* GPFutureMaker Badge - Only above guest login */}
+        <div className="relative">
+          <div className="absolute -top-3 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+            GPFutureMaker
+          </div>
           
-          <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-            Quick access to explore all features + instant 5 coins 🪙
-          </p>
->>>>>>> Stashed changes
+          {/* Guest Login Button */}
+          <div className="pt-4">
+            <button
+              onClick={handleGuestLogin}
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <span className="text-orange-500 text-lg">👤</span>
+              </span>
+              {isLoading ? 'Signing in...' : 'Continue as Guest'}
+            </button>
+            
+            <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+              Quick access to explore all features + instant 5 coins 🪙
+            </p>
+          </div>
         </div>
 
         {/* Divider */}
@@ -308,6 +297,10 @@ export default function AuthPage() {
           isLoading={isLoading}
         />
 
+        {/* ================================================================== */}
+        {/* == MANUAL SIGN-IN / SIGN-UP FORM UNHIDDEN == */}
+        {/* ================================================================== */}
+        
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300 dark:border-gray-600" />
@@ -317,7 +310,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <AuthForm
+        <AuthFormWithInlineNotice
           isSignUp={isSignUp}
           formData={formData}
           handleInputChange={handleInputChange}
@@ -334,13 +327,200 @@ export default function AuthPage() {
               setIsSignUp(!isSignUp)
               setError('')
               setMessage('')
+              setShowSignupSuccess(false)
             }}
             className="text-violet-600 dark:text-violet-400 hover:text-violet-500 font-medium"
           >
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
+        
+        {/* ================================================================== */}
+        {/* == END OF UNHIDDEN SECTION == */}
+        {/* ================================================================== */}
+
       </div>
     </div>
+  )
+}
+
+// 🆕 NEW COMPONENT: AuthForm with inline email verification notice
+function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handleSubmit, isLoading, error, message }: any) {
+  return (
+    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        {/* Sign Up Fields */}
+        {isSignUp && (
+          <>
+            <div>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleInputChange}
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                placeholder="Full Name *"
+              />
+            </div>
+            
+            <div className="flex space-x-4">
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                placeholder="Phone Number"
+              />
+              <input
+                id="age"
+                name="age"
+                type="number"
+                min="13"
+                max="100"
+                value={formData.age}
+                onChange={handleInputChange}
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+                placeholder="Age"
+              />
+            </div>
+
+            <div>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+              >
+                <option value="">Select Your Status *</option>
+                <option value="School">School</option>
+                <option value="College">College</option>
+                <option value="University">University</option>
+                <option value="Job">Job</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </>
+        )}
+
+        {/* Email Field */}
+        <div>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={handleInputChange}
+            className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+            placeholder="Email Address *"
+          />
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            value={formData.password}
+            onChange={handleInputChange}
+            className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+            placeholder="Password *"
+          />
+        </div>
+
+        {/* Confirm Password Field (Sign Up Only) */}
+        {isSignUp && (
+          <div>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
+              placeholder="Confirm Password *"
+            />
+          </div>
+        )}
+
+        {/* 🆕 EMAIL VERIFICATION NOTICE - Only show during signup, between confirm password and submit button */}
+        {isSignUp && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50 mt-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <span className="text-xl">🎉</span>
+              </div>
+              <div className="flex-1 text-sm">
+                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-2">
+                  Welcome to SkillDash! 
+                </h4>
+                <div className="text-green-700 dark:text-green-400 space-y-2">
+                  <p className="flex items-start gap-2">
+                    <span className="mt-0.5">📧</span>
+                    <span><strong>Step 1:</strong> Check your email and click the verification link</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="mt-0.5">🪙</span>
+                    <span><strong>Step 2:</strong> After verification, your 5 welcome coins may take up to 5 minutes to appear</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="mt-0.5">🔄</span>
+                    <span><strong>Step 3:</strong> Refresh the page if coins don't appear after verification</span>
+                  </p>
+                </div>
+                <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-700">
+                  <p className="text-blue-800 dark:text-blue-300 text-xs font-medium">
+                    💡 <strong>Note:</strong> Social login users (Google/GitHub) and guests receive coins immediately!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-700">
+          <p className="text-red-700 dark:text-red-300 text-sm text-center">{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {message && (
+        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-200 dark:border-green-700">
+          <p className="text-green-700 dark:text-green-300 text-sm text-center">{message}</p>
+        </div>
+      )}
+
+      {/* Submit Button */}
+      <div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        >
+          {isLoading ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {isSignUp ? 'Creating Account...' : 'Signing In...'}
+            </span>
+          ) : (
+            isSignUp ? 'Create Account' : 'Sign In'
+          )}
+        </button>
+      </div>
+    </form>
   )
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { detectPromptInjection } from '@/lib/utils/validation'; // ✅ USING SHARED
 import { LIMITS } from '@/lib/constants'; // ✅ USING CONSTANTS
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
@@ -24,6 +24,13 @@ const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({ apiKey: PERPLEXITY_API_KEY }) : null;
 const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
+// File upload constants
+const MAX_FILE_SIZE = 200 * 1024; // 200KB
+const ALLOWED_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
 // --- STREAMLINED VALIDATION ---
 const filterSuspiciousContent = (content: string): boolean => {
     const patterns = [
@@ -34,6 +41,7 @@ const filterSuspiciousContent = (content: string): boolean => {
     return patterns.some(pattern => pattern.test(content));
 };
 
+// 🔧 UPDATED: Fixed validation
 const validateResumeContent = (content: string): { isValid: boolean; reason?: string; isBlocked?: boolean } => {
     if (detectPromptInjection(content) || filterSuspiciousContent(content)) { // ✅ USING SHARED
         console.log('🚨 BLOCKED RESUME INJECTION ATTEMPT:', content.substring(0, 100));
@@ -43,7 +51,15 @@ const validateResumeContent = (content: string): { isValid: boolean; reason?: st
     const lowerContent = content.toLowerCase();
     const irrelevantKeywords = ['recipe', 'cooking', 'once upon a time', 'lorem ipsum', 'test test test', 'gibberish'];
     const dangerousKeywords = ['suicide', 'self harm', 'violence', 'weapon', 'illegal drugs', 'hate speech'];
-    const resumeKeywords = ['experience', 'education', 'skill', 'university', 'project', 'degree', 'achievement'];
+    
+    const resumeKeywords = [
+        'experience', 'education', 'skill', 'university', 'project', 'degree', 'achievement',
+        'work', 'employment', 'college', 'job', 'career', 'professional', 'manager', 'analyst',
+        'finance', 'banking', 'business', 'financial', 'certificate', 'training', 'course',
+        'summary', 'technical', 'reference', 'award', 'founder', 'assistant', 'research',
+        'gpa', 'cgpa', 'graduation', 'bachelor', 'bba', 'hsc', 'ssc', 'chartered', 'accountancy',
+        'linkedin', 'email', 'phone', 'address', 'contact'
+    ];
 
     if (irrelevantKeywords.some(keyword => lowerContent.includes(keyword))) {
         return { isValid: false, reason: 'irrelevant_content' };
@@ -51,14 +67,72 @@ const validateResumeContent = (content: string): { isValid: boolean; reason?: st
     if (dangerousKeywords.some(keyword => lowerContent.includes(keyword))) {
         return { isValid: false, reason: 'inappropriate_content' };
     }
-    if (content.length > 50 && resumeKeywords.filter(keyword => lowerContent.includes(keyword)).length < 2) {
+    if (content.length > 50 && resumeKeywords.filter(keyword => lowerContent.includes(keyword)).length < 1) {
         return { isValid: false, reason: 'not_resume_content' };
     }
-    if (content.length < LIMITS.MIN_RESUME_LENGTH || content.length > 15000) {
+    if (content.length < LIMITS.MIN_RESUME_LENGTH || content.length > 25000) {
         return { isValid: false, reason: 'length_invalid' };
     }
     return { isValid: true };
 };
+
+// 🆕 STEP 1: Gemini text extraction ONLY (not analysis)
+async function extractTextWithGemini(file: File, industryPreference: string): Promise<{ success: boolean; text?: string; error?: string }> {
+    try {
+        console.log('🤖 [STEP 1] Gemini extracting text from file...');
+        
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const base64Data = buffer.toString('base64');
+        
+        const fileData = {
+            inlineData: {
+                data: base64Data,
+                mimeType: file.type
+            }
+        };
+
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.0-flash",
+            systemInstruction: `You are a text extraction expert. Extract clean, readable text from resume files for the ${industryPreference} industry.`
+        });
+
+        const prompt = `Extract ALL text content from this resume file and return ONLY the clean, readable text.
+
+Requirements:
+- Extract all text including headers, sections, bullet points
+- Maintain proper spacing and structure  
+- Remove garbled characters or PDF artifacts
+- Make text readable and well-formatted
+- If scanned/image-based, use OCR to extract text
+- Return ONLY extracted text, no explanations
+
+Expected sections: Contact Info, Summary, Work Experience, Education, Skills, Projects, Certifications
+
+Return extracted text directly without markdown or formatting.`;
+
+        const result = await model.generateContent([prompt, fileData]);
+        const extractedText = result.response.text().trim();
+        
+        console.log(`✅ [STEP 1] Gemini extracted ${extractedText.length} characters`);
+        console.log(`📝 [STEP 1] Sample: "${extractedText.substring(0, 200)}..."`);
+        
+        if (!extractedText || extractedText.length < 50) {
+            return { 
+                success: false, 
+                error: 'Could not extract readable text from file. Please ensure it contains actual resume content.' 
+            };
+        }
+
+        return { success: true, text: extractedText };
+
+    } catch (error: any) {
+        console.error('❌ [STEP 1] Gemini extraction failed:', error.message);
+        return { 
+            success: false, 
+            error: 'Text extraction failed. Please try DOCX format or paste text manually.' 
+        };
+    }
+}
 
 // --- SYSTEM INSTRUCTION ---
 const createSystemInstruction = (industryPreference: string, hasJobDescription: boolean) => `
@@ -134,19 +208,14 @@ const extractContentFromPerplexity = (content: any): string => {
 };
 
 const cleanAndExtractJSON = (content: string): string => {
-    // Remove markdown code blocks
     content = content.replace(/``````\s*/g, '');
-    
-    // Extract JSON object
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
         return jsonMatch[0];
     }
-    
     return content.trim();
 };
 
-// ✅ STREAMLINED: Timeout handling utility
 async function withTimeout<T>(
     providerName: string,
     providerFn: () => Promise<T>,
@@ -168,148 +237,78 @@ async function withTimeout<T>(
     }
 }
 
-// PRIMARY: Perplexity API Function with sonar model
+// 🔥 STEP 2: YOUR PREFERRED AI CHAIN (Perplexity → Groq Versatile → Groq GPT → Gemini)
 async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!perplexityClient || !PERPLEXITY_API_KEY) {
         return { success: false, error: 'Perplexity API key not configured' };
     }
 
     const result = await withTimeout('Perplexity', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: systemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await perplexityClient.chat.completions.create({
-            messages: messagesWithSystem as any,
-            model: "sonar",
-            max_tokens: 3000,
-            temperature: 0.2,
-        });
-        
+        const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
+        const completion = await perplexityClient.chat.completions.create({ messages: messagesWithSystem as any, model: "sonar", max_tokens: 3000, temperature: 0.2 });
         const rawContent = completion.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error('No content in Perplexity response');
-
         const content = extractContentFromPerplexity(rawContent);
         if (!content) throw new Error('Could not extract content from Perplexity response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'perplexity-sonar' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'perplexity-sonar' } : { success: false, error: result.error };
 }
 
-// SECONDARY: Groq API with llama-3.3-70b-versatile
 async function tryGroqVersatileAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!groqClient || !GROQ_API_KEY) {
         return { success: false, error: 'Groq API key not configured' };
     }
 
     const result = await withTimeout('Groq Versatile', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: systemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await groqClient.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: messagesWithSystem,
-            max_tokens: 3000,
-            temperature: 0.2,
-            response_format: { type: "json_object" }
-        });
-
+        const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
+        const completion = await groqClient.chat.completions.create({ model: "llama-3.3-70b-versatile", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq Versatile response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'groq-versatile' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'groq-versatile' } : { success: false, error: result.error };
 }
 
-// TERTIARY: Groq API with openai/gpt-oss-120b
 async function tryGroqGPTAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!groqClient || !GROQ_API_KEY) {
         return { success: false, error: 'Groq API key not configured' };
     }
 
-    const enhancedSystemInstruction = systemInstruction + `
-
-CRITICAL FOR THIS MODEL: 
-- ALWAYS include "atsScore" as a number between 1-10
-- ALWAYS include "suggestedActionVerbs" as an array with at least 5 verbs
-- NEVER skip any required JSON fields
-- Ensure all arrays have at least one item
-- Double-check JSON validity before responding`;
+    const enhancedSystemInstruction = systemInstruction + `\nCRITICAL FOR THIS MODEL: ALWAYS include "atsScore" as a number, "suggestedActionVerbs" as an array. NEVER skip any required JSON fields. Ensure all arrays have at least one item. Double-check JSON validity.`;
 
     const result = await withTimeout('Groq GPT', async () => {
-        const messagesWithSystem = [
-            { role: 'system', content: enhancedSystemInstruction },
-            ...apiMessages
-        ];
-
-        const completion = await groqClient.chat.completions.create({
-            model: "openai/gpt-oss-120b",
-            messages: messagesWithSystem,
-            max_tokens: 3000,
-            temperature: 0.2,
-            response_format: { type: "json_object" }
-        });
-
+        const messagesWithSystem = [ { role: 'system', content: enhancedSystemInstruction }, ...apiMessages ];
+        const completion = await groqClient.chat.completions.create({ model: "openai/gpt-oss-120b", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
         const content = completion.choices?.[0]?.message?.content;
         if (!content) throw new Error('No content in Groq GPT response');
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'groq-gpt' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'groq-gpt' } : { success: false, error: result.error };
 }
 
-// FINAL FALLBACK: Google Gemini 2.0 Flash
 async function useGeminiAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     const result = await withTimeout('Google Gemini 2.0 Flash', async () => {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
-            systemInstruction,
-        });
-        
-        const history = apiMessages.slice(0, -1).map((msg: any) => ({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-        }));
-        
-        const chat = model.startChat({ 
-            history, 
-            generationConfig: { 
-                maxOutputTokens: 3000, 
-                temperature: 0.2, 
-                responseMimeType: "application/json" 
-            } 
-        });
-        
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction });
+        const history = apiMessages.slice(0, -1).map((msg: any) => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{ text: msg.content }] }));
+        const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 3000, temperature: 0.2, responseMimeType: "application/json" } });
         const latestMessage = apiMessages[apiMessages.length - 1]?.content || '';
         const geminiResult = await chat.sendMessage(latestMessage);
         const content = geminiResult.response.text();
-
         if (!content) throw new Error("Gemini returned an empty response.");
-
         return cleanAndExtractJSON(content);
     });
 
-    return result.success 
-        ? { success: true, content: result.result, provider: 'gemini-2.0-flash' }
-        : { success: false, error: result.error };
+    return result.success ? { success: true, content: result.result, provider: 'gemini-2.0-flash' } : { success: false, error: result.error };
 }
 
-// ✅ STREAMLINED: Main execution with fallback
+// 🔥 YOUR PREFERRED PROVIDER CHAIN: Perplexity → Groq Versatile → Groq GPT → Gemini
 async function executeWithFallback(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
+    console.log('🔥 [STEP 2] Starting analysis with your preferred AI chain...');
+    
     const providers = [
         () => tryPerplexityAPI(apiMessages, systemInstruction),
         () => tryGroqVersatileAPI(apiMessages, systemInstruction),
@@ -317,92 +316,104 @@ async function executeWithFallback(apiMessages: any[], systemInstruction: string
         () => useGeminiAPI(apiMessages, systemInstruction),
     ];
     
-    const providerNames = ['Perplexity', 'Groq Versatile', 'Groq GPT', 'Gemini'];
     let lastError = '';
-    
-    for (let i = 0; i < providers.length; i++) {
-        try {
-            const result = await providers[i]();
-            if (result.success) return result;
-            lastError = result.error || 'Unknown error';
-        } catch (error: any) {
-            lastError = error.message;
-            console.warn(`${providerNames[i]} failed:`, error.message);
+    for (const providerFn of providers) {
+        const result = await providerFn();
+        if (result.success) {
+            console.log(`🎯 [STEP 2] Analysis completed by ${result.provider}`);
+            return result;
         }
+        lastError = result.error || 'Unknown error';
     }
-    
     throw new Error(`All providers failed. Last error: ${lastError}`);
 }
 
 // --- MAIN API ROUTE HANDLER ---
 export async function POST(req: NextRequest) {
     const startTime = Date.now();
-
     try {
         console.log('🚀 [API] Resume feedback request started');
         
-        const body = await req.json();
+        // 🆕 NEW: Check if this is a file upload request
+        const contentType = req.headers.get('content-type') || '';
+        let body: any = {};
+        let resumeText = '';
+        let isFileUpload = false;
+
+        if (contentType.includes('multipart/form-data')) {
+            // 🔧 2-STEP PROCESS: Gemini extracts → Your chain analyzes
+            console.log('📁 [API] Processing file upload with 2-step approach...');
+            isFileUpload = true;
+            
+            const formData = await req.formData();
+            const file = formData.get('file') as File;
+            const industryPreference = (formData.get('industryPreference') as string) || 'a general entry-level position in Bangladesh';
+            const jobDescription = formData.get('jobDescription') as string;
+            const userId = formData.get('userId') as string;
+            
+            if (!file) {
+                return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+            }
+
+            // File size validation
+            if (file.size > MAX_FILE_SIZE) {
+                return NextResponse.json({ 
+                    error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024}KB` 
+                }, { status: 400 });
+            }
+
+            // File type validation
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                return NextResponse.json({ 
+                    error: 'Invalid file type. Only PDF and DOCX files are allowed' 
+                }, { status: 400 });
+            }
+
+            // 🪙 Check coins first for file uploads
+            if (userId) {
+                console.log('🪙 [API] Checking coins for file analysis...');
+                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE);
+                if (!hasCoins) {
+                    const currentBalance = await CoinManagerServer.getCoinBalance(userId);
+                    return NextResponse.json({ 
+                        error: 'Insufficient coins',
+                        currentCoins: currentBalance,
+                        requiredCoins: LIMITS.COINS_PER_FEATURE,
+                    }, { status: 402 });
+                }
+                await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
+            }
+
+            // 🔥 STEP 1: Extract text with Gemini
+            const extractionResult = await extractTextWithGemini(file, industryPreference);
+            if (!extractionResult.success) {
+                return NextResponse.json({ error: extractionResult.error }, { status: 400 });
+            }
+
+            // 🔥 STEP 2: Set extracted text as resumeText for analysis
+            resumeText = extractionResult.text!;
+            body = { industryPreference, jobDescription, userId };
+            
+            console.log(`✅ [API] Text extraction completed, proceeding to analysis...`);
+
+        } else {
+            // Handle regular JSON request (existing functionality)
+            body = await req.json();
+            resumeText = body.resumeText || '';
+        }
+
         const {
-            resumeText,
             jobDescription,
             messages = [],
             industryPreference = 'a general entry-level position in Bangladesh',
             userId
         } = body;
 
-        console.log('🔍 [API] Request data:', {
-            hasResumeText: !!resumeText,
-            hasJobDescription: !!jobDescription,
-            messagesLength: messages.length,
-            industryPreference,
-            userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
-        });
-
-        // 🔧 UPDATED COIN DEDUCTION - Server-side Firebase Admin
         const isInitialAnalysis = !!resumeText;
-        if (isInitialAnalysis && userId) {
-            console.log('🪙 [API] Checking coins for resume feedback...');
-            
-            try {
-                // Check if user has enough coins (SERVER-SIDE)
-                const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE); // ✅ USING CONSTANT
-                if (!hasCoins) {
-                    const currentBalance = await CoinManagerServer.getCoinBalance(userId);
-                    console.log(`❌ [API] Insufficient coins: user has ${currentBalance}, needs ${LIMITS.COINS_PER_FEATURE}`); // ✅ USING CONSTANT
-                    return NextResponse.json({ 
-                        error: 'Insufficient coins',
-                        currentCoins: currentBalance,
-                        requiredCoins: LIMITS.COINS_PER_FEATURE, // ✅ USING CONSTANT
-                        feature: 'Resume Feedback'
-                    }, { status: 402 });
-                }
 
-                // Deduct coin before processing (SERVER-SIDE)
-                const deductResult = await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback'); // ✅ USING CONSTANT
-                if (!deductResult.success) {
-                    console.error('❌ [API] Coin deduction failed:', deductResult.error);
-                    return NextResponse.json({ 
-                        error: 'Failed to process coin payment',
-                        details: deductResult.error
-                    }, { status: 500 });
-                }
-
-                console.log(`✅ [API] Deducted ${LIMITS.COINS_PER_FEATURE} coin for resume feedback. New balance: ${deductResult.newBalance}`); // ✅ USING CONSTANT
-            } catch (coinError: any) {
-                console.error('❌ [API] Coin processing error:', {
-                    message: coinError.message,
-                    stack: coinError.stack,
-                    userId: userId?.substring(0, 8) + '...'
-                });
-                return NextResponse.json({ 
-                    error: 'Coin system error',
-                    details: coinError.message
-                }, { status: 500 });
-            }
-        }
-
-        // Validation
-        const contentToValidate = resumeText || (messages.length > 0 ? messages[messages.length - 1].content : '');
+        // VALIDATE CONTENT FIRST BEFORE DEDUCTING COINS (only for text input)
+        const contentToValidate = resumeText || (messages[messages.length - 1]?.content || '');
+        
         const validation = validateResumeContent(contentToValidate);
         if (!validation.isValid) {
             console.log('❌ [API] Content validation failed:', validation.reason);
@@ -416,7 +427,21 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: `Invalid content: ${validation.reason}` }, { status: 400 });
         }
 
-        // Prepare API messages
+        // NOW CHECK AND DEDUCT COINS AFTER VALIDATION PASSES (only for text input)
+        if (isInitialAnalysis && userId && !isFileUpload) {
+            console.log('🪙 [API] Checking coins for resume feedback...');
+            const hasCoins = await CoinManagerServer.hasEnoughCoins(userId, LIMITS.COINS_PER_FEATURE);
+            if (!hasCoins) {
+                const currentBalance = await CoinManagerServer.getCoinBalance(userId);
+                return NextResponse.json({ 
+                    error: 'Insufficient coins',
+                    currentCoins: currentBalance,
+                    requiredCoins: LIMITS.COINS_PER_FEATURE,
+                }, { status: 402 });
+            }
+            await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
+        }
+
         let apiMessages: { role: string; content: string }[] = [];
         if (isInitialAnalysis) {
             let prompt = `Analyze this resume for the ${industryPreference} industry in Bangladesh.\n\n**Resume:**\n${resumeText}`;
@@ -429,23 +454,34 @@ export async function POST(req: NextRequest) {
         }
 
         if (apiMessages.length === 0) {
-            console.log('❌ [API] No content for analysis');
             return NextResponse.json({ error: 'No content for analysis.' }, { status: 400 });
         }
 
         const systemInstruction = createSystemInstruction(industryPreference, !!jobDescription);
         
-        console.log('🤖 [API] Starting AI analysis...');
-        
-        // ✅ STREAMLINED: Execute with fallback
+        // 🔥 STEP 2: Analyze with your preferred provider chain
         const result = await executeWithFallback(apiMessages, systemInstruction);
 
-        console.log(`✅ [API] Feedback completed in ${Date.now() - startTime}ms via ${result.provider}`);
+        let feedbackObject;
+        try {
+            if (!result.content) {
+                throw new Error("AI returned empty content.");
+            }
+            const cleanedJsonString = cleanAndExtractJSON(result.content);
+            feedbackObject = JSON.parse(cleanedJsonString);
+        } catch (e: any) {
+            console.error("SERVER-SIDE JSON PARSING FAILED:", e.message, "Raw content:", result.content);
+            return NextResponse.json({ 
+                error: 'The AI returned an invalid format. Please try again.' 
+            }, { status: 500 });
+        }
+
+        console.log(`✅ [API] Complete analysis finished in ${Date.now() - startTime}ms via ${result.provider}`);
         
         return NextResponse.json({
-            feedback: result.content,
+            feedback: feedbackObject,
             isInitialAnalysis,
-            providerInfo: `Analysis powered by ${result.provider}`,
+            providerInfo: `Analysis powered by ${result.provider}${isFileUpload ? ' (with Gemini text extraction)' : ''}`,
             conversationEnded: isInitialAnalysis
         });
 
@@ -453,15 +489,10 @@ export async function POST(req: NextRequest) {
         console.error('❌ [API] Resume feedback error:', {
             message: error.message,
             stack: error.stack,
-            name: error.name,
-            timestamp: new Date().toISOString(),
-            duration: Date.now() - startTime
         });
         
         return NextResponse.json({ 
             error: 'An unexpected error occurred while analyzing your resume.',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-            timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 }

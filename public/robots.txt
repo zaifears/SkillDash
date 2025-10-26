@@ -1,10 +1,13 @@
+# *
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://skilldash.live/sitemap.xml
-
-# Disallow sensitive paths
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
+
+# Host
+Host: https://skilldash.live
+
+# Sitemaps
+Sitemap: https://skilldash.live/sitemap.xml
+Sitemap: https://skilldash.live/server-sitemap.xml

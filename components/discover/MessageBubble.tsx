@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import BotIcon from './BotIcon';
+import ReactMarkdown from 'react-markdown';
 
 interface MessageBubbleProps {
   role: 'user' | 'assistant';
@@ -7,17 +10,19 @@ interface MessageBubbleProps {
   isLoading?: boolean;
 }
 
-const MessageBubble = React.memo<MessageBubbleProps>(({ role, content, isLoading = false }) => {
+const MessageBubble = React.memo<MessageBubbleProps>(({ role, content }) => {
   return (
-    <div className={`flex items-start gap-3 message-fade-in ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex items-start gap-3 animate-fade-in-up ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
       {role === 'assistant' && <BotIcon />}
       <div className={`max-w-lg px-4 py-3 rounded-2xl shadow-sm ${
         role === 'user' 
           ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-br-none' 
-          : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-none'
+          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-bl-none'
       }`}>
         {typeof content === 'string' ? (
-          <p className="text-base leading-relaxed">{content}</p>
+          <div className="prose dark:prose-invert max-w-none">
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
         ) : (
           content
         )}

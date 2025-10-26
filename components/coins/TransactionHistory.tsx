@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { CoinManager } from '@/lib/coinManager';
 
-// 🔧 UPDATED INTERFACE to match CoinManager response
+// Interface matches what the component uses internally
 interface Transaction {
   id: string;
-  type: 'spent' | 'earned' | 'granted'; // 🔧 Added 'granted' type
+  type: 'spent' | 'earned' | 'granted';
   amount: number;
   description: string;
   feature: string;
@@ -21,7 +21,6 @@ interface TransactionItemProps {
 }
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index }) => {
-  // 🔧 UPDATED LOGIC to handle all three types
   const isDeduction = transaction.type === 'spent';
   const isAddition = transaction.type === 'earned' || transaction.type === 'granted';
 
@@ -31,19 +30,17 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index })
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-center gap-4">
-        {/* 🎨 ENHANCED ARROW ICON with Animation */}
+        {/* Arrow Icon */}
         <div className={`w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-all duration-300 ${
           isDeduction 
             ? 'bg-gradient-to-br from-red-500/20 to-red-600/20 text-red-400 group-hover:from-red-500/30 group-hover:to-red-600/30' 
             : 'bg-gradient-to-br from-green-500/20 to-green-600/20 text-green-400 group-hover:from-green-500/30 group-hover:to-green-600/30'
         }`}>
           {isDeduction ? (
-            // ✅ PERFECT DOWNWARD ARROW for deductions/spending
             <svg className="w-6 h-6 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           ) : (
-            // ✅ UPWARD ARROW for additions/earning/granted
             <svg className="w-6 h-6 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
@@ -76,7 +73,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index })
                 ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 text-yellow-300 border-yellow-500/30'
                 : 'bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-300 border-gray-500/30'
             }`}>
-              {transaction.feature?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}
+              {transaction.feature?.replace(/_/g, ' ').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}
             </span>
             {!transaction.success && (
               <span className="bg-red-500/20 text-red-400 px-2 py-1 rounded-full text-xs border border-red-500/30">
@@ -167,19 +164,29 @@ const TransactionHistory: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // 🔧 FIXED: Get transaction history from CoinManager with proper typing
       const history = await CoinManager.getTransactionHistory(user.uid, 50);
       
-      // Map the response to ensure compatibility
-      const mappedHistory: Transaction[] = history.map((item: any) => ({
-        id: item.id,
-        type: item.type as 'spent' | 'earned' | 'granted',
-        amount: item.amount,
-        description: item.description,
-        feature: item.feature,
-        timestamp: item.timestamp instanceof Date ? item.timestamp : new Date(item.timestamp),
-        success: item.success !== false // Default to true if not specified
-      }));
+      // ======================= FIX START =======================
+      // Correctly map the backend's `action` field to the frontend's expected `type` field.
+      const mappedHistory: Transaction[] = history.map((item: any) => {
+        let type: 'spent' | 'earned' | 'granted' = 'earned';
+        if (item.action === 'deduct') {
+          type = 'spent';
+        } else if (item.reason === 'welcome_bonus') {
+          type = 'granted';
+        }
+
+        return {
+          id: item.id,
+          type: type, // Use the mapped type
+          amount: item.amount,
+          description: item.description,
+          feature: item.feature || item.reason, // Use feature or reason for the tag
+          timestamp: item.timestamp instanceof Date ? item.timestamp : new Date(item.timestamp),
+          success: item.success !== false
+        };
+      });
+      // ======================== FIX END ========================
       
       setTransactions(mappedHistory);
     } catch (err: any) {
@@ -241,7 +248,7 @@ const TransactionHistory: React.FC = () => {
             />
           ))}
           
-          {/* 🎯 STATS SUMMARY */}
+          {/* STATS SUMMARY */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-green-400">

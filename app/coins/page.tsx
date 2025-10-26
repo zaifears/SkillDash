@@ -9,12 +9,13 @@ import TransactionHistory from '@/components/coins/TransactionHistory';
 import { LoadingScreen } from '@/lib/components/shared';
 import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants';
 
+// Adapted CoinStats interface for modern fixes
 interface CoinStats {
   currentBalance: number;
   totalEarned: number;
   totalSpent: number;
   featuresUsed: number;
-  lastTransaction?: Date;
+  lastActivity?: Date;
 }
 
 const CoinsPage: React.FC = () => {
@@ -27,7 +28,7 @@ const CoinsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Redirect if not authenticated
+  // Auth redirect logic
   useEffect(() => {
     if (!authLoading && !user) {
       sessionStorage.setItem('redirectMessage', MESSAGES.AUTH_REQUIRED);
@@ -39,48 +40,53 @@ const CoinsPage: React.FC = () => {
   // Fetch coin data
   const fetchCoinData = async () => {
     if (!user) return;
-
     try {
       setLoading(true);
       setError(null);
+      
+      // ======================= FIX START =======================
+      // The API is now returning a "flat" object, so we don't need to access `.statistics`.
+      // We can use the server response directly.
 
-      const [balance, stats] = await Promise.all([
+      const [balance, serverStats] = await Promise.all([
         CoinManager.getCoinBalance(user.uid),
         CoinManager.getCoinStatistics(user.uid)
       ]);
-
+      
       setCoinBalance(balance);
-      setCoinStats(stats);
+
+      // Map the data directly from the serverStats object.
+      if (serverStats) {
+        setCoinStats({
+          currentBalance: balance,
+          totalEarned: serverStats.totalEarned || 0,
+          totalSpent: serverStats.totalSpent || 0,
+          featuresUsed: (serverStats.topFeatures && serverStats.topFeatures.length) || 0,
+          lastActivity: serverStats.lastActivity ? new Date(serverStats.lastActivity) : undefined
+        });
+      }
+      // ======================== FIX END ========================
+
     } catch (err: any) {
-      console.error('Failed to fetch coin data:', err);
       setError('Failed to load coin information. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial load
+  // Refresh on load and when external events call window.refreshCoinBalance()
   useEffect(() => {
     fetchCoinData();
   }, [user, refreshKey]);
 
-  // Global refresh function for other components
   useEffect(() => {
-    (window as any).refreshCoinBalance = () => {
-      setRefreshKey(prev => prev + 1);
-    };
-
-    return () => {
-      delete (window as any).refreshCoinBalance;
-    };
+    (window as any).refreshCoinBalance = () => setRefreshKey(prev => prev + 1);
+    return () => { delete (window as any).refreshCoinBalance; };
   }, []);
 
-  // Loading state
   if (authLoading || loading) {
     return <LoadingScreen />;
   }
-
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 pt-20 px-4">
@@ -174,7 +180,6 @@ const CoinsPage: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.totalEarned || 0}</div>
             <div className="text-green-600 dark:text-green-400 text-xs sm:text-sm font-medium">coins total</div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-red-200 dark:border-red-800">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
@@ -187,7 +192,6 @@ const CoinsPage: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.totalSpent || 0}</div>
             <div className="text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium">coins used</div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
@@ -200,7 +204,6 @@ const CoinsPage: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">{coinStats?.featuresUsed || 0}</div>
             <div className="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-medium">times</div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-purple-200 dark:border-purple-800">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
@@ -211,10 +214,10 @@ const CoinsPage: React.FC = () => {
               <h3 className="text-purple-600 dark:text-purple-400 font-semibold text-sm sm:text-base">Last</h3>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
-              {coinStats?.lastTransaction 
-                ? new Date(coinStats.lastTransaction).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
+              {coinStats?.lastActivity
+                ? new Date(coinStats.lastActivity).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
                   })
                 : 'None'
               }
@@ -223,7 +226,7 @@ const CoinsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* How to Earn Coins - FIXED */}
+        {/* How to Earn Coins */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
@@ -231,7 +234,6 @@ const CoinsPage: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">How to Earn Coins</h2>
           </div>
-          
           {/* Already Issued - FIXED TEXT */}
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 sm:p-6 mb-6">
             <div className="flex items-start gap-4">
@@ -250,11 +252,9 @@ const CoinsPage: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Coming Soon */}
+          {/* Coming Soon section remains unchanged */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-4">Coming Soon</h3>
-            
             <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl p-4 opacity-75">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center text-xl opacity-50">
@@ -269,7 +269,6 @@ const CoinsPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
             <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl p-4 opacity-75">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center text-xl opacity-50">
@@ -287,7 +286,7 @@ const CoinsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Feature Costs - FIXED MOBILE COIN BADGES */}
+        {/* Feature Costs */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
@@ -295,7 +294,6 @@ const CoinsPage: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">SkillDash Features</h2>
           </div>
-          
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 sm:p-6 border border-blue-200 dark:border-blue-800">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
@@ -314,7 +312,6 @@ const CoinsPage: React.FC = () => {
                 Try Resume Feedback
               </button>
             </div>
-
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 sm:p-6 border border-purple-200 dark:border-purple-800">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-purple-900 dark:text-purple-300 flex-1">Discover Career Paths</h3>
