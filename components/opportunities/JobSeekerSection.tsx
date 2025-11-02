@@ -1,10 +1,14 @@
 import React from 'react';
-import Image from 'next/image';
+// MODIFIED: Using standard img tag to avoid 'next/image' import issues
+// import Image from 'next/image'; 
 
 interface Feature {
   title: string;
   description: string;
   imageUrl: string;
+  // +++ ADDED href and linkText to make each card unique +++
+  href: string;
+  linkText: string;
 }
 
 const FEATURES: Feature[] = [
@@ -12,20 +16,32 @@ const FEATURES: Feature[] = [
     title: "STAND OUT, BE REMEMBERED",
     description: "Showcase your verified skills from our AI Skill Quest and curated courses. Let your abilities, not just your CV, do the talking and capture the attention of top employers.",
     imageUrl: "/opportunities/remembered.png",
+    // +++ ADDED +++
+    href: "/opportunities/job-seeker",
+    linkText: "Explore Job Listings →"
   },
   {
-    title: "OWN YOUR CAREER STORY",
-    description: "Build a dynamic SkillDash profile that grows with you. Track your progress, add new skills, and present a compelling narrative of your journey from a student to a skilled professional.",
-    imageUrl: "/opportunities/career.png",
+    // +++ MODIFIED +++
+    title: "COMPETE AND CONQUER",
+    description: "Prove your strategic thinking and problem-solving skills by joining business case competitions. Showcase your talent to top-tier companies.",
+    imageUrl: "/opportunities/career.png", // Kept the same image as requested
+    // +++ MODIFIED +++
+    href: "/opportunities/bizcomp",
+    linkText: "Enter the Arena →"
   },
   {
     title: "PROVE YOUR ABILITIES",
     description: "Go beyond grades. Our platform allows you to apply your skills in real-world freelance gigs and part-time jobs, giving you a portfolio of tangible experience that employers value.",
     imageUrl: "/opportunities/ability.png",
+    // +++ ADDED +++
+    href: "/opportunities/job-seeker",
+    linkText: "Explore Job Listings →"
   },
 ] as const;
 
-const FeatureSection = React.memo<{ feature: Feature; index: number; maintenanceUrl: string }>(({ feature, index, maintenanceUrl }) => {
+// +++ MODIFIED FeatureSection component +++
+// It no longer needs 'maintenanceUrl' and instead gets the link and text from the 'feature' object
+const FeatureSection = React.memo<{ feature: Feature; index: number }>(({ feature, index }) => {
   const isReversed = index % 2 === 1;
   
   return (
@@ -38,10 +54,11 @@ const FeatureSection = React.memo<{ feature: Feature; index: number; maintenance
           {feature.description}
         </p>
         <a
-          href={maintenanceUrl}
+          // +++ MODIFIED href and link text +++
+          href={feature.href}
           className="inline-block text-lg font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
         >
-          Explore Job Listings &rarr;
+          {feature.linkText}
         </a>
       </div>
       
@@ -50,13 +67,14 @@ const FeatureSection = React.memo<{ feature: Feature; index: number; maintenance
         <div className="relative w-full max-w-md group">
           {/* Responsive container that maintains image aspect ratio */}
           <div className="relative w-full h-auto">
-            <Image 
+            {/* MODIFIED: Using standard img tag */}
+            <img 
               src={feature.imageUrl}
               alt={feature.title}
               width={400}
               height={300}
-              sizes="(max-width: 768px) 100vw, 400px"
               className="rounded-lg shadow-2xl object-contain w-full h-auto transform transition-all duration-300 group-hover:scale-105"
+              loading="lazy"
             />
           </div>
           
@@ -71,7 +89,8 @@ const FeatureSection = React.memo<{ feature: Feature; index: number; maintenance
 FeatureSection.displayName = 'FeatureSection';
 
 const JobSeekerSection = React.memo(() => {
-  const jobSeekerMaintenanceUrl = "/opportunities/job-seeker";
+  // --- This URL is no longer needed by FeatureSection, but kept in case other parts use it ---
+  const jobSeekerMaintenanceUrl = "/opportunities/job-seeker"; 
 
   return (
     <div className="text-gray-800 dark:text-gray-200">
@@ -94,12 +113,13 @@ const JobSeekerSection = React.memo(() => {
 
       <main className="py-20 sm:py-24 px-4">
         <div className="max-w-6xl mx-auto space-y-20">
+          {/* +++ MODIFIED LOOP +++ */}
+          {/* The maintenanceUrl prop is no longer passed */}
           {FEATURES.map((feature, index) => (
             <FeatureSection
               key={feature.title}
               feature={feature}
               index={index}
-              maintenanceUrl={jobSeekerMaintenanceUrl}
             />
           ))}
         </div>
