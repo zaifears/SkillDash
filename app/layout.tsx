@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
 const GTM_ID = 'GTM-MT2LDFM3'
+
 // Optimize font loading with display swap
 const inter = Inter({ 
   subsets: ['latin'],
@@ -16,8 +17,13 @@ const inter = Inter({
   variable: '--font-inter'
 })
 
+// ✅ UPDATED: Added metadataBase and template support for dynamic pages
 export const metadata: Metadata = {
-  title: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
+  metadataBase: new URL('https://skilldash.live'), // ✅ Moved to top for dynamic page support
+  title: {
+    default: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
+    template: '%s | SkillDash', // ✅ NEW: Allows dynamic page titles
+  },
   description: 'Discover skills, learn courses, get AI resume feedback, and find job opportunities. The leading career development platform for Bangladesh\'s youth with personalized learning paths.',
   keywords: [
     "Bangladesh jobs", "skill development", "AI career platform", "resume feedback", 
@@ -39,27 +45,29 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // ✅ UPDATED: Better Open Graph with dynamic support
   openGraph: {
-    title: "SkillDash - AI Gateway for Career Readiness",
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://skilldash.live',
+    siteName: 'SkillDash',
+    title: 'SkillDash - AI Gateway for Career Readiness',
     description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
-    url: "https://skilldash.live",
-    siteName: "SkillDash",
-    type: "website",
-    locale: "en_US",
     images: [
       {
-        url: "https://skilldash.live/web-app-manifest-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "SkillDash - AI Gateway for Career Readiness",
+        url: '/og-image.jpg', // ✅ CHANGED: Use relative path (will be converted to absolute)
+        width: 1200,
+        height: 630,
+        alt: 'SkillDash - AI Gateway for Career Readiness',
       },
     ],
   },
+  // ✅ UPDATED: Better Twitter card
   twitter: {
     card: 'summary_large_image',
     title: 'SkillDash - AI Gateway for Career Readiness',
     description: 'Unlock your potential with AI-powered skill discovery and career opportunities for Bangladesh\'s youth.',
-    images: ['https://skilldash.live/web-app-manifest-512x512.png'],
+    images: ['/og-image.jpg'], // ✅ CHANGED: Use relative path
     creator: '@SkillDashBD',
   },
   icons: {
@@ -73,7 +81,6 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
-  metadataBase: new URL('https://skilldash.live'),
   alternates: {
     canonical: 'https://skilldash.live',
   },
@@ -163,9 +170,9 @@ export default function RootLayout({
                 "url": "https://skilldash.live",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://skilldash.live/web-app-manifest-512x512.png",
-                  "width": 512,
-                  "height": 512
+                  "url": "https://skilldash.live/og-image.jpg",
+                  "width": 1200,
+                  "height": 630
                 },
                 "contactPoint": {
                   "@type": "ContactPoint",
@@ -188,7 +195,7 @@ export default function RootLayout({
               "name": "SkillDash",
               "description": "AI-powered skill development and career platform for Bangladesh's youth",
               "url": "https://skilldash.live",
-              "logo": "https://skilldash.live/web-app-manifest-512x512.png",
+              "logo": "https://skilldash.live/og-image.jpg",
               "areaServed": "BD",
               "educationalCredentialAwarded": "Digital Skills Certificate",
               "offers": [

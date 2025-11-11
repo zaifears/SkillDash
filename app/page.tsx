@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from 'react';
+import { Metadata } from 'next';
 import TypingHeroSection from '../components/TypingHeroSection';
 import CoreFeaturesSection from '../components/CoreFeaturesSection';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -12,6 +13,32 @@ const ContentSections = lazy(() =>
     default: () => <div className="text-center py-20">Content temporarily unavailable</div>
   }))
 );
+
+// ✅ NEW: Custom metadata for homepage
+export const metadata: Metadata = {
+  title: 'SkillDash - AI Gateway for Career Readiness',
+  description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+  openGraph: {
+    title: 'SkillDash - AI Gateway for Career Readiness',
+    description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+    url: 'https://skilldash.live',
+    type: 'website',
+    images: [
+      {
+        url: '/og/og-image.jpg', // ✅ Using your custom homepage OG image
+        width: 1200,
+        height: 630,
+        alt: 'SkillDash - AI-powered career platform for Bangladesh youth'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SkillDash - AI Gateway for Career Readiness',
+    description: "Unlock your potential with AI-powered skill discovery and personalized learning",
+    images: ['/og/og-image.jpg']
+  }
+};
 
 export default function HomePage() {
   return (
