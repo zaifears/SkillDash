@@ -7,10 +7,11 @@ import {
   signOut,
   sendEmailVerification 
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { fetchWithRetry } from '@/lib/utils/apiClient';
-import { updateUserCount } from '@/lib/utils/updateStats'; // ✅ NEW IMPORT
+import { updateUserCount } from '@/lib/utils/updateStats';
 
 interface AuthContextType {
   user: User | null;
@@ -35,11 +36,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [welcomeBonusGranted, setWelcomeBonusGranted] = useState(false);
-  const [userCountUpdated, setUserCountUpdated] = useState(false); // ✅ NEW: Track if count was updated
+  const [userCountUpdated, setUserCountUpdated] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      
+      // ✅ BLOCK ANONYMOUS USERS (Guest login disabled)
+      if (user?.isAnonymous) {
+        console.warn('⚠️ Anonymous users are disabled. Signing out...');
+        await signOut(auth);
+        setUser(null);
+        setIsEmailVerified(false);
+        setWelcomeBonusGranted(false);
+        setUserCountUpdated(false);
+        setLoading(false);
+        return;
+      }
+      
       setUser(user);
       
       if (user) {
@@ -49,23 +63,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nowVerified = user.emailVerified;
         setIsEmailVerified(nowVerified);
         
-        // ✅ NEW: Update user count on first login (new user detection)
-        if (user.metadata.creationTime && !userCountUpdated) {
-          const createdAt = new Date(user.metadata.creationTime);
-          const now = new Date();
-          const isNewUser = (now.getTime() - createdAt.getTime()) < 60000; // Within last 60 seconds
+        // ✅ AUTOMATIC USER DOCUMENT CREATION & COUNT UPDATE
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
           
-          if (isNewUser) {
-            setUserCountUpdated(true); // Prevent duplicate updates
+          if (!userDoc.exists()) {
+            // ✅ NEW USER: Create document
+            console.log('🆕 New user detected, creating document...');
             
-            // Update user count in background
-            updateUserCount().catch(err => 
-              console.error('Failed to update user count:', err)
-            );
+            // Determine provider
+            const provider = user.providerData[0]?.providerId || 'email';
+            const isGoogleUser = provider === 'google.com';
+            const isGitHubUser = provider === 'github.com';
+            
+            await setDoc(userDocRef, {
+              name: user.displayName || user.email?.split('@')[0] || 'User',
+              email: user.email,
+              displayName: user.displayName || null,
+              photoURL: user.photoURL || null,
+              coins: (isGoogleUser || isGitHubUser) ? 5 : 0,
+              status: 'Other',
+              provider: provider,
+              createdAt: new Date().toISOString(),
+            });
+            
+            console.log('✅ User document created');
+            
+            // ✅ FIXED: Pass user.uid to updateUserCount
+            if (!userCountUpdated) {
+              setUserCountUpdated(true);
+              updateUserCount(user.uid).catch(err => 
+                console.error('Failed to update user count:', err)
+              );
+            }
           }
+        } catch (error) {
+          console.error('❌ Failed to create user document:', error);
         }
         
-        // 🎉 GIVE WELCOME BONUS FOR EMAIL VERIFICATION
+        // 🎉 WELCOME BONUS FOR EMAIL VERIFICATION
         if (!wasVerified && nowVerified && user.uid && !welcomeBonusGranted) {
           const isManualSignup = !user.isAnonymous && 
                                 !user.providerData.some(p => p.providerId === 'google.com' || p.providerId === 'github.com');
@@ -78,9 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               
               const response = await fetchWithRetry('/api/coins/add', {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   userId: user.uid,
                   amount: 5,
@@ -101,7 +136,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     detail: { newBalance: result.newBalance } 
                   }));
                 }
-                
               } else {
                 console.error('❌ Welcome bonus transaction failed:', result.error);
                 setWelcomeBonusGranted(false);
@@ -143,16 +177,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setIsEmailVerified(false);
         setWelcomeBonusGranted(false);
-        setUserCountUpdated(false); // ✅ NEW: Reset on logout
+        setUserCountUpdated(false);
       }
       
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [isEmailVerified, welcomeBonusGranted, userCountUpdated]); // ✅ ADDED userCountUpdated
+  }, [isEmailVerified, welcomeBonusGranted, userCountUpdated]);
 
-  // Send verification email
   const sendVerificationEmail = async () => {
     if (user && !user.emailVerified) {
       try {
@@ -165,7 +198,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Refresh verification status with coin balance update
   const refreshVerificationStatus = async () => {
     if (user) {
       try {
@@ -185,14 +217,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Logout function
   const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
       setIsEmailVerified(false);
       setWelcomeBonusGranted(false);
-      setUserCountUpdated(false); // ✅ NEW: Reset on logout
+      setUserCountUpdated(false);
       router.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);

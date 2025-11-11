@@ -1,29 +1,44 @@
-import { doc, setDoc, collection, getCountFromServer } from 'firebase/firestore';
+import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 /**
- * Updates the public user count in Firestore
- * Call this after user registration
+ * Increments user count using transaction (prevents duplicates)
+ * @param userId - Unique user ID to track if already counted
  */
-export async function updateUserCount(): Promise<void> {
+export async function updateUserCount(userId: string): Promise<void> {
   try {
-    console.log('🔄 Updating user count...');
+    console.log(`🔄 Checking if user ${userId} already counted...`);
     
-    // Count all users
-    const usersCollection = collection(db, 'users');
-    const snapshot = await getCountFromServer(usersCollection);
-    const count = snapshot.data().count;
-    
-    // Update public stats document
     const statsRef = doc(db, 'public_stats', 'site_stats');
-    await setDoc(statsRef, {
-      userCount: count,
-      lastUpdated: new Date().toISOString()
-    }, { merge: true });
+    const userTrackRef = doc(db, 'public_stats', 'counted_users', userId);
     
-    console.log(`✅ User count updated: ${count}`);
+    await runTransaction(db, async (transaction) => {
+      // Check if this user was already counted
+      const userTrackDoc = await transaction.get(userTrackRef);
+      
+      if (userTrackDoc.exists()) {
+        console.log('✅ User already counted, skipping...');
+        return; // Already counted, skip
+      }
+      
+      // Mark user as counted
+      transaction.set(userTrackRef, {
+        countedAt: new Date().toISOString()
+      });
+      
+      // Increment count
+      const statsDoc = await transaction.get(statsRef);
+      const currentCount = statsDoc.data()?.userCount || 0;
+      
+      transaction.set(statsRef, {
+        userCount: currentCount + 1,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      
+      console.log(`✅ User count incremented: ${currentCount} → ${currentCount + 1}`);
+    });
+    
   } catch (error) {
     console.error('❌ Failed to update user count:', error);
-    // Don't throw - this shouldn't break user registration
   }
 }

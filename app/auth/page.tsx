@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile, signInAsGuest } from '../../lib/firebase'
+import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile } from '../../lib/firebase'
 import { useRouter } from 'next/navigation'
 import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
 import OptimizedImage from '../../components/shared/OptimizedImage'
-import AuthForm from '../../components/AuthForm'
 import SocialAuth from '../../components/SocialAuth'
 
 export default function AuthPage() {
@@ -28,14 +27,12 @@ export default function AuthPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Handle redirect message
     const msg = sessionStorage.getItem('redirectMessage')
     if (msg) {
       setRedirectMessage(msg)
       sessionStorage.removeItem('redirectMessage')
     }
 
-    // Secure auth state management
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile'
@@ -50,34 +47,16 @@ export default function AuthPage() {
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    setError('') // Clear error on input change
-    setShowSignupSuccess(false) // Clear success state on input change
-  }, [])
-
-  // Guest login handler
-  const handleGuestLogin = async () => {
-    setIsLoading(true)
     setError('')
     setShowSignupSuccess(false)
-    
-    try {
-      await signInAsGuest()
-      setMessage('Signed in as Guest! Welcome to SkillDash.')
-    } catch (err: any) {
-      setError(sanitizeError(err))
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [])
 
   const handleSignUp = async () => {
-    // Rate limiting
     if (!rateLimit(`signup:${formData.email}`)) {
       setError('Too many signup attempts. Please try again later.')
       return
     }
 
-    // Client-side validation
     if (!validateEmail(formData.email)) {
       setError('Please enter a valid email address.')
       return
@@ -123,7 +102,6 @@ export default function AuthPage() {
   }
 
   const handleSignIn = async () => {
-    // Rate limiting
     if (!rateLimit(`signin:${formData.email}`)) {
       setError('Too many login attempts. Please try again later.')
       return
@@ -196,7 +174,6 @@ export default function AuthPage() {
       <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
         
         <div className="text-center">
-          {/* OPTIMIZED: Replaced img tag with OptimizedImage component */}
           <OptimizedImage
             src="/skilldash-logo.png"
             alt="SkillDash Logo"
@@ -214,7 +191,6 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* 🆕 EMAIL VERIFICATION BONUS NOTICE - Only show after successful signup */}
         {showSignupSuccess && (
           <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50">
             <div className="flex items-start gap-3">
@@ -241,7 +217,7 @@ export default function AuthPage() {
                 </div>
                 <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-700">
                   <p className="text-blue-800 dark:text-blue-300 text-xs font-medium">
-                    💡 <strong>Note:</strong> Social login users (Google/GitHub) and guests receive coins immediately!
+                    💡 <strong>Note:</strong> Social login users (Google/GitHub) receive coins immediately!
                   </p>
                 </div>
               </div>
@@ -249,35 +225,6 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* Guest Login Button */}
-        <div className="pt-4">
-          <button
-            onClick={handleGuestLogin}
-            disabled={isLoading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-orange-300 dark:border-orange-600 text-sm font-medium rounded-lg text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-              <span className="text-orange-500 text-lg">👤</span>
-            </span>
-            {isLoading ? 'Signing in...' : 'Continue as Guest'}
-          </button>
-          
-          <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-            Quick access to explore all features + instant 5 coins 🪙
-          </p>
-        </div>
-
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white/90 dark:bg-slate-800/90 text-gray-500 dark:text-gray-400">OR</span>
-          </div>
-        </div>
-
-        {/* Redirect Message */}
         {redirectMessage && (
           <div className="bg-blue-50 dark:bg-blue-900/20 p-3 mb-4 rounded-md border border-blue-200 dark:border-blue-700">
             <p className="text-blue-700 dark:text-blue-300 text-sm text-center">{redirectMessage}</p>
@@ -289,10 +236,6 @@ export default function AuthPage() {
           handleGitHubSignIn={handleGitHubSignIn}
           isLoading={isLoading}
         />
-
-        {/* ================================================================== */}
-        {/* == MANUAL SIGN-IN / SIGN-UP FORM UNHIDDEN == */}
-        {/* ================================================================== */}
         
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -327,22 +270,17 @@ export default function AuthPage() {
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
-        
-        {/* ================================================================== */}
-        {/* == END OF UNHIDDEN SECTION == */}
-        {/* ================================================================== */}
 
       </div>
     </div>
   )
 }
 
-// 🆕 NEW COMPONENT: AuthForm with inline email verification notice
+// Form Component (Kept as is from your original)
 function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handleSubmit, isLoading, error, message }: any) {
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-4">
-        {/* Sign Up Fields */}
         {isSignUp && (
           <>
             <div>
@@ -400,7 +338,6 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
           </>
         )}
 
-        {/* Email Field */}
         <div>
           <input
             id="email"
@@ -414,7 +351,6 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
           />
         </div>
 
-        {/* Password Field */}
         <div>
           <input
             id="password"
@@ -428,7 +364,6 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
           />
         </div>
 
-        {/* Confirm Password Field (Sign Up Only) */}
         {isSignUp && (
           <div>
             <input
@@ -444,7 +379,6 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
           </div>
         )}
 
-        {/* 🆕 EMAIL VERIFICATION NOTICE - Only show during signup, between confirm password and submit button */}
         {isSignUp && (
           <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50 mt-4">
             <div className="flex items-start gap-3">
@@ -471,7 +405,7 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
                 </div>
                 <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-700">
                   <p className="text-blue-800 dark:text-blue-300 text-xs font-medium">
-                    💡 <strong>Note:</strong> Social login users (Google/GitHub) and guests receive coins immediately!
+                    💡 <strong>Note:</strong> Social login users (Google/GitHub) receive coins immediately!
                   </p>
                 </div>
               </div>
@@ -480,21 +414,18 @@ function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handl
         )}
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-700">
           <p className="text-red-700 dark:text-red-300 text-sm text-center">{error}</p>
         </div>
       )}
 
-      {/* Success Message */}
       {message && (
         <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-200 dark:border-green-700">
           <p className="text-green-700 dark:text-green-300 text-sm text-center">{message}</p>
         </div>
       )}
 
-      {/* Submit Button */}
       <div>
         <button
           type="submit"

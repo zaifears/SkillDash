@@ -14,7 +14,6 @@ import {
     sendSignInLinkToEmail,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signInAnonymously,
     sendEmailVerification,
     updateProfile
 } from 'firebase/auth';
@@ -74,31 +73,6 @@ export const getActionCodeSettings = () => ({
     url: `${window.location.origin}/auth`,
     handleCodeInApp: true,
 });
-
-// 🎯 Guest login: coins: 5 (no verification needed)
-export const signInAsGuest = async () => {
-  try {
-    const result = await signInAnonymously(auth);
-    if (result.user) {
-      await updateProfile(result.user, { displayName: 'Guest' });
-      const userDocRef = doc(db, 'users', result.user.uid);
-      await setDoc(userDocRef, {
-        name: 'Guest', 
-        email: null,
-        age: null, 
-        status: 'Other', 
-        phone: '',
-        isGuest: true,
-        coins: 5, // ✅ Guests get coins immediately
-        createdAt: new Date().toISOString()
-      });
-    }
-    return result.user;
-  } catch (error) {
-    console.error('Guest login error:', error);
-    throw error;
-  }
-};
 
 // 🎯 Social login result: coins: 5 (no verification needed)
 const handleSocialSignInResult = async (user: any) => {
