@@ -27,7 +27,7 @@ const logWarning = (context: string, message: string, data?: any) => {
   console.warn(`⚠️ [CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
-// 🔧 SERVICE ACCOUNT WITH YOUR EXACT PRIVATE KEY (KEPT AS REQUESTED)
+// 🔧 SERVICE ACCOUNT CONFIGURATION
 const serviceAccount = {
   type: "service_account",
   project_id: "skilldash-c588d",
@@ -64,7 +64,7 @@ function initializeFirebaseAdmin() {
       attempt: initializationAttempts
     });
     return true;
-  } catch (error) {
+  } catch (error: any) {
     logError('INIT', error, { 
       serviceAccountKeys: Object.keys(serviceAccount || {}),
       appsLength: getApps().length,
@@ -96,7 +96,7 @@ function initializeFirestore() {
       logSuccess('DB', 'Firestore connection established successfully');
     }
     return db;
-  } catch (error) {
+  } catch (error: any) {
     logError('DB', error, { 
       appsLength: getApps().length,
       dbInitialized,
@@ -115,6 +115,7 @@ interface CoinOperationResult {
   transactionId?: string;
   timestamp?: Date;
 }
+
 interface TransactionRecord {
   id?: string;
   userId: string;
@@ -154,7 +155,7 @@ export class CoinManagerServer {
         return true;
       }
       return true;
-    } catch (error) {
+    } catch (error: any) {
       logError(context, error, { userId });
       return false;
     }
@@ -184,7 +185,7 @@ export class CoinManagerServer {
       const hasEnough = currentCoins >= requiredCoins;
       logInfo(context, `User ${userId} has ${currentCoins} coins (needs ${requiredCoins}) - ${hasEnough ? 'SUFFICIENT' : 'INSUFFICIENT'}`);
       return hasEnough;
-    } catch (error) {
+    } catch (error: any) {
       logError(context, error, { userId, requiredCoins });
       return false;
     }
@@ -209,7 +210,7 @@ export class CoinManagerServer {
       const balance = userData?.coins || 0;
       logSuccess(context, `User ${userId} balance: ${balance} coins`);
       return balance;
-    } catch (error) {
+    } catch (error: any) {
       logError(context, error, { userId });
       return 0;
     }
@@ -242,7 +243,7 @@ export class CoinManagerServer {
       }
       logInfo(context, `Starting coin deduction: ${amount} coins for ${feature} (user: ${userId})`);
       await this.ensureUserExists(userId);
-      const result = await db.runTransaction(async (transaction) => {
+      const result = await db.runTransaction(async (transaction: any) => {
         const userDocRef = db.collection('users').doc(userId);
         const userDoc = await transaction.get(userDocRef);
         if (!userDoc.exists) {
@@ -286,7 +287,7 @@ export class CoinManagerServer {
         });
         transactionId = transactionDoc.id;
         logSuccess(context, 'Transaction logged successfully', { transactionId });
-      } catch (transactionLogError) {
+      } catch (transactionLogError: any) {
         logError(context, transactionLogError, { userId, amount, feature, phase: 'logging' });
       }
       logSuccess(context, `Successfully deducted ${amount} coin(s) for ${feature}. New balance: ${result.newBalance}`);
@@ -358,6 +359,7 @@ export class CoinManagerServer {
         return { success: false, newBalance: 0, error, timestamp };
       }
       logInfo(context, `Starting coin addition: ${amount} coins for ${reason} (user: ${userId})`);
+      
       // >>>>>> PREVENT DUPLICATE <<<<<<
       if (reason === 'welcome_bonus') {
         const previousBonus = await db.collection('coinTransactions')
@@ -377,8 +379,9 @@ export class CoinManagerServer {
           };
         }
       }
+      
       // Continue normal granting
-      const result = await db.runTransaction(async (transaction) => {
+      const result = await db.runTransaction(async (transaction: any) => {
         const userDocRef = db.collection('users').doc(userId);
         const userDoc = await transaction.get(userDocRef);
         let currentCoins = 0;
@@ -410,6 +413,7 @@ export class CoinManagerServer {
         logSuccess(context, `Transaction successful: ${currentCoins} → ${newBalance} coins`);
         return { newBalance, beforeBalance };
       });
+      
       let transactionId: string | undefined;
       try {
         const transactionDoc = await db.collection('coinTransactions').add({
@@ -432,9 +436,10 @@ export class CoinManagerServer {
         });
         transactionId = transactionDoc.id;
         logSuccess(context, 'Transaction logged successfully', { transactionId });
-      } catch (transactionLogError) {
+      } catch (transactionLogError: any) {
         logError(context, transactionLogError, { userId, amount, reason, phase: 'logging' });
       }
+      
       logSuccess(context, `Successfully added ${amount} coin(s) for ${reason}. New balance: ${result.newBalance}`);
       return { 
         success: true, 
@@ -484,7 +489,7 @@ export class CoinManagerServer {
         return { success: false, transactions: [], error };
       }
       logInfo(context, `Getting transaction history for user ${userId} (limit: ${limit}, action: ${action || 'all'})`);
-      let query = db
+      let query: any = db
         .collection('coinTransactions')
         .where('userId', '==', userId);
       if (action) {
@@ -494,7 +499,7 @@ export class CoinManagerServer {
         .orderBy('timestamp', 'desc')
         .limit(Math.min(limit, 100))
         .get();
-      const transactions: TransactionRecord[] = transactionsQuery.docs.map(doc => {
+      const transactions: TransactionRecord[] = transactionsQuery.docs.map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -660,7 +665,7 @@ export async function healthCheck(): Promise<{ status: 'healthy' | 'unhealthy'; 
         environment: process.env.NODE_ENV || 'development'
       }
     };
-  } catch (error) {
+  } catch (error: any) {
     logError('HEALTH_CHECK', error);
     return {
       status: 'unhealthy',

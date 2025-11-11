@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // Disable ESLint during builds
-    ignoreDuringBuilds: true,
+    // ✅ Re-enable ESLint during builds for production quality
+    ignoreDuringBuilds: false,
   },
   typescript: {
     // Keep TypeScript checking enabled
@@ -11,8 +11,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['react-icons'],
   },
-  // Move this outside experimental (Next.js 15+)
-  outputFileTracingRoot: process.cwd(),
   
   // Optimize images
   images: {
@@ -24,17 +22,18 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Remove swcMinify as it's default in Next.js 13+
   compiler: {
     // Remove console logs in production
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
   },
   
   // Fixed HTTP headers with correct regex
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path*',
         headers: [
           {
             key: 'X-Frame-Options',
@@ -56,16 +55,6 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=0, must-revalidate',
-          },
-        ],
-      },
-      // Fixed regex pattern - removed problematic capturing group
-      {
-        source: '/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

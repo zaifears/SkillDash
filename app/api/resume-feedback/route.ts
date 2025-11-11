@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { detectPromptInjection } from '@/lib/utils/validation'; // ✅ USING SHARED
-import { LIMITS } from '@/lib/constants'; // ✅ USING CONSTANTS
+import { detectPromptInjection } from '@/lib/utils/validation';
+import { LIMITS } from '@/lib/constants';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Perplexity from '@perplexity-ai/perplexity_ai';
 import Groq from 'groq-sdk';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
 
-// Force Node.js runtime for longer timeouts
+// 🔥 PRODUCTION OPTIMIZATION: Force Node.js runtime for longer timeouts
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -16,9 +16,10 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
 if (!GOOGLE_API_KEY) {
-    throw new Error("GOOGLE_API_KEY environment variable not set");
+    console.error("❌ GOOGLE_API_KEY not configured");
 }
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+
+const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 
 // Initialize clients
 const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({ apiKey: PERPLEXITY_API_KEY }) : null;
@@ -27,9 +28,67 @@ const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 // File upload constants
 const MAX_FILE_SIZE = 200 * 1024; // 200KB
 const ALLOWED_TYPES = [
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ];
+
+// --- 🚦 RATE LIMITING (In-Memory Store) ---
+interface RateLimitEntry {
+    count: number;
+    resetTime: number;
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+
+// Periodic cleanup to prevent memory leak
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of rateLimitStore.entries()) {
+        if (now > value.resetTime) {
+            rateLimitStore.delete(key);
+        }
+    }
+}, 60000); // Clean every minute
+
+const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: number } => {
+    const forwarded = req.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown';
+    
+    const userAgent = req.headers.get('user-agent') || '';
+    const suspiciousPatterns = ['bot', 'crawler', 'spider', 'scraper'];
+    if (suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p))) {
+        return { allowed: false };
+    }
+    
+    const now = Date.now();
+    const entry = rateLimitStore.get(ip);
+    
+    // Clean up old entries periodically
+    if (rateLimitStore.size > 1000) {
+        for (const [key, value] of rateLimitStore.entries()) {
+            if (now > value.resetTime) {
+                rateLimitStore.delete(key);
+            }
+        }
+    }
+    
+    if (!entry || now > entry.resetTime) {
+        rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return { allowed: true };
+    }
+    
+    if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+        const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
+        console.log(`🚫 [Rate Limit] IP ${ip} exceeded limit (${entry.count}/${RATE_LIMIT_MAX_REQUESTS})`);
+        return { allowed: false, retryAfter };
+    }
+    
+    entry.count++;
+    rateLimitStore.set(ip, entry);
+    return { allowed: true };
+};
 
 // --- STREAMLINED VALIDATION ---
 const filterSuspiciousContent = (content: string): boolean => {
@@ -41,9 +100,8 @@ const filterSuspiciousContent = (content: string): boolean => {
     return patterns.some(pattern => pattern.test(content));
 };
 
-// 🔧 UPDATED: Fixed validation
 const validateResumeContent = (content: string): { isValid: boolean; reason?: string; isBlocked?: boolean } => {
-    if (detectPromptInjection(content) || filterSuspiciousContent(content)) { // ✅ USING SHARED
+    if (detectPromptInjection(content) || filterSuspiciousContent(content)) {
         console.log('🚨 BLOCKED RESUME INJECTION ATTEMPT:', content.substring(0, 100));
         return { isValid: false, reason: 'injection_attempt', isBlocked: true };
     }
@@ -60,7 +118,7 @@ const validateResumeContent = (content: string): { isValid: boolean; reason?: st
         'gpa', 'cgpa', 'graduation', 'bachelor', 'bba', 'hsc', 'ssc', 'chartered', 'accountancy',
         'linkedin', 'email', 'phone', 'address', 'contact'
     ];
-
+    
     if (irrelevantKeywords.some(keyword => lowerContent.includes(keyword))) {
         return { isValid: false, reason: 'irrelevant_content' };
     }
@@ -81,6 +139,13 @@ async function extractTextWithGemini(file: File, industryPreference: string): Pr
     try {
         console.log('🤖 [STEP 1] Gemini extracting text from file...');
         
+        if (!genAI || !GOOGLE_API_KEY) {
+            return { 
+                success: false, 
+                error: 'Text extraction unavailable. Please paste your resume text directly.' 
+            };
+        }
+        
         const buffer = Buffer.from(await file.arrayBuffer());
         const base64Data = buffer.toString('base64');
         
@@ -90,12 +155,12 @@ async function extractTextWithGemini(file: File, industryPreference: string): Pr
                 mimeType: file.type
             }
         };
-
+        
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.0-flash",
             systemInstruction: `You are a text extraction expert. Extract clean, readable text from resume files for the ${industryPreference} industry.`
         });
-
+        
         const prompt = `Extract ALL text content from this resume file and return ONLY the clean, readable text.
 
 Requirements:
@@ -109,7 +174,7 @@ Requirements:
 Expected sections: Contact Info, Summary, Work Experience, Education, Skills, Projects, Certifications
 
 Return extracted text directly without markdown or formatting.`;
-
+        
         const result = await model.generateContent([prompt, fileData]);
         const extractedText = result.response.text().trim();
         
@@ -122,9 +187,9 @@ Return extracted text directly without markdown or formatting.`;
                 error: 'Could not extract readable text from file. Please ensure it contains actual resume content.' 
             };
         }
-
+        
         return { success: true, text: extractedText };
-
+        
     } catch (error: any) {
         console.error('❌ [STEP 1] Gemini extraction failed:', error.message);
         return { 
@@ -219,7 +284,7 @@ const cleanAndExtractJSON = (content: string): string => {
 async function withTimeout<T>(
     providerName: string,
     providerFn: () => Promise<T>,
-    timeoutMs: number = 15000
+    timeoutMs: number = 7000
 ): Promise<{ success: boolean; result?: T; error?: string }> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -237,83 +302,60 @@ async function withTimeout<T>(
     }
 }
 
-// 🔥 STEP 2: YOUR PREFERRED AI CHAIN (Perplexity → Groq Versatile → Groq GPT → Gemini)
+// 1️⃣ PRIMARY: Perplexity Sonar (RESUME FEEDBACK)
 async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!perplexityClient || !PERPLEXITY_API_KEY) {
         return { success: false, error: 'Perplexity API key not configured' };
     }
-
-    const result = await withTimeout('Perplexity', async () => {
+    
+    const result = await withTimeout('Perplexity Sonar (Resume)', async () => {
         const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
-        const completion = await perplexityClient.chat.completions.create({ messages: messagesWithSystem as any, model: "sonar", max_tokens: 3000, temperature: 0.2 });
+        const completion = await perplexityClient.chat.completions.create({ 
+            messages: messagesWithSystem as any, 
+            model: "sonar", 
+            max_tokens: 3000, 
+            temperature: 0.2 
+        });
         const rawContent = completion.choices?.[0]?.message?.content;
         if (!rawContent) throw new Error('No content in Perplexity response');
         const content = extractContentFromPerplexity(rawContent);
         if (!content) throw new Error('Could not extract content from Perplexity response');
         return cleanAndExtractJSON(content);
-    });
-
+    }, 7000);
+    
     return result.success ? { success: true, content: result.result, provider: 'perplexity-sonar' } : { success: false, error: result.error };
 }
 
-async function tryGroqVersatileAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
+// 2️⃣ SECONDARY: Groq Llama-3.3-70B (RESUME FEEDBACK)
+async function tryGroqLlamaAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     if (!groqClient || !GROQ_API_KEY) {
         return { success: false, error: 'Groq API key not configured' };
     }
-
-    const result = await withTimeout('Groq Versatile', async () => {
+    
+    const result = await withTimeout('Groq Llama (Resume)', async () => {
         const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
-        const completion = await groqClient.chat.completions.create({ model: "llama-3.3-70b-versatile", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
+        const completion = await groqClient.chat.completions.create({ 
+            model: "llama-3.3-70b-versatile", 
+            messages: messagesWithSystem, 
+            max_tokens: 3000, 
+            temperature: 0.2, 
+            response_format: { type: "json_object" } 
+        });
         const content = completion.choices?.[0]?.message?.content;
-        if (!content) throw new Error('No content in Groq Versatile response');
+        if (!content) throw new Error('No content in Groq Llama response');
         return cleanAndExtractJSON(content);
-    });
-
-    return result.success ? { success: true, content: result.result, provider: 'groq-versatile' } : { success: false, error: result.error };
+    }, 7000);
+    
+    return result.success ? { success: true, content: result.result, provider: 'groq-llama-3.3-70b' } : { success: false, error: result.error };
 }
 
-async function tryGroqGPTAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
-    if (!groqClient || !GROQ_API_KEY) {
-        return { success: false, error: 'Groq API key not configured' };
-    }
-
-    const enhancedSystemInstruction = systemInstruction + `\nCRITICAL FOR THIS MODEL: ALWAYS include "atsScore" as a number, "suggestedActionVerbs" as an array. NEVER skip any required JSON fields. Ensure all arrays have at least one item. Double-check JSON validity.`;
-
-    const result = await withTimeout('Groq GPT', async () => {
-        const messagesWithSystem = [ { role: 'system', content: enhancedSystemInstruction }, ...apiMessages ];
-        const completion = await groqClient.chat.completions.create({ model: "openai/gpt-oss-120b", messages: messagesWithSystem, max_tokens: 3000, temperature: 0.2, response_format: { type: "json_object" } });
-        const content = completion.choices?.[0]?.message?.content;
-        if (!content) throw new Error('No content in Groq GPT response');
-        return cleanAndExtractJSON(content);
-    });
-
-    return result.success ? { success: true, content: result.result, provider: 'groq-gpt' } : { success: false, error: result.error };
-}
-
-async function useGeminiAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
-    const result = await withTimeout('Google Gemini 2.0 Flash', async () => {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction });
-        const history = apiMessages.slice(0, -1).map((msg: any) => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{ text: msg.content }] }));
-        const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 3000, temperature: 0.2, responseMimeType: "application/json" } });
-        const latestMessage = apiMessages[apiMessages.length - 1]?.content || '';
-        const geminiResult = await chat.sendMessage(latestMessage);
-        const content = geminiResult.response.text();
-        if (!content) throw new Error("Gemini returned an empty response.");
-        return cleanAndExtractJSON(content);
-    });
-
-    return result.success ? { success: true, content: result.result, provider: 'gemini-2.0-flash' } : { success: false, error: result.error };
-}
-
-// 🔥 YOUR PREFERRED PROVIDER CHAIN: Perplexity → Groq Versatile → Groq GPT → Gemini
+// 🔥 RESUME FEEDBACK: Perplexity → Groq Llama (2 providers only)
 async function executeWithFallback(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
-    console.log('🔥 [STEP 2] Starting analysis with your preferred AI chain...');
+    console.log('🔥 [STEP 2] Starting analysis with Resume feedback AI chain...');
     
     const providers = [
         () => tryPerplexityAPI(apiMessages, systemInstruction),
-        () => tryGroqVersatileAPI(apiMessages, systemInstruction),
-        () => tryGroqGPTAPI(apiMessages, systemInstruction),
-        () => useGeminiAPI(apiMessages, systemInstruction),
+        () => tryGroqLlamaAPI(apiMessages, systemInstruction),
     ];
     
     let lastError = '';
@@ -334,14 +376,27 @@ export async function POST(req: NextRequest) {
     try {
         console.log('🚀 [API] Resume feedback request started');
         
-        // 🆕 NEW: Check if this is a file upload request
+        // 🚦 CHECK RATE LIMIT FIRST
+        const rateLimitResult = checkRateLimit(req);
+        if (!rateLimitResult.allowed) {
+            console.log('🚫 [API] Rate limit exceeded');
+            return NextResponse.json({
+                error: 'Too many requests. Please try again later.',
+                retryAfter: rateLimitResult.retryAfter
+            }, {
+                status: 429,
+                headers: rateLimitResult.retryAfter
+                    ? { 'Retry-After': String(rateLimitResult.retryAfter) }
+                    : {}
+            });
+        }
+        
         const contentType = req.headers.get('content-type') || '';
         let body: any = {};
         let resumeText = '';
         let isFileUpload = false;
-
+        
         if (contentType.includes('multipart/form-data')) {
-            // 🔧 2-STEP PROCESS: Gemini extracts → Your chain analyzes
             console.log('📁 [API] Processing file upload with 2-step approach...');
             isFileUpload = true;
             
@@ -354,21 +409,21 @@ export async function POST(req: NextRequest) {
             if (!file) {
                 return NextResponse.json({ error: 'No file provided' }, { status: 400 });
             }
-
+            
             // File size validation
             if (file.size > MAX_FILE_SIZE) {
                 return NextResponse.json({ 
                     error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024}KB` 
                 }, { status: 400 });
             }
-
+            
             // File type validation
             if (!ALLOWED_TYPES.includes(file.type)) {
                 return NextResponse.json({ 
                     error: 'Invalid file type. Only PDF and DOCX files are allowed' 
                 }, { status: 400 });
             }
-
+            
             // 🪙 Check coins first for file uploads
             if (userId) {
                 console.log('🪙 [API] Checking coins for file analysis...');
@@ -383,34 +438,34 @@ export async function POST(req: NextRequest) {
                 }
                 await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
             }
-
+            
             // 🔥 STEP 1: Extract text with Gemini
             const extractionResult = await extractTextWithGemini(file, industryPreference);
             if (!extractionResult.success) {
                 return NextResponse.json({ error: extractionResult.error }, { status: 400 });
             }
-
+            
             // 🔥 STEP 2: Set extracted text as resumeText for analysis
             resumeText = extractionResult.text!;
             body = { industryPreference, jobDescription, userId };
             
             console.log(`✅ [API] Text extraction completed, proceeding to analysis...`);
-
+            
         } else {
             // Handle regular JSON request (existing functionality)
             body = await req.json();
             resumeText = body.resumeText || '';
         }
-
+        
         const {
             jobDescription,
             messages = [],
             industryPreference = 'a general entry-level position in Bangladesh',
             userId
         } = body;
-
+        
         const isInitialAnalysis = !!resumeText;
-
+        
         // VALIDATE CONTENT FIRST BEFORE DEDUCTING COINS (only for text input)
         const contentToValidate = resumeText || (messages[messages.length - 1]?.content || '');
         
@@ -426,7 +481,7 @@ export async function POST(req: NextRequest) {
             }
             return NextResponse.json({ error: `Invalid content: ${validation.reason}` }, { status: 400 });
         }
-
+        
         // NOW CHECK AND DEDUCT COINS AFTER VALIDATION PASSES (only for text input)
         if (isInitialAnalysis && userId && !isFileUpload) {
             console.log('🪙 [API] Checking coins for resume feedback...');
@@ -441,7 +496,7 @@ export async function POST(req: NextRequest) {
             }
             await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback');
         }
-
+        
         let apiMessages: { role: string; content: string }[] = [];
         if (isInitialAnalysis) {
             let prompt = `Analyze this resume for the ${industryPreference} industry in Bangladesh.\n\n**Resume:**\n${resumeText}`;
@@ -452,16 +507,16 @@ export async function POST(req: NextRequest) {
         } else {
             apiMessages = messages;
         }
-
+        
         if (apiMessages.length === 0) {
             return NextResponse.json({ error: 'No content for analysis.' }, { status: 400 });
         }
-
+        
         const systemInstruction = createSystemInstruction(industryPreference, !!jobDescription);
         
-        // 🔥 STEP 2: Analyze with your preferred provider chain
+        // 🔥 STEP 2: Analyze with Perplexity → Groq Llama
         const result = await executeWithFallback(apiMessages, systemInstruction);
-
+        
         let feedbackObject;
         try {
             if (!result.content) {
@@ -475,7 +530,7 @@ export async function POST(req: NextRequest) {
                 error: 'The AI returned an invalid format. Please try again.' 
             }, { status: 500 });
         }
-
+        
         console.log(`✅ [API] Complete analysis finished in ${Date.now() - startTime}ms via ${result.provider}`);
         
         return NextResponse.json({
@@ -484,7 +539,7 @@ export async function POST(req: NextRequest) {
             providerInfo: `Analysis powered by ${result.provider}${isFileUpload ? ' (with Gemini text extraction)' : ''}`,
             conversationEnded: isInitialAnalysis
         });
-
+        
     } catch (error: any) {
         console.error('❌ [API] Resume feedback error:', {
             message: error.message,

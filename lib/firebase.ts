@@ -1,4 +1,4 @@
-// lib/firebase.ts - AUTOGENERATE COINS FIELD FOR ALL NEW USERS
+// lib/firebase.ts - CLIENT-SIDE Firebase with auto coin generation
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 

@@ -3,21 +3,22 @@ import { detectPromptInjection } from '@/lib/utils/validation';
 import { LIMITS } from '@/lib/constants';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import Groq from 'groq-sdk';
-import Perplexity from '@perplexity-ai/perplexity_ai';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
+
+// 🔥 PRODUCTION OPTIMIZATION: Force Node.js runtime for longer timeouts
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // --- ENVIRONMENT VARIABLES & INITIALIZATION ---
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
 if (!GOOGLE_API_KEY) {
-    throw new Error("GOOGLE_API_KEY environment variable not set");
+    console.error("❌ GOOGLE_API_KEY not configured");
 }
 
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
-const perplexityClient = PERPLEXITY_API_KEY ? new Perplexity({ apiKey: PERPLEXITY_API_KEY }) : null;
 
 // --- 🚦 RATE LIMITING (In-Memory Store) ---
 interface RateLimitEntry {
@@ -29,21 +30,29 @@ const rateLimitStore = new Map<string, RateLimitEntry>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
 
+// Periodic cleanup to prevent memory leak
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of rateLimitStore.entries()) {
+        if (now > value.resetTime) {
+            rateLimitStore.delete(key);
+        }
+    }
+}, 60000); // Clean every minute
+
 const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: number } => {
-    // Get IP address
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown';
     
-    // Check for suspicious user agents
     const userAgent = req.headers.get('user-agent') || '';
     const suspiciousPatterns = ['bot', 'crawler', 'spider', 'scraper'];
     if (suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p))) {
         return { allowed: false };
     }
-
+    
     const now = Date.now();
     const entry = rateLimitStore.get(ip);
-
+    
     // Clean up old entries periodically
     if (rateLimitStore.size > 1000) {
         for (const [key, value] of rateLimitStore.entries()) {
@@ -52,82 +61,48 @@ const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: numb
             }
         }
     }
-
+    
     if (!entry || now > entry.resetTime) {
-        // New window
-        rateLimitStore.set(ip, {
-            count: 1,
-            resetTime: now + RATE_LIMIT_WINDOW
-        });
+        rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
         return { allowed: true };
     }
-
+    
     if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
         const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
         console.log(`🚫 [Rate Limit] IP ${ip} exceeded limit (${entry.count}/${RATE_LIMIT_MAX_REQUESTS})`);
         return { allowed: false, retryAfter };
     }
-
+    
     entry.count++;
     rateLimitStore.set(ip, entry);
     return { allowed: true };
 };
 
-// --- 🔧 TYPESCRIPT FIX: EXTRACT CONTENT FROM PERPLEXITY'S COMPLEX RESPONSE ---
-const extractContentFromPerplexity = (content: any): string => {
-    if (typeof content === 'string') return content;
-    
-    if (Array.isArray(content)) {
-        return content
-            .filter(chunk => chunk && (chunk.type === 'text' || !chunk.type))
-            .map(chunk => chunk.text || chunk.content || String(chunk))
-            .join(' ')
-            .trim();
-    }
-    
-    return String(content || '');
-};
-
-// --- IMPROVED SPAM DETECTION (MORE LENIENT FOR CAREER RESPONSES) ---
+// --- IMPROVED SPAM DETECTION ---
 const detectSpamContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase().trim();
-    
-    // Allow any response with 10+ characters (likely meaningful)
     if (cleanContent.length >= 10) return false;
-    
-    // Block very short responses (but allow meaningful ones like "Excel", "Design")
     if (cleanContent.length < 2) return true;
     
-    // Allow responses with career-relevant keywords
     const careerKeywords = [
         'data', 'analysis', 'analyze', 'study', 'learn', 'project', 'work',
         'design', 'code', 'teach', 'help', 'manage', 'build', 'create',
         'excel', 'write', 'research', 'financial', 'calculus', 'semester',
         'class', 'result', 'grade', 'subject', 'skill', 'career', 'job'
     ];
-    
     if (careerKeywords.some(keyword => cleanContent.includes(keyword))) {
-        return false; // Not spam if contains career-related words
+        return false;
     }
     
     const spamPatterns = [
-        // Meaningless responses (only exact matches)
         /^(idk|dk|dunno|whatever|nothing|nah|lol|haha|meh|hmm|ok|yes|no|maybe)$/,
-        // Single word negative responses
         /^(nope|never|will|not|wont|cant|dont|stop|quit|fine)$/,
-        // Non-serious responses (only exact matches, NOT in longer sentences)
         /^(sure|yeah|yep|uh|um|er|well)$/,
-        // Keyboard mashing - multiple chars repeated
-        /^(.)\1{3,}$/, // aaaa, bbbb, etc
-        // Random keyboard patterns
+        /^(.)\1{3,}$/,
         /qwertyuiop|asdfghjkl|zxcvbnm/,
-        // Only numbers or symbols
         /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
-        // Single meaningless characters
-        /^[bcfghjklmnpqrstvwxyz]$/, // Allow vowels and meaningful letters
-        // Gibberish (3+ consonants with no vowels, only if short)
+        /^[bcfghjklmnpqrstvwxyz]$/,
         /^[bcdfghjklmnpqrstvwxyz]{3,}$/,
-        // Common dismissive single-word responses
         /^(boring|stupid|dumb|hate|bad|worst|terrible|awful)$/
     ];
     
@@ -142,41 +117,30 @@ const detectReligiousContent = (content: string): boolean => {
         'halal', 'mosque', 'masjid', 'religious', 'faith', 'believe', 'worship',
         'blessed', 'blessing', 'dua', 'sunnah', 'prophet', 'messenger', 'fear allah'
     ];
-    
-    // ✅ FIX: Use a regular expression to match whole words only to prevent false positives
     const regex = new RegExp(`\\b(${religiousKeywords.join('|')})\\b`, 'i');
-    
     return regex.test(cleanContent);
 };
 
 const detectAggressiveContent = (content: string): boolean => {
     const cleanContent = content.toLowerCase();
-    
-    // ✅ FIX: Separate whole words from phrases to prevent false positives
     const aggressiveWords = [
         'fuck', 'shit', 'damn', 'hell', 'bitch', 'ass', 'crap', 'bastard', 'piss', 'nigger', 'nigga',
-        'stupid', 'dumb', 'idiot', 'moron', 'retard', 'loser',
-        'kill', 'die', 'dead', 'murder'
+        'stupid', 'dumb', 'idiot', 'moron', 'retard', 'loser', 'kill', 'die', 'dead', 'murder'
     ];
-    
     const aggressivePhrases = [
         /hate you/, /suck/, /worst/, /terrible/, /awful/,
         /shut up/, /go away/, /leave me/, /piss off/,
         /screw you/, /go to hell/, /fuck off/, /fuck you/
     ];
-
-    // Create a regex for whole words from the list
+    
     const wordRegex = new RegExp(`\\b(${aggressiveWords.join('|')})\\b`, 'i');
-
-    // Test for whole words OR for phrases
     if (wordRegex.test(cleanContent)) {
         return true;
     }
-    
     return aggressivePhrases.some(pattern => pattern.test(cleanContent));
 };
 
-// --- 🎯 SYSTEM INSTRUCTION WITH 10-QUESTION FRAMEWORK ---
+// --- 🎯 SYSTEM INSTRUCTION ---
 const systemInstruction = `
 You are 'SkillDashAI', an expert career counselor specifically for university students and recent graduates in Bangladesh. You must efficiently identify a student's core skills and interests in EXACTLY 5-10 questions maximum, then provide comprehensive career guidance tailored to the Bangladesh job market.
 
@@ -220,23 +184,14 @@ Use these strategic questions to uncover student skills and interests:
 **IMPORTANT: NEVER include "Q1", "Q2", "Q3" etc. in your responses. Write naturally without question labels.**
 
 **Question 1 - PASSION DISCOVERY**: "If you had a completely free weekend to work on any project you wanted, what would you build or create? (Dream big! ✨)"
-
 **Question 2 - ACADEMIC FOUNDATION**: "What subjects in university/HSC did you find easiest to excel in, and which ones felt like a struggle? Also, any subjects you loved even if they were challenging?"
-
 **Question 3 - PRACTICAL SKILLS**: "Rate your comfort level with: Excel/data analysis, social media/content creation, presenting to groups, writing reports, coding/tech tools, and hands-on problem-solving. Which feels most natural?"
-
 **Question 4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
-
 **Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, GP, Brac Bank, etc.)?"
-
 **Question 6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
-
 **Question 7 - PROBLEM-SOLVING STYLE**: "When facing a challenge, do you prefer: researching extensively first, diving in and experimenting, asking experts for guidance, or brainstorming creative solutions? Give me an example."
-
 **Question 8 - CAREER PRIORITIES**: "What matters most to you in your ideal career: high salary potential, work-life balance, creative freedom, job security, rapid career growth, or making a social impact? Rank your top 3 priorities."
-
 **Question 9 - GROWTH & LEARNING**: "Think about skills you've developed quickly in the past - was it through formal training, hands-on practice, watching others, or self-study? What's your preferred way to learn new things, and what skill would you most like to develop next?"
-
 **Question 10 - FUTURE VISION**: "Fast-forward 5 years: describe your ideal workday. Where are you working, what tasks are you doing, who are you working with, and what achievement would make you feel most proud? What role would suit this vision best in Bangladesh's job market?"
 
 **QUESTION STRATEGY:**
@@ -267,7 +222,7 @@ interface ProviderResponse {
     provider: string;
 }
 
-// --- VALIDATION (BLOCKS AT 3 INAPPROPRIATE RESPONSES) ---
+// --- VALIDATION ---
 const validateDiscoverInput = (messages: any[]): {
     isValid: boolean;
     spamCount: number;
@@ -282,18 +237,18 @@ const validateDiscoverInput = (messages: any[]): {
     error?: string;
 } => {
     if (!Array.isArray(messages) || messages.length === 0) {
-        return { 
+        return {
             isValid: false, spamCount: 0, religiousCount: 0, aggressiveCount: 0, questionCount: 0, totalInappropriate: 0,
-            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
-            error: 'Invalid messages' 
+            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false,
+            error: 'Invalid messages'
         };
     }
     
     if (messages.length > LIMITS.MAX_CONVERSATION_LENGTH) {
-        return { 
+        return {
             isValid: false, spamCount: 0, religiousCount: 0, aggressiveCount: 0, questionCount: 0, totalInappropriate: 0,
-            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
-            error: 'Conversation too long' 
+            shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false,
+            error: 'Conversation too long'
         };
     }
     
@@ -305,57 +260,55 @@ const validateDiscoverInput = (messages: any[]): {
     for (let i = 0; i < messages.length; i++) {
         const msg = messages[i];
         if (!msg?.content || typeof msg.content !== 'string') {
-            return { 
+            return {
                 isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
-                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
-                error: `Invalid message content at index ${i}` 
+                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false,
+                error: `Invalid message content at index ${i}`
             };
         }
         
         if (msg.content.length > LIMITS.MAX_MESSAGE_LENGTH * 4) {
-            return { 
+            return {
                 isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
-                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false, 
-                error: `Message too long at index ${i}` 
+                shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: false,
+                error: `Message too long at index ${i}`
             };
         }
         
         if (msg.role === 'user') {
             if (detectPromptInjection(msg.content)) {
                 console.log('🚨 BLOCKED SUSPICIOUS INPUT:', msg.content.substring(0, 100));
-                return { 
+                return {
                     isValid: false, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate: 0,
-                    shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: true, 
-                    error: 'Invalid input detected' 
+                    shouldWarnSpam: false, shouldWarnReligious: false, shouldWarnAggressive: false, shouldBlock: true,
+                    error: 'Invalid input detected'
                 };
             }
-            
             if (detectSpamContent(msg.content)) spamCount++;
             if (detectReligiousContent(msg.content)) religiousCount++;
             if (detectAggressiveContent(msg.content)) aggressiveCount++;
         }
         
-        // FIXED: Count assistant questions without i > 0
         if (msg.role === 'assistant' && msg.content.includes('?')) questionCount++;
     }
     
     const totalInappropriate = spamCount + religiousCount + aggressiveCount;
-    
     const shouldWarnSpam = spamCount >= 2 && totalInappropriate < 3;
     const shouldWarnReligious = religiousCount >= 1 && totalInappropriate < 3;
     const shouldWarnAggressive = aggressiveCount >= 1 && totalInappropriate < 3;
     const shouldBlock = totalInappropriate >= 3;
     
-    return { 
+    return {
         isValid: true, spamCount, religiousCount, aggressiveCount, questionCount, totalInappropriate,
-        shouldWarnSpam, shouldWarnReligious, shouldWarnAggressive, shouldBlock 
+        shouldWarnSpam, shouldWarnReligious, shouldWarnAggressive, shouldBlock
     };
 };
 
+// 🔥 OPTIMIZED FOR VERCEL FREE TIER: 7 seconds per provider
 const getTimeoutConfig = (): Config => {
     const isVercel = process.env.VERCEL === '1';
-    return isVercel 
-        ? { timeout: 8000, maxTokens: 1000 } 
+    return isVercel
+        ? { timeout: 7000, maxTokens: 1000 }  // 7s × 2 providers = 14s total
         : { timeout: 25000, maxTokens: 1200 };
 };
 
@@ -367,11 +320,12 @@ const extractJSON = (responseText: string): any => {
     let jsonString = responseText.substring(completeIndex + completeMarker.length);
     const firstBrace = jsonString.indexOf('{');
     const lastBrace = jsonString.lastIndexOf('}');
+    
     if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
         throw new Error('No valid JSON object found');
     }
+    
     jsonString = jsonString.substring(firstBrace, lastBrace + 1);
-        
     try {
         return JSON.parse(jsonString);
     } catch (parseError: any) {
@@ -389,9 +343,13 @@ const prepareMessageHistory = (messages: any[]) => {
 
 // --- AI PROVIDER FUNCTIONS ---
 
-// 1️⃣ PRIMARY: Google Gemini 2.0 Flash
+// 1️⃣ PRIMARY: Google Gemini 2.0 Flash (DISCOVER FEATURE)
 async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🔮 [1/4] Trying PRIMARY: Gemini 2.0 Flash...');
+    console.log('🔮 [1/2] Trying PRIMARY: Gemini 2.0 Flash (Discover)...');
+    
+    if (!genAI || !GOOGLE_API_KEY) {
+        throw new Error("Gemini API key not configured.");
+    }
     
     const cleanMessages = prepareMessageHistory(messages);
     if (cleanMessages.length === 0) {
@@ -406,14 +364,14 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
             model: "gemini-2.0-flash",
             systemInstruction: enhancedSystemInstruction,
         });
-
+        
         const history = cleanMessages.slice(0, -1).map((msg: any) => ({
             role: msg.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: msg.content }],
         }));
-
+        
         const latestUserMessage = cleanMessages[cleanMessages.length - 1].content;
-
+        
         const chat = model.startChat({
             history: history,
             generationConfig: { maxOutputTokens: config.maxTokens, temperature: 0.8 },
@@ -424,25 +382,25 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
             ],
         });
-
+        
         const result = await chat.sendMessage(latestUserMessage);
         clearTimeout(timeoutId);
         
         const responseText = result.response.text();
         if (!responseText) throw new Error("Gemini returned an empty response.");
         
-        console.log('✅ [1/4] Gemini 2.0 Flash SUCCESS');
+        console.log('✅ [1/2] Gemini 2.0 Flash SUCCESS');
         return { success: true, response: responseText, provider: 'gemini-2.0-flash' };
     } catch (error: any) {
         clearTimeout(timeoutId);
-        console.warn(`❌ [1/4] Gemini failed: ${error.message}`);
+        console.warn(`❌ [1/2] Gemini failed: ${error.message}`);
         throw error;
     }
 }
 
-// 2️⃣ SECONDARY: Groq GPT-OSS-120B
+// 2️⃣ SECONDARY: Groq GPT-OSS-120B (DISCOVER FEATURE)
 async function tryGroqGPTOSSAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🤖 [2/4] Trying SECONDARY: Groq GPT-OSS-120B...');
+    console.log('🤖 [2/2] Trying SECONDARY: Groq GPT-OSS-120B (Discover)...');
     
     if (!groqClient || !GROQ_API_KEY) {
         throw new Error("Groq API key not configured.");
@@ -452,7 +410,7 @@ async function tryGroqGPTOSSAPI(messages: any[], enhancedSystemInstruction: stri
     if (cleanMessages.length === 0) {
         throw new Error("Cannot send empty message history to Groq GPT-OSS.");
     }
-
+    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config.timeout);
     
@@ -461,127 +419,36 @@ async function tryGroqGPTOSSAPI(messages: any[], enhancedSystemInstruction: stri
             { role: 'system', content: enhancedSystemInstruction },
             ...cleanMessages.map(({ role, content }) => ({ role, content }))
         ];
-
+        
         const completion = await groqClient.chat.completions.create({
             model: "openai/gpt-oss-120b",
             messages: messagesWithSystem,
             max_tokens: config.maxTokens,
             temperature: 0.8
         });
-
+        
         clearTimeout(timeoutId);
-
+        
         const responseText = completion.choices?.[0]?.message?.content;
         if (!responseText) throw new Error("Groq GPT-OSS returned an empty response.");
         
-        console.log('✅ [2/4] Groq GPT-OSS-120B SUCCESS');
+        console.log('✅ [2/2] Groq GPT-OSS-120B SUCCESS');
         return { success: true, response: responseText, provider: 'groq-gpt-oss-120b' };
     } catch (error: any) {
         clearTimeout(timeoutId);
-        console.warn(`❌ [2/4] Groq GPT-OSS failed: ${error.message}`);
+        console.warn(`❌ [2/2] Groq GPT-OSS failed: ${error.message}`);
         throw error;
     }
 }
 
-// 3️⃣ TERTIARY: Groq Llama-3.3-70B
-async function tryGroqLlamaAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🦙 [3/4] Trying TERTIARY: Groq Llama-3.3-70B...');
-    
-    if (!groqClient || !GROQ_API_KEY) {
-        throw new Error("Groq API key not configured.");
-    }
-    
-    const cleanMessages = prepareMessageHistory(messages);
-    if (cleanMessages.length === 0) {
-        throw new Error("Cannot send empty message history to Groq Llama.");
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-    
-    try {
-        const messagesWithSystem = [
-            { role: 'system', content: enhancedSystemInstruction },
-            ...cleanMessages.map(({ role, content }) => ({ role, content }))
-        ];
-
-        const completion = await groqClient.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: messagesWithSystem,
-            max_tokens: config.maxTokens,
-            temperature: 0.8
-        });
-
-        clearTimeout(timeoutId);
-
-        const responseText = completion.choices?.[0]?.message?.content;
-        if (!responseText) throw new Error("Groq Llama returned an empty response.");
-        
-        console.log('✅ [3/4] Groq Llama-3.3-70B SUCCESS');
-        return { success: true, response: responseText, provider: 'groq-llama-3.3-70b' };
-    } catch (error: any) {
-        clearTimeout(timeoutId);
-        console.warn(`❌ [3/4] Groq Llama failed: ${error.message}`);
-        throw error;
-    }
-}
-
-// 4️⃣ QUATERNARY: Perplexity Sonar (Final Fallback)
-async function tryPerplexitySonarAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
-    console.log('🔍 [4/4] Trying QUATERNARY: Perplexity Sonar (Final Fallback)...');
-    
-    if (!perplexityClient || !PERPLEXITY_API_KEY) {
-        throw new Error("Perplexity API key not configured.");
-    }
-    
-    const cleanMessages = prepareMessageHistory(messages);
-    if (cleanMessages.length === 0) {
-        throw new Error("Cannot send empty message history to Perplexity.");
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-    
-    try {
-        const messagesWithSystem = [
-            { role: 'system', content: enhancedSystemInstruction },
-            ...cleanMessages.map(({ role, content }) => ({ role, content }))
-        ];
-
-        const completion = await perplexityClient.chat.completions.create({
-            model: "sonar",
-            messages: messagesWithSystem as any,
-            max_tokens: config.maxTokens,
-            temperature: 0.8
-        });
-
-        clearTimeout(timeoutId);
-
-        const rawContent = completion.choices?.[0]?.message?.content;
-        const responseText = extractContentFromPerplexity(rawContent);
-        
-        if (!responseText) throw new Error("Perplexity returned an empty response.");
-        
-        console.log('✅ [4/4] Perplexity Sonar SUCCESS');
-        return { success: true, response: responseText, provider: 'perplexity-sonar' };
-    } catch (error: any) {
-        clearTimeout(timeoutId);
-        console.warn(`❌ [4/4] Perplexity Sonar failed: ${error.message}`);
-        throw error;
-    }
-}
-
-// 🔄 CORRECTED PROVIDER ORCHESTRATION
+// 🔥 DISCOVER FEATURE: Gemini → Groq GPT-OSS (2 providers only)
 async function executeWithFallback(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
     const providers = [
         { name: 'Gemini 2.0 Flash', fn: () => tryGeminiAPI(messages, enhancedSystemInstruction, config) },
         { name: 'Groq GPT-OSS-120B', fn: () => tryGroqGPTOSSAPI(messages, enhancedSystemInstruction, config) },
-        { name: 'Groq Llama-3.3-70B', fn: () => tryGroqLlamaAPI(messages, enhancedSystemInstruction, config) },
-        { name: 'Perplexity Sonar', fn: () => tryPerplexitySonarAPI(messages, enhancedSystemInstruction, config) },
     ];
     
     let lastError = '';
-    
     for (const provider of providers) {
         try {
             const result = await provider.fn();
@@ -592,7 +459,7 @@ async function executeWithFallback(messages: any[], enhancedSystemInstruction: s
         }
     }
     
-    throw new Error(`All 4 providers failed. Last error: ${lastError}`);
+    throw new Error(`All providers failed. Last error: ${lastError}`);
 }
 
 // --- MAIN API HANDLER ---
@@ -605,32 +472,32 @@ export async function POST(req: NextRequest) {
         const rateLimitResult = checkRateLimit(req);
         if (!rateLimitResult.allowed) {
             console.log('🚫 [Discover API] Rate limit exceeded');
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Too many requests. Please try again later.',
-                retryAfter: rateLimitResult.retryAfter 
-            }, { 
+                retryAfter: rateLimitResult.retryAfter
+            }, {
                 status: 429,
-                headers: rateLimitResult.retryAfter 
+                headers: rateLimitResult.retryAfter
                     ? { 'Retry-After': String(rateLimitResult.retryAfter) }
                     : {}
             });
         }
-
+        
         const body = await req.json();
         const { messages, userId } = body;
-
+        
         if (!userId) {
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Authentication required',
-                requiresAuth: true 
+                requiresAuth: true
             }, { status: 401 });
         }
-
+        
         console.log('🔍 [Discover API] Request data:', {
             messagesLength: messages?.length || 0,
             userId: userId ? `${userId.substring(0, 8)}...` : 'missing',
         });
-
+        
         // Check coins
         try {
             const coinBalance = await CoinManagerServer.getCoinBalance(userId);
@@ -649,15 +516,14 @@ export async function POST(req: NextRequest) {
             console.log(`✅ [Discover API] Sufficient coins. User has ${coinBalance} coins`);
         } catch (coinError) {
             console.error('❌ [Discover API] Coin validation error:', coinError);
-            return NextResponse.json({ 
-                error: 'Unable to verify coin balance' 
+            return NextResponse.json({
+                error: 'Unable to verify coin balance'
             }, { status: 500 });
         }
-
-        // Validate input (blocks at 3 inappropriate responses)
+        
+        // Validate input
         const validation = validateDiscoverInput(messages);
         
-        // ✅ BUG FIX: Check for blocking condition immediately after validation
         if (validation.shouldBlock) {
             console.log(`🚫 [Discover API] Blocking user after ${validation.totalInappropriate} inappropriate responses`);
             return NextResponse.json({
@@ -668,84 +534,54 @@ export async function POST(req: NextRequest) {
                 error: "Conversation blocked due to repeated inappropriate responses"
             }, { status: 400 });
         }
-
-        // Continue with other validation checks if not blocked
+        
         if (!validation.isValid) {
             return NextResponse.json({ error: validation.error }, { status: 400 });
         }
-
+        
         // Handle warnings
         if (validation.shouldWarnReligious) {
             console.log(`⚠️ [Discover API] Religious content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
-            const religiousWarningInstruction = systemInstruction + `
-
-🚨 NON-CAREER TOPIC DETECTED: User mentioned topics outside of career development.
-RESPOND EXACTLY WITH: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?
-
-⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Please keep responses career-focused or this session will be terminated.
-
-What are your main academic subjects or skills you'd like to build a career around?"
-`;
-
+            const religiousWarningInstruction = systemInstruction + `\n\n🚨 NON-CAREER TOPIC DETECTED: User mentioned topics outside of career development.\nRESPOND EXACTLY WITH: "I'm designed to help with career advice. Could we please focus on your skills and professional goals to get the best results?\n\n⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Please keep responses career-focused or this session will be terminated.\n\nWhat are your main academic subjects or skills you'd like to build a career around?"\n`;
             const result = await executeWithFallback(messages, religiousWarningInstruction, getTimeoutConfig());
-            return NextResponse.json({ 
-                isComplete: false, 
+            return NextResponse.json({
+                isComplete: false,
                 reply: result.response,
                 religiousWarning: true,
                 warningCount: validation.totalInappropriate,
                 provider: result.provider
             });
         }
-
+        
         if (validation.shouldWarnAggressive) {
             console.log(`⚠️ [Discover API] Aggressive content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
-            const aggressiveWarningInstruction = systemInstruction + `
-
-🚨 AGGRESSIVE CONTENT DETECTED: User used inappropriate language.
-RESPOND WITH: "I understand you might be frustrated, but let's keep this conversation professional and focused on your career development. 
-
-⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Continued inappropriate language will result in session termination.
-
-Please tell me about your genuine career interests or skills you'd like to develop."
-`;
-
+            const aggressiveWarningInstruction = systemInstruction + `\n\n🚨 AGGRESSIVE CONTENT DETECTED: User used inappropriate language.\nRESPOND WITH: "I understand you might be frustrated, but let's keep this conversation professional and focused on your career development.\n\n⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. Continued inappropriate language will result in session termination.\n\nPlease tell me about your genuine career interests or skills you'd like to develop."\n`;
             const result = await executeWithFallback(messages, aggressiveWarningInstruction, getTimeoutConfig());
-            return NextResponse.json({ 
-                isComplete: false, 
+            return NextResponse.json({
+                isComplete: false,
                 reply: result.response,
                 aggressiveWarning: true,
                 warningCount: validation.totalInappropriate,
                 provider: result.provider
             });
         }
-
+        
         if (validation.shouldWarnSpam && !validation.shouldBlock) {
             console.log(`⚠️ [Discover API] Spam content warning (${validation.totalInappropriate}/3 inappropriate responses)`);
-            const warningInstruction = systemInstruction + `
-
-🚨 NOTICE: User has given ${validation.spamCount} spam responses and ${validation.totalInappropriate} total inappropriate responses. 
-RESPOND WITH: "I appreciate your response, but I need a bit more detail to give you personalized career guidance. Can you expand on that a bit?
-
-⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses. 
-
-For example, if you mentioned 'data analysis', tell me: What aspect interests you? Is it finding patterns, creating visualizations, or solving real-world problems with data?"
-
-DO NOT ask Question 1 again. Build on their previous answer and ask a relevant follow-up question.
-`;
-
+            const warningInstruction = systemInstruction + `\n\n🚨 NOTICE: User has given ${validation.spamCount} spam responses and ${validation.totalInappropriate} total inappropriate responses.\nRESPOND WITH: "I appreciate your response, but I need a bit more detail to give you personalized career guidance. Can you expand on that a bit?\n\n⚠️ Warning: ${validation.totalInappropriate}/3 inappropriate responses.\n\nFor example, if you mentioned 'data analysis', tell me: What aspect interests you? Is it finding patterns, creating visualizations, or solving real-world problems with data?"\nDO NOT ask Question 1 again. Build on their previous answer and ask a relevant follow-up question.\n`;
             const result = await executeWithFallback(messages, warningInstruction, getTimeoutConfig());
-            return NextResponse.json({ 
-                isComplete: false, 
+            return NextResponse.json({
+                isComplete: false,
                 reply: result.response,
                 spamWarning: true,
                 warningCount: validation.totalInappropriate,
                 provider: result.provider
             });
         }
-
+        
         const config = getTimeoutConfig();
         const questionCount = validation.questionCount || 0;
-
+        
         console.log(`📊 [Discover API] Conversation state:`, {
             questions: questionCount,
             spam: validation.spamCount,
@@ -753,14 +589,14 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
             aggressive: validation.aggressiveCount,
             totalInappropriate: validation.totalInappropriate
         });
-
-        // Enhanced system instruction with question tracking (max 10 questions)
+        
+        // Enhanced system instruction with question tracking
         const enhancedSystemInstruction = systemInstruction +
             `\n\n**CURRENT STATE: You have asked ${questionCount} questions so far.**` +
             (questionCount >= 10 ? '\n🚨 CRITICAL: You MUST end with JSON output immediately - you have reached the maximum question limit of 10!' :
              questionCount >= 5 ? '\n⚠️ WARNING: You should consider ending with JSON output soon. Maximum is 10 questions.' : '') +
             (validation.totalInappropriate > 0 ? `\n\nNOTE: User has ${validation.totalInappropriate} inappropriate response(s). Ask more specific follow-up questions to keep them engaged.` : '');
-
+        
         if (process.env.NODE_ENV !== 'production') {
             console.log('🔍 [DEBUG] Conversation Decision:', {
                 shouldEndConversation: questionCount >= 10,
@@ -769,8 +605,8 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                 willTriggerJSON: questionCount >= 10
             });
         }
-
-        // Execute AI with 4-provider fallback (CORRECTED ORDER)
+        
+        // Execute AI with 2-provider fallback (Gemini → Groq GPT-OSS)
         const result = await executeWithFallback(messages, enhancedSystemInstruction, config);
         const responseText = result.response;
         
@@ -784,7 +620,7 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
         }
         
         console.log(`✅ [Discover API] Completed in ${Date.now() - startTime}ms via ${result.provider}`);
-
+        
         // Handle completion with coin deduction
         if (responseText.includes("COMPLETE:")) {
             if (process.env.NODE_ENV !== 'production') {
@@ -794,10 +630,9 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                     responsePreview: responseText?.substring(0, 200)
                 });
             }
-
+            
             try {
                 const suggestions = extractJSON(responseText);
-                
                 console.log('🪙 [Discover API] Deducting coin for successful JSON output...');
                 
                 try {
@@ -808,24 +643,24 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                         console.log(`✅ [Discover API] Deducted ${LIMITS.COINS_PER_FEATURE} coin. New balance: ${deductResult.newBalance}`);
                     }
                     
-                    return NextResponse.json({ 
-                        isComplete: true, 
+                    return NextResponse.json({
+                        isComplete: true,
                         coinDeducted: deductResult?.success || false,
                         newBalance: deductResult?.newBalance,
                         inappropriateCount: validation.totalInappropriate,
                         questionsAsked: questionCount,
                         provider: result.provider,
-                        ...suggestions 
+                        ...suggestions
                     });
                 } catch (coinError: any) {
                     console.error('❌ [Discover API] Coin processing error:', coinError.message);
-                    return NextResponse.json({ 
-                        isComplete: true, 
+                    return NextResponse.json({
+                        isComplete: true,
                         coinDeducted: false,
                         inappropriateCount: validation.totalInappropriate,
                         questionsAsked: questionCount,
                         provider: result.provider,
-                        ...suggestions 
+                        ...suggestions
                     });
                 }
                 
@@ -854,17 +689,18 @@ DO NOT ask Question 1 again. Build on their previous answer and ask a relevant f
                     provider: result.provider
                 });
             }
+            
         } else {
             // Continue conversation
-            return NextResponse.json({ 
-                isComplete: false, 
+            return NextResponse.json({
+                isComplete: false,
                 reply: responseText,
                 warningCount: validation.totalInappropriate,
                 questionsAsked: questionCount + 1,
                 provider: result.provider
             });
         }
-
+        
     } catch (error: any) {
         console.error(`❌ [Discover API] Error after ${Date.now() - startTime}ms:`, error.message);
         const isProduction = process.env.NODE_ENV === 'production';
