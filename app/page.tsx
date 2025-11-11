@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import TypingHeroSection from '../components/TypingHeroSection';
 import CoreFeaturesSection from '../components/CoreFeaturesSection';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Footer from '@/components/shared/Footer';
 
 // Optimized lazy loading with better error handling
 const ContentSections = lazy(() => 
@@ -14,10 +15,10 @@ const ContentSections = lazy(() =>
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden flex flex-col">
       
       {/* ✅ TOP SECTION: Light background with transparent navbar area */}
-      <div className="relative bg-white dark:bg-gray-900 transition-colors duration-300">
+      <div className="relative bg-white dark:bg-gray-900 transition-colors duration-300 flex-1">
         
         {/* ✅ NAVBAR TRANSPARENT ZONE - This prevents background showing through navbar */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-transparent z-40"></div>
@@ -64,6 +65,9 @@ export default function HomePage() {
         </section>
         
       </div>
+      
+      {/* ✅ FOOTER SECTION */}
+      <Footer />
       
     </div>
   );

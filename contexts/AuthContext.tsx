@@ -9,7 +9,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { fetchWithRetry } from '@/lib/utils/apiClient'; // ✅ NEW IMPORT
+import { fetchWithRetry } from '@/lib/utils/apiClient';
+import { updateUserCount } from '@/lib/utils/updateStats'; // ✅ NEW IMPORT
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [welcomeBonusGranted, setWelcomeBonusGranted] = useState(false); // 🛡️ SESSION-LEVEL PROTECTION
+  const [welcomeBonusGranted, setWelcomeBonusGranted] = useState(false);
+  const [userCountUpdated, setUserCountUpdated] = useState(false); // ✅ NEW: Track if count was updated
   const router = useRouter();
 
   useEffect(() => {
@@ -47,19 +49,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nowVerified = user.emailVerified;
         setIsEmailVerified(nowVerified);
         
-        // 🎉 GIVE WELCOME BONUS FOR EMAIL VERIFICATION - BULLETPROOF DUPLICATE PREVENTION
+        // ✅ NEW: Update user count on first login (new user detection)
+        if (user.metadata.creationTime && !userCountUpdated) {
+          const createdAt = new Date(user.metadata.creationTime);
+          const now = new Date();
+          const isNewUser = (now.getTime() - createdAt.getTime()) < 60000; // Within last 60 seconds
+          
+          if (isNewUser) {
+            setUserCountUpdated(true); // Prevent duplicate updates
+            
+            // Update user count in background
+            updateUserCount().catch(err => 
+              console.error('Failed to update user count:', err)
+            );
+          }
+        }
+        
+        // 🎉 GIVE WELCOME BONUS FOR EMAIL VERIFICATION
         if (!wasVerified && nowVerified && user.uid && !welcomeBonusGranted) {
-          // Check if this is a manual email signup user (not social/guest)
           const isManualSignup = !user.isAnonymous && 
                                 !user.providerData.some(p => p.providerId === 'google.com' || p.providerId === 'github.com');
           
           if (isManualSignup) {
-            setWelcomeBonusGranted(true); // 🛡️ PROTECTION 1: Immediate session flag
+            setWelcomeBonusGranted(true);
             
             try {
               console.log('🎯 Granting welcome bonus for newly verified user...');
               
-              // ✅ CHANGED: Use fetchWithRetry
               const response = await fetchWithRetry('/api/coins/add', {
                 method: 'POST',
                 headers: {
@@ -80,9 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (result.success) {
                 console.log('🎉 Welcome bonus successfully granted!');
                 
-                // 🚀 INSTANT UI REFRESH
                 if (typeof window !== 'undefined') {
-                  // Trigger coin balance update event
                   window.dispatchEvent(new CustomEvent('coinBalanceUpdated', { 
                     detail: { newBalance: result.newBalance } 
                   }));
@@ -90,9 +104,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 
               } else {
                 console.error('❌ Welcome bonus transaction failed:', result.error);
-                setWelcomeBonusGranted(false); // Reset flag on failure
+                setWelcomeBonusGranted(false);
                 
-                // ✅ NEW: Log error
                 fetch('/api/log-error', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -108,9 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               }
             } catch (error: any) {
               console.error('❌ Failed to process welcome bonus:', error);
-              setWelcomeBonusGranted(false); // Reset flag on error for retry
+              setWelcomeBonusGranted(false);
               
-              // ✅ NEW: Log error
               fetch('/api/log-error', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -130,14 +142,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('🔍 User email verified:', nowVerified);
       } else {
         setIsEmailVerified(false);
-        setWelcomeBonusGranted(false); // Reset flag when user logs out
+        setWelcomeBonusGranted(false);
+        setUserCountUpdated(false); // ✅ NEW: Reset on logout
       }
       
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [isEmailVerified, welcomeBonusGranted]);
+  }, [isEmailVerified, welcomeBonusGranted, userCountUpdated]); // ✅ ADDED userCountUpdated
 
   // Send verification email
   const sendVerificationEmail = async () => {
@@ -160,9 +173,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nowVerified = user.emailVerified;
         setIsEmailVerified(nowVerified);
         
-        // 🚀 If user just got verified, trigger coin balance refresh
         if (nowVerified && typeof window !== 'undefined') {
-          // Force refresh coin displays
           window.dispatchEvent(new CustomEvent('coinBalanceUpdated'));
           console.log('🎉 Email verified! Coin balance refreshed');
         }
@@ -180,7 +191,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await signOut(auth);
       setUser(null);
       setIsEmailVerified(false);
-      setWelcomeBonusGranted(false); // Reset flag on logout
+      setWelcomeBonusGranted(false);
+      setUserCountUpdated(false); // ✅ NEW: Reset on logout
       router.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);
