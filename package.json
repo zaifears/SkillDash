@@ -13,13 +13,13 @@
     "bundle-size": "node scripts/analyze-bundle.js",
     "lighthouse": "lighthouse https://skilldash.live --output html --output-path ./lighthouse-report.html --chrome-flags=\"--headless\"",
     "lighthouse-ci": "lighthouse https://skilldash.live --output json --output-path ./lighthouse-report.json",
-    "perf-test": "npm run lighthouse && npm run bundle-size",
+    "perf-test": "pnpm run lighthouse && pnpm run bundle-size",
     "clean": "rimraf .next out",
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "postbuild": "next-sitemap",
-    "deps-check": "npm outdated",
-    "deps-update": "npm update",
-    "security-audit": "npm audit --audit-level moderate"
+    "deps-check": "pnpm outdated",
+    "deps-update": "pnpm update",
+    "security-audit": "pnpm audit --audit-level moderate"
   },
   "dependencies": {
     "@ai-sdk/perplexity": "^2.0.11",
