@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { fetchWithRetry } from '@/lib/utils/apiClient'; // ✅ NEW IMPORT
 
 interface AuthContextType {
   user: User | null;
@@ -58,8 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
               console.log('🎯 Granting welcome bonus for newly verified user...');
               
-              // 🔧 FIXED: Use API route instead of direct CoinManager call
-              const response = await fetch('/api/coins/add', {
+              // ✅ CHANGED: Use fetchWithRetry
+              const response = await fetchWithRetry('/api/coins/add', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -69,7 +70,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   amount: 5,
                   reason: 'welcome_bonus',
                   description: 'Welcome bonus - Email verified! 🎉'
-                })
+                }),
+                maxRetries: 3,
+                retryDelay: 1000
               });
 
               const result = await response.json();
@@ -85,15 +88,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   }));
                 }
                 
-                // FIXED: Removed the unnecessary window.location.reload()
-                
               } else {
                 console.error('❌ Welcome bonus transaction failed:', result.error);
                 setWelcomeBonusGranted(false); // Reset flag on failure
+                
+                // ✅ NEW: Log error
+                fetch('/api/log-error', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    error: `Welcome bonus failed: ${result.error}`,
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString(),
+                    url: window.location.href,
+                    endpoint: '/api/coins/add',
+                    userId: user.uid
+                  })
+                }).catch(() => {});
               }
-            } catch (error) {
+            } catch (error: any) {
               console.error('❌ Failed to process welcome bonus:', error);
               setWelcomeBonusGranted(false); // Reset flag on error for retry
+              
+              // ✅ NEW: Log error
+              fetch('/api/log-error', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  error: `Welcome bonus exception: ${error.message}`,
+                  userAgent: navigator.userAgent,
+                  timestamp: new Date().toISOString(),
+                  url: window.location.href,
+                  endpoint: '/api/coins/add',
+                  userId: user.uid
+                })
+              }).catch(() => {});
             }
           }
         }

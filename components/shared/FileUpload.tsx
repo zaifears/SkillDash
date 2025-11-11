@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useCallback } from 'react'
+import { fetchWithRetry } from '@/lib/utils/apiClient' // ✅ NEW IMPORT
 
 interface FileUploadProps {
   onFileProcessed: (feedback: any, fileName: string) => void
@@ -62,15 +63,35 @@ const FileUpload: React.FC<FileUploadProps> = ({
       
       console.log('📤 Sending to /api/resume-feedback...')
       
-      const response = await fetch('/api/resume-feedback', {
+      // ✅ CHANGED: Use fetchWithRetry
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         body: formData,
+        maxRetries: 3,
+        retryDelay: 1000
       })
       
       console.log('📥 Response status:', response.status)
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error occurred' }))
+        
+        // ✅ NEW: Log error
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: `File upload error: ${errorData.error || 'Unknown'}`,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            endpoint: '/api/resume-feedback',
+            status: response.status,
+            fileSize: file.size,
+            fileType: file.type
+          })
+        }).catch(() => {})
+        
         throw new Error(errorData.error || `HTTP ${response.status}`)
       }
       
@@ -87,6 +108,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
       
     } catch (error: any) {
       console.error('❌ File processing error:', error)
+      
+      // ✅ NEW: Log client error
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `File processing failed: ${error.message}`,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          endpoint: '/api/resume-feedback',
+          fileSize: file.size,
+          fileType: file.type
+        })
+      }).catch(() => {})
+      
       onError(`Processing failed: ${error.message}`)
     } finally {
       setIsProcessing(false)

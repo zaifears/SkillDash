@@ -11,6 +11,7 @@ import { LoadingScreen, LoadingDots, Message } from '@/lib/components/shared';
 import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { fetchWithRetry } from '@/lib/utils/apiClient'; // ✅ NEW IMPORT
 
 // Lazy load SuggestionsCard for better performance
 const SuggestionsCard = dynamic(() => import('../../components/discover/SuggestionsCard'), {
@@ -282,7 +283,7 @@ export default function DiscoverPage() {
     }
   }, [user, messages.length, conversationBlocked, hasEnoughCoins, coinsChecked]);
 
-  // 📝 MAIN FORM SUBMISSION HANDLER
+  // 📝 MAIN FORM SUBMISSION HANDLER WITH RETRY LOGIC
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     
@@ -306,13 +307,16 @@ export default function DiscoverPage() {
     try {
       console.log('📤 [DiscoverPage] Sending message to API...');
       
-      const response = await fetch('/api/discover-chat', {
+      // ✅ UPDATED: Use fetchWithRetry instead of fetch
+      const response = await fetchWithRetry('/api/discover-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           messages: newMessages.map(({ id, ...msg }) => msg),
           userId: user?.uid
         }),
+        maxRetries: 3,
+        retryDelay: 1000
       });
 
       // Handle rate limiting (429)
@@ -326,6 +330,19 @@ export default function DiscoverPage() {
         if (errorData.retryAfter) {
           setRateLimitCountdown(errorData.retryAfter);
         }
+        
+        // Log error
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: 'Rate limit exceeded (429)',
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            endpoint: '/api/discover-chat'
+          })
+        }).catch(() => {});
         
         setMessages(prev => prev.slice(0, -1)); // Remove the user message
         setIsLoading(false);
@@ -499,6 +516,19 @@ export default function DiscoverPage() {
     } catch (error: any) {
       console.error('❌ [DiscoverPage] Chat error:', error);
       setMessages(prev => prev.slice(0, -1));
+      
+      // Log error
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: error.message || 'Unknown error',
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          endpoint: '/api/discover-chat'
+        })
+      }).catch(() => {});
       
       const errorMessage: Message = {
         id: `error-${++messageIdCounter.current}`,

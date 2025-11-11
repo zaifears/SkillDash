@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import { fetchWithRetry } from '@/lib/utils/apiClient'; // ✅ NEW IMPORT
 
 type Step = 'industry' | 'resume' | 'job-description' | 'chat';
 
@@ -130,7 +131,7 @@ export const useResumeWorkflow = () => {
     startAnalysis(jobDescription);
   };
 
-  // Keep your EXACT API logic
+  // ✅ UPDATED: API logic with retry
   const startAnalysis = async (finalJobDescription: string | null) => {
     setIsLoading(true);
     setError('');
@@ -144,14 +145,32 @@ export const useResumeWorkflow = () => {
         messages: []
       };
       
-      const response = await fetch('/api/resume-feedback', {
+      // ✅ CHANGED: Use fetchWithRetry
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
+        maxRetries: 3,
+        retryDelay: 1000
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // ✅ NEW: Log error
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: `Resume analysis error: ${errorData.error || 'Unknown'}`,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            endpoint: '/api/resume-feedback',
+            status: response.status
+          })
+        }).catch(() => {});
+        
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
@@ -160,6 +179,20 @@ export const useResumeWorkflow = () => {
 
     } catch (err: any) {
       console.error('Analysis error:', err);
+      
+      // ✅ NEW: Log client error
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `Resume analysis failed: ${err.message}`,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          endpoint: '/api/resume-feedback'
+        })
+      }).catch(() => {});
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: `Sorry, an error occurred: ${err.message}. Please try again.` 
@@ -209,7 +242,7 @@ export const useResumeWorkflow = () => {
     }
   };
 
-  // Keep your EXACT follow-up logic
+  // ✅ UPDATED: Follow-up logic with retry
   const handleFollowUpSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
@@ -228,7 +261,8 @@ export const useResumeWorkflow = () => {
       
       conversationHistory.push({ role: 'user', content: userInput });
 
-      const response = await fetch('/api/resume-feedback', {
+      // ✅ CHANGED: Use fetchWithRetry
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -236,10 +270,27 @@ export const useResumeWorkflow = () => {
           industryPreference,
           jobDescription: jobDescription.trim() || null,
         }),
+        maxRetries: 3,
+        retryDelay: 1000
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // ✅ NEW: Log error
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: `Resume follow-up error: ${errorData.error || 'Unknown'}`,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            endpoint: '/api/resume-feedback',
+            status: response.status
+          })
+        }).catch(() => {});
+        
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
@@ -260,6 +311,20 @@ export const useResumeWorkflow = () => {
 
     } catch (err: any) {
       console.error('Follow-up error:', err);
+      
+      // ✅ NEW: Log client error
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `Resume follow-up failed: ${err.message}`,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          endpoint: '/api/resume-feedback'
+        })
+      }).catch(() => {});
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: `Sorry, an error occurred: ${err.message}` 

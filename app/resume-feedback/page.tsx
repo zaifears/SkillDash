@@ -9,6 +9,8 @@ import { CoinManager } from '@/lib/coinManager';
 import InsufficientCoinsModal from '@/components/ui/InsufficientCoinsModal';
 import { LoadingScreen, BotIcon, LoadingDots, Message } from '@/lib/components/shared'; // ✅ SHARED COMPONENTS
 import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants'; // ✅ CONSTANTS
+import { fetchWithRetry } from '@/lib/utils/apiClient'; // ✅ ADD THIS LINE
+
 
 // 🔧 FIXED: Updated FileUpload component with all fixes
 interface FileUploadProps {
@@ -73,9 +75,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
       console.log('📤 Sending to /api/resume-feedback...');
       
       // 🔧 FIXED: Use correct endpoint
-      const response = await fetch('/api/resume-feedback', {
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         body: formData,
+        maxRetries: 3,
+        retryDelay: 1000
       });
       
       console.log('📥 Response status:', response.status);
@@ -527,7 +531,7 @@ export default function ResumeFeedbackPage() {
     setMessages([{ role: 'assistant', content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. This might take a moment..." }]);
 
     try {
-      const response = await fetch('/api/resume-feedback', {
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -536,11 +540,25 @@ export default function ResumeFeedbackPage() {
           jobDescription: finalJobDescription ? finalJobDescription.trim() : null,
           userId: user?.uid
         }),
+        maxRetries: 3,
+        retryDelay: 1000
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
+        // ✅ ADD THIS ERROR LOGGING (NEW CODE)
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: `Resume feedback error: ${errorData.error || 'Unknown'}`,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            endpoint: '/api/resume-feedback',
+            status: response.status
+          })
+        }).catch(() => {});
         // 🪙 Handle insufficient coins error
         if (response.status === 402) {
           setCoinError({ 
@@ -657,7 +675,7 @@ Invalid input detected. Please provide **plain resume text** without any code, s
         const conversationHistory = newMessages.filter(msg => typeof msg.content === 'string')
           .map(msg => ({ role: msg.role, content: msg.content as string }));
 
-      const response = await fetch('/api/resume-feedback', {
+      const response = await fetchWithRetry('/api/resume-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -667,6 +685,8 @@ Invalid input detected. Please provide **plain resume text** without any code, s
           jobDescription: jobDescription.trim() || null,
           userId: user?.uid
         }),
+          maxRetries: 3,
+          retryDelay: 1000
       });
 
       if (!response.ok) {

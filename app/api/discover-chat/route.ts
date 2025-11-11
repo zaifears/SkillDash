@@ -20,15 +20,18 @@ if (!GOOGLE_API_KEY) {
 const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
 const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
-// --- 🚦 RATE LIMITING (In-Memory Store) ---
+// --- 🚦 IMPROVED RATE LIMITING (In-Memory Store) ---
 interface RateLimitEntry {
     count: number;
     resetTime: number;
+    firstRequest: number;
 }
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+const RATE_LIMIT_MAX_REQUESTS = 30; // ✅ INCREASED from 10 to 30
+const RATE_LIMIT_BURST_WINDOW = 5 * 1000; // 5 seconds
+const RATE_LIMIT_BURST_MAX = 10; // Max 10 requests in 5 seconds
 
 // Periodic cleanup to prevent memory leak
 setInterval(() => {
@@ -44,9 +47,19 @@ const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: numb
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : req.headers.get('x-real-ip') || 'unknown';
     
+    // ✅ Whitelist localhost and your IP for testing
+    if (ip === 'unknown' || ip === '127.0.0.1' || ip === '::1') {
+        return { allowed: true };
+    }
+    
     const userAgent = req.headers.get('user-agent') || '';
     const suspiciousPatterns = ['bot', 'crawler', 'spider', 'scraper'];
-    if (suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p))) {
+    
+    // ✅ Don't block legitimate browsers
+    const isLegitBrowser = userAgent.includes('Mozilla') || userAgent.includes('Chrome') || userAgent.includes('Safari');
+    
+    if (!isLegitBrowser && suspiciousPatterns.some(p => userAgent.toLowerCase().includes(p))) {
+        console.log(`🚫 [Rate Limit] Blocked suspicious bot: ${userAgent}`);
         return { allowed: false };
     }
     
@@ -63,10 +76,22 @@ const checkRateLimit = (req: NextRequest): { allowed: boolean; retryAfter?: numb
     }
     
     if (!entry || now > entry.resetTime) {
-        rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        rateLimitStore.set(ip, { 
+            count: 1, 
+            resetTime: now + RATE_LIMIT_WINDOW,
+            firstRequest: now
+        });
         return { allowed: true };
     }
     
+    // ✅ Burst protection (max 10 requests in 5 seconds)
+    if (now - entry.firstRequest < RATE_LIMIT_BURST_WINDOW && entry.count >= RATE_LIMIT_BURST_MAX) {
+        const retryAfter = Math.ceil((RATE_LIMIT_BURST_WINDOW - (now - entry.firstRequest)) / 1000);
+        console.log(`🚫 [Rate Limit] IP ${ip} burst limit exceeded (${entry.count}/${RATE_LIMIT_BURST_MAX} in ${RATE_LIMIT_BURST_WINDOW/1000}s)`);
+        return { allowed: false, retryAfter };
+    }
+    
+    // ✅ Normal rate limit check (30 requests per minute)
     if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
         const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
         console.log(`🚫 [Rate Limit] IP ${ip} exceeded limit (${entry.count}/${RATE_LIMIT_MAX_REQUESTS})`);
