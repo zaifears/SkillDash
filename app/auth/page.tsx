@@ -276,7 +276,7 @@ export default function AuthPage() {
   )
 }
 
-// Form Component (Kept as is from your original)
+// Form Component (unchanged)
 function AuthFormWithInlineNotice({ isSignUp, formData, handleInputChange, handleSubmit, isLoading, error, message }: any) {
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

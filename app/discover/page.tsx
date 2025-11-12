@@ -79,7 +79,7 @@ export default function DiscoverPage() {
     if (!loading && !user) {
       sessionStorage.setItem('redirectMessage', MESSAGES.AUTH_REQUIRED);
       sessionStorage.setItem('redirectAfterLogin', ROUTES.DISCOVER);
-      router.push(ROUTES.AUTH);
+      router.replace(ROUTES.AUTH);
     }
   }, [user, loading, router]);
 
