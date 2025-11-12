@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { FormattedJobOpportunity } from '../../lib/contentful';
 
 interface JobHeaderProps {
@@ -15,11 +16,13 @@ const JobHeader = React.memo<JobHeaderProps>(({ formattedJob }) => {
           {/* Company Logo */}
           {formattedJob.companyLogo?.fields?.file?.url && (
             <div className="flex-shrink-0 w-16 h-16 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-              <img 
+              <Image 
                 src={`https:${formattedJob.companyLogo.fields.file.url}`}
                 alt={formattedJob.companyLogo.fields.title || formattedJob.companyName}
-                className="w-full h-full object-contain p-2"
-                loading="eager"
+                width={64}
+                height={64}
+                className="object-contain p-2"
+                priority
               />
             </div>
           )}

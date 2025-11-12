@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 // ✅ SAFE: Simple shared UI components
 export const LoadingScreen = () => (
@@ -9,7 +10,13 @@ export const LoadingScreen = () => (
 );
 
 export const BotIcon = () => (
-  <img src="/skilldash-logo.png" alt="SkillDash AI" className="w-10 h-10 rounded-full shadow-md object-cover" />
+  <Image 
+    src="/skilldash-logo.png" 
+    alt="SkillDash AI" 
+    width={40}
+    height={40}
+    className="rounded-full shadow-md object-cover" 
+  />
 );
 
 export const LoadingDots = () => (

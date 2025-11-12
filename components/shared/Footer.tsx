@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -66,13 +67,12 @@ const Footer = React.memo(() => {
         {/* Logo and About */}
         <div className="flex flex-col gap-3 min-w-[150px]">
           <div className="relative">
-            <img
+            <Image
               src="/skilldash-logo.png"
               alt="SkillDash Logo"
               width={56}
               height={56}
               className="mb-2 transform hover:scale-110 transition-transform duration-300"
-              loading="lazy"
             />
             <div className="absolute -inset-2 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-lg opacity-0 hover:opacity-100 transition-opacity duration-300" />
           </div>

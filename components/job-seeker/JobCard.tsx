@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { JobOpportunity, formatJobOpportunityMinimal } from '../../lib/contentful';
 import { MapPinIcon, CalendarIcon, AcademicCapIcon, BuildingOfficeIcon, ArrowRightIcon } from './JobIcons';
 
@@ -19,11 +20,12 @@ const JobCard = React.memo<JobCardProps>(({ job }) => {
           {/* Company Logo */}
           {formattedJob.companyLogo?.fields?.file?.url && (
             <div className="flex-shrink-0 w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
-              <img 
+              <Image 
                 src={`https:${formattedJob.companyLogo.fields.file.url}`}
                 alt={formattedJob.companyLogo.fields.title || formattedJob.companyName}
-                className="w-full h-full object-contain p-1"
-                loading="lazy"
+                width={48}
+                height={48}
+                className="object-contain p-1"
               />
             </div>
           )}

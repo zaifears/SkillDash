@@ -1,6 +1,5 @@
 import React from 'react';
-// MODIFIED: Using standard img tag to avoid 'next/image' import issues
-// import Image from 'next/image'; 
+import Image from 'next/image';
 
 interface Feature {
   title: string;
@@ -67,14 +66,13 @@ const FeatureSection = React.memo<{ feature: Feature; index: number }>(({ featur
         <div className="relative w-full max-w-md group">
           {/* Responsive container that maintains image aspect ratio */}
           <div className="relative w-full h-auto">
-            {/* MODIFIED: Using standard img tag */}
-            <img 
+            {/* MODIFIED: Now using Next.js Image component */}
+            <Image 
               src={feature.imageUrl}
               alt={feature.title}
               width={400}
               height={300}
               className="rounded-lg shadow-2xl object-contain w-full h-auto transform transition-all duration-300 group-hover:scale-105"
-              loading="lazy"
             />
           </div>
           

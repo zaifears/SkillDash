@@ -1,7 +1,7 @@
 'use client'; // Keep this as it's a client component
 
 import React from 'react';
-// Removed next/image import to fix compilation error
+import Image from 'next/image';
 
 // This is the component for the two existing cards
 interface OpportunityCardProps {
@@ -26,13 +26,13 @@ const OpportunityCard = React.memo<OpportunityCardProps>(({ href, title, descrip
     >
       <div className="mb-4">
         <div className="relative w-12 h-12">
-          {/* MODIFIED: Replaced next/image with standard img tag */}
-          <img
+          {/* MODIFIED: Using Next.js Image component for optimization */}
+          <Image
             src={imageUrl}
             alt={title}
-            // fill is replaced by w-full h-full object-contain
-            className={`object-contain w-full h-full ${!isPrimary ? 'opacity-60 group-hover:opacity-100' : ''} transition-opacity`}
-            loading="lazy"
+            width={48}
+            height={48}
+            className={`object-contain ${!isPrimary ? 'opacity-60 group-hover:opacity-100' : ''} transition-opacity`}
           />
         </div>
       </div>
@@ -62,7 +62,6 @@ const BizCompIcon = React.memo(() => (
 ));
 BizCompIcon.displayName = 'BizCompIcon';
 // +++ END NEW ICON +++
-
 
 const OpportunityHero = React.memo(() => {
   const jobSeekerMaintenanceUrl = "/opportunities/job-seeker";
@@ -136,4 +135,3 @@ const OpportunityHero = React.memo(() => {
 
 OpportunityHero.displayName = 'OpportunityHero';
 export default OpportunityHero;
-

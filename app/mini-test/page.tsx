@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Footer from '../../components/shared/Footer';
 
 // Dynamic import for optimal performance
@@ -322,11 +323,12 @@ export default function MiniTestPage() {
                   
                   <div className="flex items-center gap-6">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <img 
+                      <Image 
                         src={skill.logo} 
                         alt={skill.name} 
-                        className="w-10 h-10 object-contain"
-                        loading="lazy"
+                        width={40}
+                        height={40}
+                        className="object-contain"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
