@@ -416,7 +416,7 @@ export default function ResumeFeedbackPage() {
     if (!loading && !user) {
       sessionStorage.setItem('redirectMessage', MESSAGES.AUTH_REQUIRED);
       sessionStorage.setItem('redirectAfterLogin', ROUTES.RESUME_FEEDBACK);
-      router.push(ROUTES.AUTH);
+      router.replace(ROUTES.AUTH);
     }
   }, [user, loading, router]);
 
