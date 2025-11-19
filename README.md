@@ -16,6 +16,20 @@ We transform career preparation into an engaging, gamified journey—helping you
 
 ---
 
+## 📱 Download APK
+
+<div align="center">
+  <a href="https://drive.google.com/file/d/1FIv9HMCPG6pI1VxpE4JnCkJVMQCEegdn/view?usp=sharing" style="display: inline-block; padding: 12px 24px; background-color: #8b5cf6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+    📥 Download APK for Android
+  </a>
+</div>
+
+**Latest Version:** 1.0.0  
+**Size:** ~45 MB  
+**Requirements:** Android 8.0+
+
+---
+
 ## ✨ Core Features
 
 | Feature               | Description |
@@ -185,6 +199,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
   <strong>🚀 Ready to discover your career potential?</strong><br/>
-  <em>Join thousands of Bangladesh's students already building their future with SkillDash!</em>
+  <em>Join thousands of Bangladesh's students already building their future with SkillDash!</em><br/><br/>
+  <a href="https://www.skilldash.live">Visit Website</a> • <a href="https://github.com/zaifearsrepublic/skilldash/issues">Report Issue</a> • <a href="https://github.com/zaifearsrepublic/skilldash/discussions">Discussions</a>
 </div>
 ```
