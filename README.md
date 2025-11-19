@@ -25,7 +25,7 @@ We transform career preparation into an engaging, gamified journey—helping you
 </div>
 
 **Latest Version:** 1.0.0  
-**Size:** ~45 MB  
+**Size:** ~2 MB  
 **Requirements:** Android 8.0+
 
 ---
