@@ -1,4 +1,3 @@
-"use client";
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -7,7 +6,7 @@ import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
-import { useEffect } from 'react' // ✅ ADDED
+import ServiceWorkerRegistration from './ServiceWorkerRegistration'
 
 const GTM_ID = 'GTM-MT2LDFM3'
 
@@ -19,12 +18,11 @@ const inter = Inter({
   variable: '--font-inter'
 })
 
-// ✅ UPDATED: Added metadataBase and template support for dynamic pages
 export const metadata: Metadata = {
-  metadataBase: new URL('https://skilldash.live'), // ✅ Moved to top for dynamic page support
+  metadataBase: new URL('https://skilldash.live'),
   title: {
     default: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
-    template: '%s | SkillDash', // ✅ NEW: Allows dynamic page titles
+    template: '%s | SkillDash',
   },
   description: 'Discover skills, learn courses, get AI resume feedback, and find job opportunities. The leading career development platform for Bangladesh\'s youth with personalized learning paths.',
   keywords: [
@@ -47,6 +45,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // ✅ UPDATED: Better Open Graph with dynamic support
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -56,18 +55,19 @@ export const metadata: Metadata = {
     description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
     images: [
       {
-        url: '/og-image.jpg', // ✅ CHANGED: Use relative path (will be converted to absolute)
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'SkillDash - AI Gateway for Career Readiness',
       },
     ],
   },
+  // ✅ UPDATED: Better Twitter card
   twitter: {
     card: 'summary_large_image',
     title: 'SkillDash - AI Gateway for Career Readiness',
     description: 'Unlock your potential with AI-powered skill discovery and career opportunities for Bangladesh\'s youth.',
-    images: ['/og-image.jpg'], // ✅ CHANGED: Use relative path
+    images: ['/og-image.jpg'],
     creator: '@SkillDashBD',
   },
   icons: {
@@ -95,18 +95,9 @@ export const metadata: Metadata = {
   },
 }
 
-// ✅ ONLY THIS CHANGE: Register service worker using useEffect
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  useEffect(() => {
-    if (typeof window !== "undefined" && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => console.log('Service Worker Registered', reg))
-        .catch(err => console.log('Service Worker registration failed:', err));
-    }
-  }, []);
-
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -128,13 +119,10 @@ export default function RootLayout({
         
         {/* SAFE FIX: CSS preload for performance */}
         <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
-
-
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        
         {/* Canonical URL */}
         <link rel="canonical" href="https://skilldash.live" />
         
@@ -152,7 +140,6 @@ export default function RootLayout({
             `
           }}
         />
-
         {/* Enhanced Structured Data */}
         <script
           type="application/ld+json"
@@ -194,7 +181,6 @@ export default function RootLayout({
             })
           }}
         />
-
         {/* Additional Structured Data for Educational Organization */}
         <script
           type="application/ld+json"
@@ -225,6 +211,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`} suppressHydrationWarning={true}>
+        <ServiceWorkerRegistration /> {/* ✅ Only addition for service worker */}
         {/* GTM Body Script - UNCHANGED */}
         <noscript>
           <iframe
@@ -235,16 +222,13 @@ export default function RootLayout({
             title="Google Tag Manager"
           ></iframe>
         </noscript>
-        
         <AuthProvider>
           <EmailVerificationBanner />
-          
           <div className="relative min-h-screen">
             <Navbar />
             <main role="main">{children}</main>
           </div>
         </AuthProvider>
-        
         <SpeedInsights />
         <Analytics />
       </body>
