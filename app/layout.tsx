@@ -6,6 +6,7 @@ import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
+import { useEffect } from 'react' // ✅ ADDED
 
 const GTM_ID = 'GTM-MT2LDFM3'
 
@@ -45,7 +46,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // ✅ UPDATED: Better Open Graph with dynamic support
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -62,7 +62,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  // ✅ UPDATED: Better Twitter card
   twitter: {
     card: 'summary_large_image',
     title: 'SkillDash - AI Gateway for Career Readiness',
@@ -95,9 +94,18 @@ export const metadata: Metadata = {
   },
 }
 
+// ✅ ONLY THIS CHANGE: Register service worker using useEffect
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  useEffect(() => {
+    if (typeof window !== "undefined" && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('Service Worker Registered', reg))
+        .catch(err => console.log('Service Worker registration failed:', err));
+    }
+  }, []);
+
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -119,6 +127,7 @@ export default function RootLayout({
         
         {/* SAFE FIX: CSS preload for performance */}
         <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
+
 
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
