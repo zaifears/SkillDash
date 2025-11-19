@@ -36,5 +36,6 @@
   "scope": "/",
   "categories": ["education", "productivity", "business", "career"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false
 }
