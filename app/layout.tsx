@@ -6,10 +6,8 @@ import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
-import ServiceWorkerRegistration from './ServiceWorkerRegistration'
 
 const GTM_ID = 'GTM-MT2LDFM3'
-
 // Optimize font loading with display swap
 const inter = Inter({ 
   subsets: ['latin'],
@@ -19,11 +17,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://skilldash.live'),
-  title: {
-    default: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
-    template: '%s | SkillDash',
-  },
+  title: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
   description: 'Discover skills, learn courses, get AI resume feedback, and find job opportunities. The leading career development platform for Bangladesh\'s youth with personalized learning paths.',
   keywords: [
     "Bangladesh jobs", "skill development", "AI career platform", "resume feedback", 
@@ -45,29 +39,27 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // ✅ UPDATED: Better Open Graph with dynamic support
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://skilldash.live',
-    siteName: 'SkillDash',
-    title: 'SkillDash - AI Gateway for Career Readiness',
+    title: "SkillDash - AI Gateway for Career Readiness",
     description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+    url: "https://skilldash.live",
+    siteName: "SkillDash",
+    type: "website",
+    locale: "en_US",
     images: [
       {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'SkillDash - AI Gateway for Career Readiness',
+        url: "https://skilldash.live/web-app-manifest-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "SkillDash - AI Gateway for Career Readiness",
       },
     ],
   },
-  // ✅ UPDATED: Better Twitter card
   twitter: {
     card: 'summary_large_image',
     title: 'SkillDash - AI Gateway for Career Readiness',
     description: 'Unlock your potential with AI-powered skill discovery and career opportunities for Bangladesh\'s youth.',
-    images: ['/og-image.jpg'],
+    images: ['https://skilldash.live/web-app-manifest-512x512.png'],
     creator: '@SkillDashBD',
   },
   icons: {
@@ -81,6 +73,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
+  metadataBase: new URL('https://skilldash.live'),
   alternates: {
     canonical: 'https://skilldash.live',
   },
@@ -119,10 +112,12 @@ export default function RootLayout({
         
         {/* SAFE FIX: CSS preload for performance */}
         <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
+
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        
         {/* Canonical URL */}
         <link rel="canonical" href="https://skilldash.live" />
         
@@ -140,6 +135,7 @@ export default function RootLayout({
             `
           }}
         />
+
         {/* Enhanced Structured Data */}
         <script
           type="application/ld+json"
@@ -167,9 +163,9 @@ export default function RootLayout({
                 "url": "https://skilldash.live",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://skilldash.live/og-image.jpg",
-                  "width": 1200,
-                  "height": 630
+                  "url": "https://skilldash.live/web-app-manifest-512x512.png",
+                  "width": 512,
+                  "height": 512
                 },
                 "contactPoint": {
                   "@type": "ContactPoint",
@@ -181,6 +177,7 @@ export default function RootLayout({
             })
           }}
         />
+
         {/* Additional Structured Data for Educational Organization */}
         <script
           type="application/ld+json"
@@ -191,7 +188,7 @@ export default function RootLayout({
               "name": "SkillDash",
               "description": "AI-powered skill development and career platform for Bangladesh's youth",
               "url": "https://skilldash.live",
-              "logo": "https://skilldash.live/og-image.jpg",
+              "logo": "https://skilldash.live/web-app-manifest-512x512.png",
               "areaServed": "BD",
               "educationalCredentialAwarded": "Digital Skills Certificate",
               "offers": [
@@ -211,7 +208,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`} suppressHydrationWarning={true}>
-        <ServiceWorkerRegistration /> {/* ✅ Only addition for service worker */}
         {/* GTM Body Script - UNCHANGED */}
         <noscript>
           <iframe
@@ -222,13 +218,16 @@ export default function RootLayout({
             title="Google Tag Manager"
           ></iframe>
         </noscript>
+        
         <AuthProvider>
           <EmailVerificationBanner />
+          
           <div className="relative min-h-screen">
             <Navbar />
             <main role="main">{children}</main>
           </div>
         </AuthProvider>
+        
         <SpeedInsights />
         <Analytics />
       </body>
