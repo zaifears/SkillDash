@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, increment, addDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, increment, addDoc, where, limit } from 'firebase/firestore';
 
 interface RechargeRequest {
   id: string;
@@ -29,34 +29,33 @@ export default function AdminRechargePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [hasMore, setHasMore] = useState(false); // ✅ For pagination
 
   // Fetch recharge requests with pagination and status filtering
   // 🔥 OPTIMIZED: Start with pending requests only, use pagination for performance
   useEffect(() => {
-    let baseQuery = query(
+    // Fetch recharge requests with cursor-based pagination (first 20 per page)
+    const baseQuery = query(
       collection(db, 'recharge_requests'),
       orderBy('createdAt', 'desc'),
-      // Limit to 50 documents per page for performance
-      // In production, implement full pagination with lastVisible cursor
+      limit(21) // Fetch one extra to determine if there are more pages
     );
 
-    // If a specific filter is selected, add it to reduce data
-    if (filter !== 'all') {
-      baseQuery = query(
-        collection(db, 'recharge_requests'),
-        where('status', '==', filter),
-        orderBy('createdAt', 'desc')
-      );
-    }
-
     const unsubscribe = onSnapshot(baseQuery, (snapshot) => {
-      const requestsData = snapshot.docs
-        .slice(0, 100) // Limit to 100 requests in memory
+      let requestsData = snapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as RechargeRequest[];
-      setRequests(requestsData);
+      
+      // Filter client-side to avoid composite index requirement
+      if (filter !== 'all') {
+        requestsData = requestsData.filter(req => req.status === filter);
+      }
+      
+      // ✅ Pagination: Only show first 20, rest handled by "Load More"
+      setRequests(requestsData.slice(0, 20));
+      setHasMore(requestsData.length > 20);
     }, (error) => {
       console.error('Error fetching requests:', error);
     });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProfile } from '../../lib/firebase';
-import { EditIcon, LogoutIcon } from './ProfileIcons';
+import { EditIcon, LogoutIcon, LockIcon } from './ProfileIcons';
 
 interface ProfileActionsProps {
   isEditing: boolean;
@@ -8,18 +8,22 @@ interface ProfileActionsProps {
   onLogout: () => void;
   onCancel: () => void;
   onSave: () => void;
+  onChangePassword: () => void;
+  hasPassword?: boolean;  // ✅ NEW: Show password button only if user has password
 }
 
-const ProfileActions = React.memo<ProfileActionsProps>(({
+function ProfileActions({
   isEditing,
   onEdit,
   onLogout,
   onCancel,
-  onSave
-}) => {
+  onSave,
+  onChangePassword,
+  hasPassword = false
+}: ProfileActionsProps) {
   if (!isEditing) {
     return (
-      <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+      <div className={`flex flex-col ${hasPassword ? 'sm:flex-row' : 'sm:flex-row'} gap-4 ${hasPassword ? 'max-w-2xl' : 'max-w-md'} mx-auto`}>
         <button 
           onClick={onEdit} 
           className="group flex items-center justify-center gap-3 flex-1 px-6 py-4 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-blue-200 dark:border-blue-800"
@@ -27,6 +31,17 @@ const ProfileActions = React.memo<ProfileActionsProps>(({
           <EditIcon />
           <span>Edit Profile</span>
         </button>
+        
+        {/* ✅ Only show Change Password button if user has password */}
+        {hasPassword && (
+          <button 
+            onClick={onChangePassword} 
+            className="group flex items-center justify-center gap-3 flex-1 px-6 py-4 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-purple-200 dark:border-purple-800"
+          >
+            <LockIcon />
+            <span>Change Password</span>
+          </button>
+        )}
         
         <button 
           onClick={onLogout} 
@@ -56,7 +71,7 @@ const ProfileActions = React.memo<ProfileActionsProps>(({
       </button>
     </div>
   );
-});
+}
 
 ProfileActions.displayName = 'ProfileActions';
-export default ProfileActions;
+export default React.memo(ProfileActions);

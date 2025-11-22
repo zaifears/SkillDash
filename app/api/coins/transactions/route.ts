@@ -81,6 +81,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       transactions: result.transactions
+    }, {
+      headers: {
+        'Cache-Control': 'private, max-age=300', // 5 minutes - private because user-specific
+        'CDN-Cache-Control': 'private, max-age=60'
+      }
     });
 
   } catch (error: any) {

@@ -6,7 +6,8 @@ interface ProfileEditFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
-const ProfileEditForm = React.memo<ProfileEditFormProps>(({ formData, onInputChange }) => (
+function ProfileEditForm({ formData, onInputChange }: ProfileEditFormProps) {
+  return (
   <div className="max-w-md mx-auto space-y-4 animate-fade-in-up">
     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Profile</h2>
     
@@ -44,7 +45,8 @@ const ProfileEditForm = React.memo<ProfileEditFormProps>(({ formData, onInputCha
       </select>
     </div>
   </div>
-));
+  );
+}
 
 ProfileEditForm.displayName = 'ProfileEditForm';
-export default ProfileEditForm;
+export default React.memo(ProfileEditForm);

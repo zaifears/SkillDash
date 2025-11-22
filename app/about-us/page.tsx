@@ -10,11 +10,6 @@ const AboutHero = dynamic(() => import('../../components/AboutHero'), {
   ssr: false
 });
 
-const TeamMember = dynamic(() => import('../../components/shared/TeamMember'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
-  ssr: false
-});
-
 const StorySection = dynamic(() => import('../../components/StorySection'), {
   loading: () => <div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>,
   ssr: false
@@ -24,38 +19,6 @@ const Footer = dynamic(() => import('../../components/shared/Footer'), {
   loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>,
   ssr: false
 });
-
-// Team data - optimized
-const TEAM_MEMBERS = [
-  {
-    name: 'MD AL Shahoriar Hossain',
-    role: 'FINANCE & DATA ANALYTICS LEAD',
-    imageUrl: '/about-us/shahoriar.png',
-    description: 'A Finance major with a passion for data-driven decision-making. Shahoriar\'s expertise in financial analysis, Excel, and Power BI drives the analytical core of SkillDash, ensuring our skill assessments and learning paths are backed by solid data.',
-    contactUrl: 'https://shahoriar.me/contact'
-  },
-  {
-    name: 'Tasnuva Jahan Lamiya',
-    role: 'EDUCATION & USER EXPERIENCE LEAD',
-    imageUrl: '/about-us/tasnuva.png',
-    description: 'With a passion for making learning accessible and enjoyable, Tasnuva\'s experience in online tutoring and instruction shapes the user-centric design of our Skill Courses. Her innovative mindset helps bridge the gap between academic knowledge and practical application.',
-    contactUrl: 'https://www.linkedin.com/in/tasnuva-jahan-lamiya'
-  },
-  {
-    name: 'Tazrian Rahman',
-    role: 'STRATEGY & COMMUNITY LEAD',
-    imageUrl: '/about-us/tazrian.png',
-    description: 'Tazrian brings extensive leadership and communication experience from his diverse roles in university clubs and internships. His skills in team management and public relations are vital for building the SkillDash community and forging connections with real-world opportunities.',
-    contactUrl: 'https://www.linkedin.com/in/tazrian-rahman-aa6822247'
-  }
-] as const;
-
-// Gradient classes for team members
-const CARD_GRADIENTS = [
-  'from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-500/20 dark:via-purple-500/10 dark:to-indigo-500/20',
-  'from-pink-500/10 via-rose-500/5 to-purple-500/10 dark:from-pink-500/20 dark:via-rose-500/10 dark:to-purple-500/20',
-  'from-violet-500/10 via-sky-500/5 to-cyan-500/10 dark:from-violet-500/20 dark:via-sky-500/10 dark:to-cyan-500/20'
-] as const;
 
 export default function AboutUsPage() {
   return (
@@ -72,52 +35,75 @@ export default function AboutUsPage() {
           </Suspense>
         </div>
 
-        {/* Meet the Team Header */}
-        <section className="text-center mb-16 md:mb-20">
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="relative inline-block mb-8">
-              <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-400 to-pink-500 bg-clip-text text-transparent mb-4">
-                Meet the Team
-              </h2>
-              
-              {/* Small decorative elements near title */}
-              <div className="absolute -top-2 -right-2 w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse opacity-80"></div>
-              <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-bounce opacity-60"></div>
-            </div>
-            
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
-          </div>
-        </section>
-
-        {/* Team Members Grid - FIXED: Added gradient and index props */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-20 md:mb-32">
-          {TEAM_MEMBERS.map((member, idx) => (
-            <div 
-              key={member.name} 
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${0.3 + (idx * 0.1)}s` }}
-            >
-              <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
-                <TeamMember 
-                  {...member} 
-                  gradient={CARD_GRADIENTS[idx % 3]} 
-                  index={idx}
-                />
-              </Suspense>
-            </div>
-          ))}
-        </section>
-
         {/* Story Section */}
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>}>
           <StorySection />
         </Suspense>
+
+        {/* Contact Section */}
+        <section className="mt-20 md:mt-32 text-center mb-20 md:mb-32">
+          <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 py-16 px-8 rounded-3xl shadow-xl border border-indigo-200/30 dark:border-indigo-800/30">
+            <div className="mb-8">
+              <span className="text-6xl">📧</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-600 bg-clip-text text-transparent mb-6">
+              Get in Touch
+            </h2>
+            <p className="max-w-4xl mx-auto text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-10">
+              Have questions, ideas, or feedback? We'd love to hear from you!
+            </p>
+            
+            {/* Contact Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+              {/* Email Button */}
+              <a
+                href="mailto:alshahoriar.hossain@gmail.com"
+                className="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                <span>Email Us</span>
+              </a>
+
+              {/* Contact Page Button */}
+              <a
+                href="https://shahoriar.vercel.app/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0zM8 8a1 1 0 000 2h.01a1 1 0 000-2H8zm2-1a1 1 0 11-2 0 1 1 0 012 0zm2 0a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+                </svg>
+                <span>Contact Page</span>
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Footer */}
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl"></div>}>
         <Footer />
       </Suspense>
+
+      <style jsx>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

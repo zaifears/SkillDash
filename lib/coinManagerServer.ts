@@ -2,10 +2,11 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logger } from './utils/logger';
 
-// 🔍 ENHANCED LOGGING UTILITY
+// Centralized logging using production-aware logger utility
 const logError = (context: string, error: any, additionalData?: any) => {
-  console.error(`❌ [CoinManagerServer] ${context}:`, {
+  logger.error(`[CoinManagerServer] ${context}:`, {
     timestamp: new Date().toISOString(),
     message: error.message || error,
     stack: error.stack,
@@ -16,15 +17,15 @@ const logError = (context: string, error: any, additionalData?: any) => {
 };
 
 const logInfo = (context: string, message: string, data?: any) => {
-  console.log(`🔍 [CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  logger.info(`[CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
 const logSuccess = (context: string, message: string, data?: any) => {
-  console.log(`✅ [CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  logger.success(`[CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
 const logWarning = (context: string, message: string, data?: any) => {
-  console.warn(`⚠️ [CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  logger.warn(`[CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
 // 🔧 SERVICE ACCOUNT CONFIGURATION (from environment variables)

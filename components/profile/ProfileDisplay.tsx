@@ -7,7 +7,8 @@ interface ProfileDisplayProps {
   profile: UserProfile | null;
 }
 
-const ProfileDisplay = React.memo<ProfileDisplayProps>(({ user, profile }) => (
+function ProfileDisplay({ user, profile }: ProfileDisplayProps) {
+  return (
   <div className="animate-fade-in-up">
     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
       {profile?.name || user.email?.split('@')[0] || 'User'}
@@ -28,7 +29,8 @@ const ProfileDisplay = React.memo<ProfileDisplayProps>(({ user, profile }) => (
       )}
     </div>
   </div>
-));
+  );
+}
 
 ProfileDisplay.displayName = 'ProfileDisplay';
-export default ProfileDisplay;
+export default React.memo(ProfileDisplay);

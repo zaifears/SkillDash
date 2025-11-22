@@ -1,28 +1,15 @@
 'use client';
 
-import React from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState } from 'react';
 import { useProfile } from '../../hooks/useProfile';
 import ProfileLoadingScreen from '../../components/profile/ProfileLoadingScreen';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfileDisplay from '../../components/profile/ProfileDisplay';
+import ProfileEditForm from '../../components/profile/ProfileEditForm';
+import ProfileActions from '../../components/profile/ProfileActions';
+import ChangePasswordForm from '../../components/profile/ChangePasswordForm';
 import CoinDisplay from '@/components/ui/CoinDisplay';
 import BouncingBalls from '@/components/shared/BouncingBalls';
-
-// Lazy load heavy components
-const ProfileHeader = dynamic(() => import('../../components/profile/ProfileHeader'), {
-  loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-800" />
-});
-
-const ProfileDisplay = dynamic(() => import('../../components/profile/ProfileDisplay'), {
-  loading: () => <div className="h-48 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
-
-const ProfileEditForm = dynamic(() => import('../../components/profile/ProfileEditForm'), {
-  loading: () => <div className="h-48 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
-
-const ProfileActions = dynamic(() => import('../../components/profile/ProfileActions'), {
-  loading: () => <div className="h-16 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl" />
-});
 
 export default function ProfilePage() {
   const { 
@@ -35,8 +22,13 @@ export default function ProfilePage() {
     handleSave, 
     handleInputChange, 
     handleEdit, 
-    handleCancel 
+    handleCancel,
+    handleChangePassword,
+    hasPassword  // ✅ NEW: Check if user has password
   } = useProfile();
+
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   if (loading) return <ProfileLoadingScreen />;
   if (!user) return null;
@@ -131,11 +123,29 @@ export default function ProfilePage() {
                 onLogout={handleLogout}
                 onCancel={handleCancel}
                 onSave={handleSave}
+                onChangePassword={() => setShowChangePasswordModal(true)}
+                hasPassword={hasPassword}  // ✅ NEW: Only show password button if user has password
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <ChangePasswordForm
+          onClose={() => setShowChangePasswordModal(false)}
+          onSubmit={async (currentPassword, newPassword) => {
+            setIsChangingPassword(true);
+            try {
+              await handleChangePassword(currentPassword, newPassword);
+            } finally {
+              setIsChangingPassword(false);
+            }
+          }}
+          isLoading={isChangingPassword}
+        />
+      )}
 
       <style jsx>{`
         @keyframes fade-in-up {

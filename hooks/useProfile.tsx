@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth, getUserProfile, updateUserProfile, UserProfile } from '../lib/firebase';
+import { auth, getUserProfile, updateUserProfile, changePassword, UserProfile } from '../lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,31 +11,48 @@ export const useProfile = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserProfile>({});
+  const [hasPassword, setHasPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!authLoading && !authUser) {
+    // ✅ FIXED: Removed early return that was blocking auth check
+    
+    // If still loading auth, don't do anything yet
+    if (authLoading) {
+      return;
+    }
+    
+    // If auth loaded but no user, redirect to login
+    if (!authUser) {
       router.push('/auth');
       return;
     }
 
-    if (authUser) {
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        if (currentUser) {
-          setUser(currentUser);
-          const userProfile = await getUserProfile(currentUser.uid);
-          setProfile(userProfile);
-          setFormData(userProfile || {});
-          if (!userProfile?.name) {
-            setIsEditing(true);
-          }
-        } else {
-          router.push('/auth');
+    // User exists, set up listener
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        
+        // ✅ Check if user has password auth (email/password signup)
+        // Social auth users won't have 'password' in providerData
+        const hasPasswordProvider = currentUser.providerData.some(
+          provider => provider.providerId === 'password'
+        );
+        setHasPassword(hasPasswordProvider);
+        
+        const userProfile = await getUserProfile(currentUser.uid);
+        setProfile(userProfile);
+        setFormData(userProfile || {});
+        if (!userProfile?.name) {
+          setIsEditing(true);
         }
-        setLoading(false);
-      });
-      return () => unsubscribe();
-    }
+      } else {
+        router.push('/auth');
+      }
+      setLoading(false);
+    });
+    
+    return () => unsubscribe(); // Cleanup function
   }, [router, authUser, authLoading]);
 
   const handleLogout = useCallback(async () => {
@@ -64,6 +81,10 @@ export const useProfile = () => {
     setFormData(profile || {});
   }, [profile]);
 
+  const handleChangePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await changePassword(currentPassword, newPassword);
+  }, []);
+
   return {
     user,
     profile,
@@ -74,6 +95,8 @@ export const useProfile = () => {
     handleSave,
     handleInputChange,
     handleEdit,
-    handleCancel
+    handleCancel,
+    handleChangePassword,
+    hasPassword  // ✅ NEW: Indicates if user can change password
   };
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { JobOpportunity, getJobOpportunities } from '../lib/contentful';
+import { JobOpportunity } from '../lib/contentful';
+import { fetchJobs } from '@/app/opportunities/job-seeker/actions';
 
 export const useJobData = () => {
   const [jobs, setJobs] = useState<JobOpportunity[]>([]);
@@ -7,7 +8,7 @@ export const useJobData = () => {
   const [isTimeout, setIsTimeout] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchJobs = useCallback(async () => {
+  const fetchJobsData = useCallback(async () => {
     try {
       setIsLoading(true);
       setIsTimeout(false);
@@ -18,7 +19,7 @@ export const useJobData = () => {
         setIsTimeout(true);
       }, 10000); // Show timeout message after 10 seconds
 
-      const jobData = await getJobOpportunities(50); // Limit to 50 jobs initially
+      const jobData = await fetchJobs(50); // Limit to 50 jobs initially
       
       clearTimeout(timeoutId);
       setJobs(jobData);
@@ -32,14 +33,14 @@ export const useJobData = () => {
   }, []);
 
   useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs]);
+    fetchJobsData();
+  }, [fetchJobsData]);
 
   return {
     jobs,
     isLoading,
     isTimeout,
     error,
-    refetch: fetchJobs
+    refetch: fetchJobsData
   };
 };

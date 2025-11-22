@@ -55,6 +55,25 @@ const nextConfig = {
           },
         ],
       },
+      // 🚀 Cache static HTML pages (24 hours)
+      {
+        source: '/about-us',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400',
+          },
+        ],
+      },
+      {
+        source: '/policy',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800, s-maxage=604800',
+          },
+        ],
+      },
       {
         source: '/sw.js',
         headers: [
@@ -70,6 +89,16 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 🚀 Cache API responses
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=300',
           },
         ],
       },

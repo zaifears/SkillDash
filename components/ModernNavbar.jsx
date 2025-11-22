@@ -14,7 +14,7 @@ const ModernNavbar = () => {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -29,9 +29,10 @@ const ModernNavbar = () => {
 
   return (
     <>
-      <nav className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
-        isScrolled ? 'top-2' : 'top-4'
-      } w-full max-w-6xl px-4`}>
+      <nav 
+        className="fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 w-full max-w-6xl px-3 sm:px-4"
+        style={{ top: isScrolled ? '0.5rem' : '1rem' }}
+      >
         <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-full shadow-xl px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -162,7 +163,7 @@ const MobileMenuButton = ({ navItems, pathname }) => {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-14 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-[280px] z-60 overflow-hidden">
+        <div className="absolute top-14 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl w-[calc(100vw-2rem)] sm:w-[320px] z-60 overflow-hidden">
           
           {/* Modern Header - User Info & Optimized Coins */}
           {user && (

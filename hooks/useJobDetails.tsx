@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { JobOpportunity, formatJobOpportunity, getJobOpportunityById } from '../lib/contentful';
+import { JobOpportunity, formatJobOpportunity } from '../lib/contentful';
+import { fetchJobById } from '@/app/opportunities/job-seeker/actions';
 
 export const useJobDetails = (jobId: string) => {
   const [job, setJob] = useState<JobOpportunity | null>(null);
@@ -25,7 +26,7 @@ export const useJobDetails = (jobId: string) => {
         setIsTimeout(true);
       }, 10000);
 
-      const jobData = await getJobOpportunityById(jobId);
+      const jobData = await fetchJobById(jobId);
       
       clearTimeout(timeoutId);
       

@@ -62,10 +62,7 @@ We transform career preparation into an engaging, gamified journey—helping you
 Make sure you have the following installed on your development machine:
 
 - **[Node.js](https://nodejs.org/)** (v18.17.0 or later) - JavaScript runtime
-- **[pnpm](https://pnpm.io/)** (recommended) - Fast, disk space efficient package manager
-  ```
-  npm install -g pnpm
-  ```
+- **[pnpm](https://pnpm.io/)** - Fast, disk space efficient package manager
 - **Git** - Version control system
 - A code editor like **[VS Code](https://code.visualstudio.com/)** (recommended)
 
@@ -144,7 +141,7 @@ Follow these steps to get SkillDash running locally:
 
 ### **Troubleshooting**
 
-- If you encounter dependency issues, try deleting `node_modules` and running `pnpm install` again
+- If you encounter dependency issues, try deleting `node_modules` and `.pnpm-store`, then run `pnpm install` again
 - For Firebase authentication issues, check your Firebase project configuration
 - Ensure all required environment variables are properly set in `.env.local`
 - Check the console and network tab in browser developer tools for debugging

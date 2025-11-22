@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { detectPromptInjection } from '@/lib/utils/validation';
 import { LIMITS } from '@/lib/constants';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
-import Groq from 'groq-sdk';
+import { getGoogleAI, getGroqClient } from '@/lib/utils/lazyAI';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
 
 // 🔥 PRODUCTION OPTIMIZATION: Force Node.js runtime for longer timeouts
@@ -10,15 +9,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // --- ENVIRONMENT VARIABLES & INITIALIZATION ---
+// Note: AI SDKs are now lazily loaded in lazyAI.ts to reduce bundle size
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-
-if (!GOOGLE_API_KEY) {
-    console.error("❌ GOOGLE_API_KEY not configured");
-}
-
-const genAI = GOOGLE_API_KEY ? new GoogleGenerativeAI(GOOGLE_API_KEY) : null;
-const groqClient = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
 // --- 🚦 IMPROVED RATE LIMITING (In-Memory Store) ---
 interface RateLimitEntry {
@@ -372,6 +365,9 @@ const prepareMessageHistory = (messages: any[]) => {
 async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
     console.log('🔮 [1/2] Trying PRIMARY: Gemini 2.0 Flash (Discover)...');
     
+    // 🚀 Lazy-load Google AI only when needed
+    const genAI = await getGoogleAI();
+    
     if (!genAI || !GOOGLE_API_KEY) {
         throw new Error("Gemini API key not configured.");
     }
@@ -385,6 +381,7 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
     const timeoutId = setTimeout(() => controller.abort(), config.timeout);
     
     try {
+        const { HarmCategory, HarmBlockThreshold } = await import('@google/generative-ai');
         const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash",
             systemInstruction: enhancedSystemInstruction,
@@ -426,6 +423,9 @@ async function tryGeminiAPI(messages: any[], enhancedSystemInstruction: string, 
 // 2️⃣ SECONDARY: Groq GPT-OSS-120B (DISCOVER FEATURE)
 async function tryGroqGPTOSSAPI(messages: any[], enhancedSystemInstruction: string, config: Config): Promise<ProviderResponse> {
     console.log('🤖 [2/2] Trying SECONDARY: Groq GPT-OSS-120B (Discover)...');
+    
+    // 🚀 Lazy-load Groq SDK only when needed
+    const groqClient = await getGroqClient();
     
     if (!groqClient || !GROQ_API_KEY) {
         throw new Error("Groq API key not configured.");
@@ -717,13 +717,17 @@ export async function POST(req: NextRequest) {
             
         } else {
             // Continue conversation
-            return NextResponse.json({
+            const response = NextResponse.json({
                 isComplete: false,
                 reply: responseText,
                 warningCount: validation.totalInappropriate,
                 questionsAsked: questionCount + 1,
                 provider: result.provider
             });
+            
+            // 🚀 Add cache headers for API responses (cache for 5 minutes for non-critical responses)
+            response.headers.set('Cache-Control', 'private, max-age=300');
+            return response;
         }
         
     } catch (error: any) {

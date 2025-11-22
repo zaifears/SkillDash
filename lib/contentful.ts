@@ -1,21 +1,34 @@
 import { createClient, Entry, EntryFieldTypes, EntrySkeletonType } from 'contentful';
 
-// Environment variables - REQUIRED (no fallbacks for security)
-const spaceId = process.env.CONTENTFUL_SPACE_ID;
-const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+// Lazy-initialized client to prevent browser-side evaluation
+let client: ReturnType<typeof createClient> | null = null;
 
-if (!spaceId || !accessToken) {
-  throw new Error('❌ Missing required Contentful configuration: CONTENTFUL_SPACE_ID or CONTENTFUL_ACCESS_TOKEN');
+function getContentfulClient() {
+  // ✅ Server-side guard: Throw at runtime on browser, not at module load
+  if (typeof window !== 'undefined') {
+    throw new Error('❌ Contentful client can only be used on the server side');
+  }
+  
+  if (client) return client;
+  
+  const spaceId = process.env.CONTENTFUL_SPACE_ID;
+  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+
+  // ✅ Only throw if actually trying to use Contentful (on server)
+  if (!spaceId || !accessToken) {
+    throw new Error('❌ Missing required Contentful configuration: CONTENTFUL_SPACE_ID or CONTENTFUL_ACCESS_TOKEN');
+  }
+
+  client = createClient({
+    space: spaceId,
+    environment: 'master',
+    accessToken: accessToken,
+    timeout: 8000,
+    retryLimit: 2,
+  });
+
+  return client;
 }
-
-// Create client with optimized settings
-const client = createClient({
-  space: spaceId,
-  environment: 'master',
-  accessToken: accessToken,
-  timeout: 8000, // 8 second timeout
-  retryLimit: 2, // Retry 2 times on failure
-});
 
 // --- Cache Implementation ---
 // A simple in-memory cache to speed up repeated requests during a session
@@ -180,7 +193,7 @@ export async function getJobOpportunities(limit = 20): Promise<JobOpportunity[]>
   if (cachedData) return cachedData;
 
   try {
-    const entries = await client.getEntries<JobOpportunitySkeleton>({
+    const entries = await getContentfulClient().getEntries<JobOpportunitySkeleton>({
       content_type: 'SkillDashJobs',
       order: ['-sys.createdAt'],
       limit,
@@ -200,7 +213,7 @@ export async function getJobOpportunityById(id: string): Promise<JobOpportunity 
   if (cachedData) return cachedData;
 
   try {
-    const entry = await client.getEntry<JobOpportunitySkeleton>(id);
+    const entry = await getContentfulClient().getEntry<JobOpportunitySkeleton>(id);
     cache.set(cacheKey, entry, 5 * 60 * 1000); // 5 min cache
     return entry;
   } catch (error) {
@@ -269,7 +282,7 @@ export async function getBusinessCompetitions(limit = 20): Promise<FormattedBusi
   if (cachedData) return cachedData;
 
   try {
-    const entries = await client.getEntries<BusinessCompetitionSkeleton>({
+    const entries = await getContentfulClient().getEntries<BusinessCompetitionSkeleton>({
       content_type: 'bizComp', // This API ID must match your Contentful model
       order: ['-fields.registrationDeadline'], // Order by deadline
       limit,

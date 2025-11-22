@@ -2,27 +2,19 @@
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
-// +++ FIX: Changed to absolute path aliases +++
-import { 
-  getBusinessCompetitions, 
-  FormattedBusinessCompetition 
-} from '@/lib/contentful'; 
+import type { FormattedBusinessCompetition } from '@/lib/contentful';
 import dynamic from 'next/dynamic';
-
-// +++ FIX: Changed to absolute path aliases +++
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingScreen } from '@/lib/components/shared';
 import { ROUTES, MESSAGES } from '@/lib/constants';
 
-
-// --- Lazy Load Footer ---
-// +++ FIX: Changed to absolute path aliases +++
+// Lazy Load Footer
 const Footer = dynamic(() => import('@/components/shared/Footer'), {
   loading: () => <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-800 rounded-t-3xl" />,
   ssr: false,
 });
 
-// --- Reusable Icons (Fast & Light) ---
+// Reusable Icons
 const BackIcon = memo(() => (
   <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -65,7 +57,7 @@ const PrizeIcon = memo(() => (
 ));
 PrizeIcon.displayName = 'PrizeIcon';
 
-// --- Header Component ---
+// Header Component
 const BizCompHeader = memo(() => (
   <div className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -82,14 +74,12 @@ const BizCompHeader = memo(() => (
 ));
 BizCompHeader.displayName = 'BizCompHeader';
 
-// --- Competition Card Component ---
+// Competition Card Component
 const BizCompCard = memo(({ comp }: { comp: FormattedBusinessCompetition }) => {
   const isExpired = new Date(comp.registrationDeadline) < new Date();
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 ${isExpired ? 'opacity-60' : 'hover:shadow-xl hover:scale-[1.02]'}`}>
-      
-      {/* Header */}
       <div className="mb-4">
         {isExpired && (
           <span className="inline-block bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 text-xs font-medium px-2 py-1 rounded-full mb-2">
@@ -104,7 +94,6 @@ const BizCompCard = memo(({ comp }: { comp: FormattedBusinessCompetition }) => {
         </p>
       </div>
 
-      {/* Info Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         <InfoItem icon={<CalendarIcon />} label="Deadline" value={comp.formattedDeadline} isExpired={isExpired} />
         <InfoItem icon={<MoneyIcon />} label="Reg. Fee" value={comp.registrationFee} />
@@ -113,7 +102,6 @@ const BizCompCard = memo(({ comp }: { comp: FormattedBusinessCompetition }) => {
         <InfoItem icon={<VideoIcon />} label="OVC Required" value={comp.ovcRequirement} />
       </div>
 
-      {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
         {comp.detailsLink && (
           <a
@@ -158,7 +146,7 @@ const InfoItem = memo(({ icon, label, value, isExpired = false }: { icon: React.
 ));
 InfoItem.displayName = 'InfoItem';
 
-// --- Loading & Error States ---
+// Loading & Error States
 const LoadingSkeleton = memo(() => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     {[...Array(4)].map((_, i) => (
@@ -208,37 +196,43 @@ const EmptyState = memo(() => (
 ));
 EmptyState.displayName = 'EmptyState';
 
-// --- Main Page Component ---
+// Main Page Component
 export default function BizCompPage() {
   const router = useRouter();
-  // +++ ADDED: Auth state +++
   const { user, loading: authLoading } = useAuth();
   
   const [competitions, setCompetitions] = useState<FormattedBusinessCompetition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // +++ ADDED: Authentication Wall +++
+  // Authentication Wall
   useEffect(() => {
-    // Wait until auth state is confirmed
     if (!authLoading && !user) {
-      // Store a message to show on the login page
       sessionStorage.setItem('redirectMessage', 'Please log in to view the BizComp Arena.');
-      // Store the page we wanted to go to
       sessionStorage.setItem('redirectAfterLogin', '/opportunities/bizcomp');
       router.push('/auth');
     }
   }, [user, authLoading, router]);
 
   const fetchComps = useCallback(async () => {
-    // +++ ADDED: Guard clause to prevent fetching if not logged in +++
     if (!user || authLoading) {
-      return; // Don't fetch data if user isn't logged in
+      return;
     }
     try {
       setIsLoading(true);
       setError(null);
-      const comps = await getBusinessCompetitions(20); // Fetch up to 20 competitions
+      
+      // Use dynamic import to fetch from server
+      const response = await fetch('/api/bizcomp', { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch competitions');
+      }
+      
+      const comps = await response.json();
       setCompetitions(comps);
     } catch (err: any) {
       console.error('Error fetching competitions:', err);
@@ -246,17 +240,15 @@ export default function BizCompPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, authLoading]); // +++ ADDED: Dependencies on user and authLoading +++
+  }, [user, authLoading]);
 
   useEffect(() => {
-    // +++ ADDED: Only fetch data if user is authenticated +++
     if (user && !authLoading) {
       fetchComps();
     }
-  }, [fetchComps, user, authLoading]); // +++ ADDED: Dependencies +++
+  }, [fetchComps, user, authLoading]);
 
   const renderContent = () => {
-    // Note: The main loading state is handled by the return block below
     if (isLoading) {
       return <LoadingSkeleton />;
     }
@@ -275,16 +267,12 @@ export default function BizCompPage() {
     );
   };
 
-  // +++ ADDED: Top-level loading state for auth check +++
-  // This shows a full-page loader while checking auth or redirecting
   if (authLoading || !user) {
     return <LoadingScreen />;
   }
 
-  // This will only render if authLoading is false AND user is present
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black pt-20">
-      {/* Fixed Back Button - Hidden on Mobile (< 768px) */}
       <button
         onClick={() => router.back()}
         className="hidden md:block fixed top-24 left-4 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-lg hover:scale-105 transition-all duration-200"

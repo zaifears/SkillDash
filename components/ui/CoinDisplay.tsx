@@ -7,7 +7,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
-const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 'default' }) => {
+interface CoinDisplayProps {
+  className?: string;
+  showLabel?: boolean;
+  onClick?: (() => void) | null;
+  size?: 'small' | 'default' | 'large';
+}
+
+const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = true, onClick = null, size = 'default' }) => {
   const { user } = useAuth();
   const router = useRouter();
   const [coins, setCoins] = useState(0);
@@ -35,11 +42,11 @@ const CoinDisplay = ({ className = '', showLabel = true, onClick = null, size = 
     }
   };
 
-  const currentSize = sizeClasses[size] || sizeClasses.default;
+  const currentSize = sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.default;
 
   // Fast coin redirect handler
   const handleCoinClick = () => {
-    if (onClick) {
+    if (onClick && typeof onClick === 'function') {
       onClick();
     } else {
       router.push('/coins');

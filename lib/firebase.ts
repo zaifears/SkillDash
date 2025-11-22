@@ -15,7 +15,10 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     sendEmailVerification,
-    updateProfile
+    updateProfile,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+    updatePassword
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -171,4 +174,34 @@ export {
     sendSignInLinkToEmail,
     signInWithEmailAndPassword,
     getRedirectResult
+};
+
+// ✅ Password Change Function
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
+  const user = auth.currentUser;
+  
+  if (!user || !user.email) {
+    throw new Error('No user is currently logged in');
+  }
+
+  try {
+    // Re-authenticate user with their current password
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+
+    // Update to new password
+    await updatePassword(user, newPassword);
+  } catch (error: any) {
+    if (error.code === 'auth/wrong-password') {
+      throw new Error('Current password is incorrect');
+    } else if (error.code === 'auth/weak-password') {
+      throw new Error('New password is too weak. Use at least 8 characters');
+    } else if (error.code === 'auth/requires-recent-login') {
+      throw new Error('Please log out and log back in, then try again');
+    }
+    throw new Error(error.message || 'Failed to change password');
+  }
 };

@@ -23,7 +23,7 @@
   :root {
     --text-primary: #f9fafb;
     --text-secondary: #d1d5db;
-    --bg-primary: #111827;
+    --bg-primary: #111113;  /* ✅ OLED-safe: Not pure black to prevent burn-in */
     --bg-secondary: #1f2937;
   }
 }
@@ -407,6 +407,17 @@ button:disabled {
 @media (max-width: 640px) {
   .animate-optimized-bounce {
     opacity: 0.25;
+  }
+}
+
+/* ✅ Mobile: Disable animations for users with reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

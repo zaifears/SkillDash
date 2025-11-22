@@ -12,5 +12,9 @@ export async function GET(req: NextRequest) {
     environment: process.env.NODE_ENV || 'development',
     ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
     userAgent: req.headers.get('user-agent') || 'unknown'
+  }, {
+    headers: {
+      'Cache-Control': 'public, max-age=60' // 1 minute - public, cacheable status
+    }
   });
 }

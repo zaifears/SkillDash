@@ -95,7 +95,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         {/* Essential Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=contain" />
         <meta name="theme-color" content="#8b5cf6" />
         <meta name="msapplication-TileColor" content="#8b5cf6" />
         <meta name="application-name" content="SkillDash" />
@@ -106,9 +106,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         
         {/* SAFE FIX: CSS preload for performance */}
         <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />

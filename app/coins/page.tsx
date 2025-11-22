@@ -341,7 +341,7 @@ const CoinsPage: React.FC = () => {
 
               {/* Quick Select Buttons */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide flex items-center gap-2">
+                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide flex items-center gap-2">
                   <span>⚡</span>
                   <span>Quick Select:</span>
                 </label>

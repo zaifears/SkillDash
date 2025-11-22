@@ -13,6 +13,17 @@ import { useRouter } from 'next/navigation';
 import { fetchWithRetry } from '@/lib/utils/apiClient';
 import { updateUserCount } from '@/lib/utils/updateStats';
 
+// ✅ localStorage cache interface
+interface CachedUserData {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  emailVerified: boolean;
+  isAnonymous: boolean;
+  lastSync: number;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -39,6 +50,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userCountUpdated, setUserCountUpdated] = useState(false);
   const router = useRouter();
 
+  // ✅ Load cached user from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('skilldash_user_cache');
+        if (cached) {
+          const cachedData: CachedUserData = JSON.parse(cached);
+          const now = Date.now();
+          const cacheAge = now - cachedData.lastSync;
+          
+          // Use cache if less than 1 hour old
+          if (cacheAge < 60 * 60 * 1000) {
+            setIsEmailVerified(cachedData.emailVerified);
+            console.log('✅ Loaded user from localStorage cache');
+          } else {
+            // Cache expired
+            localStorage.removeItem('skilldash_user_cache');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load cached user:', error);
+      }
+    }
+    // ✅ DON'T set loading to false here - let Firebase auth resolve it
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       
@@ -57,6 +94,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(user);
       
       if (user) {
+        // ✅ Cache user to localStorage for instant reload
+        const cachedData: CachedUserData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified,
+          isAnonymous: user.isAnonymous,
+          lastSync: Date.now()
+        };
+        
+        try {
+          localStorage.setItem('skilldash_user_cache', JSON.stringify(cachedData));
+        } catch (error) {
+          console.warn('Failed to cache user to localStorage:', error);
+        }
+        
         // 🔧 CHECK EMAIL VERIFICATION STATUS
         await user.reload();
         const wasVerified = isEmailVerified;
@@ -225,6 +279,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
+      // ✅ Clear localStorage cache on logout
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('skilldash_user_cache');
+      }
+      
       await signOut(auth);
       setUser(null);
       setIsEmailVerified(false);

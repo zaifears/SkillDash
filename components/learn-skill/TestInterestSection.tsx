@@ -320,7 +320,7 @@ const SkillCard = memo(({ skill, index }: { skill: Skill, index: number }) => {
 
   const handleCardClick = useCallback(() => {
     if (availableLanguages.length === 1) {
-      const language = availableLanguages[0];
+      const language = availableLanguages[0] as 'bangla' | 'english';
       const course = skill.courses[language];
       if (course?.url) {
         window.open(course.url, '_blank', 'noopener,noreferrer');
@@ -395,9 +395,9 @@ const SkillCard = memo(({ skill, index }: { skill: Skill, index: number }) => {
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 mb-2 border border-gray-200/50 dark:border-gray-600/50">
           <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2 uppercase tracking-wide">Educator:</p>
           <div className="flex items-center gap-3">
-            <LanguageBadge language={availableLanguages[0]} label={availableLanguages[0] === 'bangla' ? 'BN' : 'EN'} />
+            <LanguageBadge language={availableLanguages[0] as 'bangla' | 'english'} label={availableLanguages[0] === 'bangla' ? 'BN' : 'EN'} />
             {(() => {
-              const course = skill.courses[availableLanguages[0]];
+              const course = skill.courses[availableLanguages[0] as 'bangla' | 'english'];
               return course?.educatorLink ? (
                 <button
                   onClick={e => handleEducatorClick(course.educatorLink!, e)}
@@ -415,14 +415,14 @@ const SkillCard = memo(({ skill, index }: { skill: Skill, index: number }) => {
         <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="space-y-4">
             {availableLanguages.map(language => {
-              const course = skill.courses[language];
+              const course = skill.courses[language as 'bangla' | 'english'];
               if (!course) return null;
               return (
                 <div key={language} className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-600/50">
                   <div className="flex items-center justify-between mb-3">
-                    <LanguageBadge language={language} label={language === 'bangla' ? 'Bengali' : 'English'} />
+                    <LanguageBadge language={language as 'bangla' | 'english'} label={language === 'bangla' ? 'Bengali' : 'English'} />
                     <button
-                      onClick={e => handleLanguageClick(language, e)}
+                      onClick={e => handleLanguageClick(language as 'bangla' | 'english', e)}
                       className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full font-medium transition-colors"
                     >
                       Start Learning

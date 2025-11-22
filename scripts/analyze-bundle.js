@@ -8,7 +8,7 @@ function analyzeBundleSize() {
   const buildDir = path.join(process.cwd(), '.next');
   
   if (!fs.existsSync(buildDir)) {
-    console.error('❌ Build directory not found. Run "npm run build" first.');
+    console.error('❌ Build directory not found. Run "pnpm build" first.');
     return;
   }
 
@@ -19,7 +19,7 @@ function analyzeBundleSize() {
   }
 
   console.log('\n📊 Bundle Analysis Complete!');
-  console.log('💡 To get detailed analysis, run: ANALYZE=true npm run build');
+  console.log('💡 To get detailed analysis, run: ANALYZE=true pnpm build');
 }
 
 function analyzeDirectory(dir, label) {

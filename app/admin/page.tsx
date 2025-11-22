@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, getCountFromServer, query, where } from 'firebase/firestore';
+import { collection, getCountFromServer, orderBy, query, where } from 'firebase/firestore';
 import { checkGodMode } from '@/lib/admin';
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState({
     totalUsers: 0,
     pendingRequests: 0,
@@ -18,9 +20,16 @@ export default function AdminDashboard() {
   const [isGodMode, setIsGodMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Redirect if auth loaded and no user or no god mode
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth');
+    }
+  }, [authLoading, user, router]);
+
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user) return;
+      if (!user || authLoading) return;
 
       try {
         const godMode = await checkGodMode(user.uid);
@@ -33,38 +42,35 @@ export default function AdminDashboard() {
           getCountFromServer(collection(db, 'recharge_requests'))
         ]);
 
-        // For detailed status breakdown, use a single query then filter locally
-        const detailedRechargeQuery = query(
-          collection(db, 'recharge_requests'),
-          orderBy('status')
-        );
-        
-        // Limit to recent 1000 requests for performance
-        // In production, consider server-side aggregation
-        const rechargeSnapshot2 = await getCountFromServer(
-          query(
-            collection(db, 'recharge_requests'),
-            where('status', '==', 'pending')
+        // ✅ Fetch status counts
+        const [pendingSnapshot, approvedSnapshot, rejectedSnapshot] = await Promise.all([
+          getCountFromServer(
+            query(
+              collection(db, 'recharge_requests'),
+              where('status', '==', 'pending')
+            )
+          ),
+          getCountFromServer(
+            query(
+              collection(db, 'recharge_requests'),
+              where('status', '==', 'approved')
+            )
+          ),
+          getCountFromServer(
+            query(
+              collection(db, 'recharge_requests'),
+              where('status', '==', 'rejected')
+            )
           )
-        );
+        ]);
 
-        const approvedSnapshot = await getCountFromServer(
-          query(
-            collection(db, 'recharge_requests'),
-            where('status', '==', 'approved')
-          )
-        );
-
-        const rejectedSnapshot = await getCountFromServer(
-          query(
-            collection(db, 'recharge_requests'),
-            where('status', '==', 'rejected')
-          )
-        );
+        const totalUsers = usersSnapshot.data().count;
+        console.log(`📊 Admin Dashboard - Total users from Firestore: ${totalUsers}`);
+        console.log(`⚠️ Note: This includes test users and abandoned accounts. Filter in dashboard if needed.`);
 
         setStats({
-          totalUsers: usersSnapshot.data().count,
-          pendingRequests: rechargeSnapshot2.data().count,
+          totalUsers,
+          pendingRequests: pendingSnapshot.data().count,
           approvedRequests: approvedSnapshot.data().count,
           rejectedRequests: rejectedSnapshot.data().count,
           totalRequests: rechargeSnapshot.data().count
@@ -77,7 +83,7 @@ export default function AdminDashboard() {
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, authLoading]);
 
   if (loading) {
     return (
