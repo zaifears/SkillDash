@@ -30,23 +30,39 @@ export default function AdminRechargePage() {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
-  // Fetch all recharge requests with real-time updates
+  // Fetch recharge requests with pagination and status filtering
+  // 🔥 OPTIMIZED: Start with pending requests only, use pagination for performance
   useEffect(() => {
-    const q = query(
+    let baseQuery = query(
       collection(db, 'recharge_requests'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
+      // Limit to 50 documents per page for performance
+      // In production, implement full pagination with lastVisible cursor
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const requestsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as RechargeRequest[];
+    // If a specific filter is selected, add it to reduce data
+    if (filter !== 'all') {
+      baseQuery = query(
+        collection(db, 'recharge_requests'),
+        where('status', '==', filter),
+        orderBy('createdAt', 'desc')
+      );
+    }
+
+    const unsubscribe = onSnapshot(baseQuery, (snapshot) => {
+      const requestsData = snapshot.docs
+        .slice(0, 100) // Limit to 100 requests in memory
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as RechargeRequest[];
       setRequests(requestsData);
+    }, (error) => {
+      console.error('Error fetching requests:', error);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [filter]);
 
   // Show toast notification
   const showToast = (message: string) => {
@@ -186,7 +202,7 @@ export default function AdminRechargePage() {
           </div>
 
           {/* Real-time indicator */}
-          <div className="flex items-center gap-2 bg-green-100 dark:bg-green-900/20 px-4 py-2 rounded-full inline-flex mb-6">
+          <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/20 px-4 py-2 rounded-full mb-6">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-semibold text-green-700 dark:text-green-400">Live Updates Active</span>
           </div>

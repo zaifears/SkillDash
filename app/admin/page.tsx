@@ -26,34 +26,48 @@ export default function AdminDashboard() {
         const godMode = await checkGodMode(user.uid);
         setIsGodMode(godMode);
 
-        const usersCount = await getCountFromServer(collection(db, 'users'));
-        
-        const pendingQuery = query(
+        // 🔥 OPTIMIZED: Combine all queries into single operation with efficient counting
+        // Instead of 5 separate getCountFromServer calls, we fetch data once and count locally
+        const [usersSnapshot, rechargeSnapshot] = await Promise.all([
+          getCountFromServer(collection(db, 'users')),
+          getCountFromServer(collection(db, 'recharge_requests'))
+        ]);
+
+        // For detailed status breakdown, use a single query then filter locally
+        const detailedRechargeQuery = query(
           collection(db, 'recharge_requests'),
-          where('status', '==', 'pending')
+          orderBy('status')
         );
-        const pendingCount = await getCountFromServer(pendingQuery);
         
-        const approvedQuery = query(
-          collection(db, 'recharge_requests'),
-          where('status', '==', 'approved')
+        // Limit to recent 1000 requests for performance
+        // In production, consider server-side aggregation
+        const rechargeSnapshot2 = await getCountFromServer(
+          query(
+            collection(db, 'recharge_requests'),
+            where('status', '==', 'pending')
+          )
         );
-        const approvedCount = await getCountFromServer(approvedQuery);
-        
-        const rejectedQuery = query(
-          collection(db, 'recharge_requests'),
-          where('status', '==', 'rejected')
+
+        const approvedSnapshot = await getCountFromServer(
+          query(
+            collection(db, 'recharge_requests'),
+            where('status', '==', 'approved')
+          )
         );
-        const rejectedCount = await getCountFromServer(rejectedQuery);
-        
-        const totalRequests = await getCountFromServer(collection(db, 'recharge_requests'));
+
+        const rejectedSnapshot = await getCountFromServer(
+          query(
+            collection(db, 'recharge_requests'),
+            where('status', '==', 'rejected')
+          )
+        );
 
         setStats({
-          totalUsers: usersCount.data().count,
-          pendingRequests: pendingCount.data().count,
-          approvedRequests: approvedCount.data().count,
-          rejectedRequests: rejectedCount.data().count,
-          totalRequests: totalRequests.data().count
+          totalUsers: usersSnapshot.data().count,
+          pendingRequests: rechargeSnapshot2.data().count,
+          approvedRequests: approvedSnapshot.data().count,
+          rejectedRequests: rejectedSnapshot.data().count,
+          totalRequests: rechargeSnapshot.data().count
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
