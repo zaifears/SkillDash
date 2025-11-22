@@ -14,14 +14,17 @@ SkillDash is now configured to build as an Android APK using Capacitor, a modern
 Before building the APK, ensure you have:
 
 1. **Node.js & pnpm** - Already installed
-2. **Java Development Kit (JDK) 17+**
+2. **Java Development Kit (JDK) 25** (or 17+)
    ```powershell
    java -version
    ```
+   → See: `../SDK_AND_JDK_SETUP.md` for detailed installation
+
 3. **Android SDK**
    - Install Android Studio or Android SDK Command-line tools
    - Set `ANDROID_HOME` environment variable
    - Example: `$env:ANDROID_HOME = "C:\Users\YourUsername\AppData\Local\Android\sdk"`
+   → See: `../SDK_AND_JDK_SETUP.md` for step-by-step guide
 
 4. **Gradle** - Comes with Android Studio
 
@@ -29,9 +32,11 @@ Before building the APK, ensure you have:
 
 ```
 SkillDash/
-├── android/                 # Android native project
-├── capacitor.config.ts      # Capacitor configuration
-├── out/                     # Built web assets (auto-generated)
+├── apk/
+│   ├── android/                 # Android native project
+│   ├── capacitor.config.ts      # Capacitor configuration
+│   └── ... (documentation files)
+├── out/                     # Built web assets (auto-generated in root)
 ├── .next/                   # Next.js build output
 └── package.json             # Scripts for building
 ```
@@ -56,14 +61,14 @@ This copies the web assets to the Android project.
 ```bash
 pnpm apk
 # or manually:
-cd android
+cd apk/android
 ./gradlew assembleDebug
 ```
-Output: `android/app/build/outputs/apk/debug/app-debug.apk`
+Output: `apk/android/app/build/outputs/apk/debug/app-debug.apk`
 
 ### 4. Build APK (Release)
 ```bash
-cd android
+cd apk/android
 ./gradlew assembleRelease
 # or with signing
 ./gradlew bundleRelease
@@ -73,7 +78,7 @@ cd android
 ```bash
 pnpm cap-dev
 # or manually:
-cd android
+cd apk/android
 # Open in Android Studio
 ```
 
