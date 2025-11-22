@@ -87,7 +87,21 @@ export class CoinManager {
   // 📊 GET TRANSACTION HISTORY (Client-side safe - calls API)
   static async getTransactionHistory(userId: string, limitCount: number = 10): Promise<any[]> {
     try {
-      const response = await fetch(`/api/coins/transactions?userId=${userId}&limit=${limitCount}`);
+      // 🔒 Get Firebase ID token for authentication
+      const { auth } = await import('./firebase');
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      const idToken = await currentUser.getIdToken();
+      
+      const response = await fetch(`/api/coins/transactions?userId=${userId}&limit=${limitCount}`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
       const data = await response.json();
       return data.transactions || [];
     } catch (error) {
@@ -106,7 +120,21 @@ export class CoinManager {
     topFeatures: Array<{ feature: string; count: number; totalAmount: number }>;
   }> {
     try {
-      const response = await fetch(`/api/coins/statistics?userId=${userId}`);
+      // 🔒 Get Firebase ID token for authentication
+      const { auth } = await import('./firebase');
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      const idToken = await currentUser.getIdToken();
+      
+      const response = await fetch(`/api/coins/statistics?userId=${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
       const data = await response.json();
       
       if (!data.success) {

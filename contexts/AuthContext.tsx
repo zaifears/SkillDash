@@ -113,9 +113,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
               console.log('🎯 Granting welcome bonus for newly verified user...');
               
+              // 🔒 Get Firebase ID token for authentication
+              const idToken = await user.getIdToken();
+              
               const response = await fetchWithRetry('/api/coins/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${idToken}`
+                },
                 body: JSON.stringify({
                   userId: user.uid,
                   amount: 5,
