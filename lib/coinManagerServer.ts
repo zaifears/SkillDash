@@ -64,15 +64,10 @@ function initializeFirebaseAdmin() {
       credential: cert(serviceAccount as any),
       projectId: serviceAccount.project_id
     });
-    logSuccess('INIT', 'Firebase Admin initialized successfully', {
-      projectId: serviceAccount.project_id,
-      clientEmail: serviceAccount.client_email,
-      attempt: initializationAttempts
-    });
+    logSuccess('INIT', `Firebase Admin initialized successfully (attempt ${initializationAttempts})`);
     return true;
   } catch (error: any) {
     logError('INIT', error, { 
-      serviceAccountKeys: Object.keys(serviceAccount || {}),
       appsLength: getApps().length,
       env: process.env.NODE_ENV,
       attempt: initializationAttempts,
