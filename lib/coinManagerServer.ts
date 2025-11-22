@@ -27,20 +27,26 @@ const logWarning = (context: string, message: string, data?: any) => {
   console.warn(`⚠️ [CoinManagerServer] ${context}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
-// 🔧 SERVICE ACCOUNT CONFIGURATION
+// 🔧 SERVICE ACCOUNT CONFIGURATION (from environment variables)
 const serviceAccount = {
   type: "service_account",
-  project_id: "skilldash-c588d",
-  private_key_id: "f53d4d2f07d99a8e9b2333d1b05b2049efcc4c46",
-  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3RsPLjpBXH6Mr\nINvpbVCQNsat067uYATJQRvaAakiUb5usA1VbtnuLiBLc7bHDWCPiKFQaa3eTCBY\nlaqWnq6Hbf3T7fFlhMF+kOjiaYrR3AJDIG8OrlrsgJiO8jTsmjQrgmYJaxf96bLp\nW5ri5J8SMSm0C2iNre5E6FDySFWIR8c1+AvWQOMsz7RPDL69qBveIrGcliNQH+Mc\nCmzNLt2pupzWCViScDuQ4/TwU+41hpEmWrk5clnZJAX1iOXUbO+LNVcCXkx15445\ntisiTAh0vJ5hv5JWmdr1eWidAXaDBhCZ+YBZxZkBSx1t8WXsjHjDTnwK6PnwR+VD\nVNX1nQHRAgMBAAECggEAJ/IYgqlT9GlE2wWSaNIWmRgXPZPBsNrksCistVtfTceb\nRezBOzmp7ivHhip2T/Quc5pH7oraBnV5J1WXlLSJPaNPi310+7dvpPJYj+CJDSxy\nocbT7dM6pglxNta7ikYh0MnfC3Z4CDODdzEsFP/XW9OzTzadVyPtpr8rxWLWoZkE\n+j0opPp+U26l0Rw9Emg1NGGGasDz/rw/+LNJ8DCw8piO5oH0iOJuJmSGWAHSzkTE\nXRh+F3N2jIQ+yqP364s894CO9TWxek/tIol3BJKGQBwoUN+cKYOKwtokVdDsWYyc\nFKe1hXYADOr9QFDvbsDo9xxl5q4m4cZDv/FJsipfsQKBgQDZDVq0gUmBTuBOPRdQ\nXv/6/zITfcQ3c0UIfoymjvPKrCtrYCWb8gweF5XmjxlBzipXLr6iEOt0bd/08UDE\nPRDR9Jd9QuYakhAk8er9xVKGGv+G268OboFNuzuP0pTqSvH2bDF0ywtp+hAZtXJB\nsXe9CEFfn7hieDoufUGlGuEcNwKBgQDYKd3hglxVEmTNYLUotnPNfIjDLau71kFR\n9a55sGIyHbh1gn3QEy7eKHbDGOR0Dgs+KdkcrelcR3F1L4g/IrzQeVcfHF3D62pP\npLoovRTX+KEN08a6qBVSHPn46HBhThHZx6EB7idERHhE+EKkDqC/Byj60DK23rDr\n7Vd7D9qeNwKBgQCjtDvGSoC7A1eQCumLl6svjswhAUk9nTXi2zeP49+h68rvuFuF\nS8Cx7Y4Ej8c355vtl3b2WxaLANfaMR9tIrWN9RFQy2UrgyCkDMX00p+UP8ab2xMk\nKlph2yZoKiZgs1fdSOrgMMgSDSWZjk13mLc7nn9X9OoncpBHQfeB5E0GbwKBgEPo\nAxgQx8jB2oDaXI7Jol9vO9d0xXpguGxy7bi0vGRaCdSAhd2T6SlJNOXdMAd1UfrZ\nUqc7yw9+MhpKMFcFJqOnOsM/OgWOMvuKGCEsJRwjsxSQ7uE8ZFZDXBPhkUxAJkNv\n/xiIJDXB/LZN90Fqhvz71tfUB9qC4rl6+fxi4p7JAoGAfkRfH9eScHuWGddbbctK\nUz6ixLy/lTmhGRhKt9YA+G/zLVfnSnUh70olVBEsdZnQXrUNRlpYqjkB/F+2Dlju\n+Vx929VwcbCtI1qHLe/1L0P+fI8cA1Z6nsrDasFMGwBsSvyLARwgNTGWcSw4IkSt\n4hzmfWNLJ4fIuXyodSms63w=\n-----END PRIVATE KEY-----\n",
-  client_email: "firebase-adminsdk-fbsvc@skilldash-c588d.iam.gserviceaccount.com",
-  client_id: "104757635139824728945",
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+  private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40skilldash-c588d.iam.gserviceaccount.com",
+  client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT_URL,
   universe_domain: "googleapis.com"
 };
+
+// Validate all required fields
+if (!serviceAccount.project_id || !serviceAccount.private_key_id || !serviceAccount.private_key || 
+    !serviceAccount.client_email || !serviceAccount.client_id || !serviceAccount.client_x509_cert_url) {
+  throw new Error('❌ Missing required Firebase Admin SDK configuration. Check environment variables: FIREBASE_PROJECT_ID, FIREBASE_ADMIN_PRIVATE_KEY_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, FIREBASE_ADMIN_CLIENT_ID, FIREBASE_ADMIN_CLIENT_CERT_URL');
+}
 
 // Firebase Admin initialization
 let initializationAttempts = 0;

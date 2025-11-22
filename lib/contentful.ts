@@ -1,8 +1,12 @@
 import { createClient, Entry, EntryFieldTypes, EntrySkeletonType } from 'contentful';
 
-// Environment variables with fallbacks
-const spaceId = process.env.CONTENTFUL_SPACE_ID || 'qz001ds11gs3';
-const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN || '9Xkr6hXeKKPMfTCIngLAG7k0n-g4JsIqJ2xeJGcUSb0';
+// Environment variables - REQUIRED (no fallbacks for security)
+const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+
+if (!spaceId || !accessToken) {
+  throw new Error('❌ Missing required Contentful configuration: CONTENTFUL_SPACE_ID or CONTENTFUL_ACCESS_TOKEN');
+}
 
 // Create client with optimized settings
 const client = createClient({
