@@ -466,6 +466,63 @@ export default function ResumeFeedbackPage() {
     router.push(ROUTES.COINS);
   }, [router]);
 
+  // 🔄 PERIODIC COIN REFRESH: Auto-detect when coins become available (like in Discover)
+  useEffect(() => {
+    let coinRefreshInterval: NodeJS.Timeout;
+    
+    if (user && showInsufficientCoinsModal && coinError && coinError.currentCoins < coinError.requiredCoins) {
+      // Check for coins every 5 seconds if modal is open
+      coinRefreshInterval = setInterval(async () => {
+        try {
+          const currentBalance = await CoinManager.getCoinBalance(user.uid);
+          const hasCoins = currentBalance >= LIMITS.COINS_PER_FEATURE;
+          
+          if (hasCoins && showInsufficientCoinsModal) {
+            console.log('✨ [ResumeFeedbackPage] Coins detected during periodic check');
+            setShowInsufficientCoinsModal(false);
+            setCoinError(null);
+          }
+        } catch (error) {
+          console.error('❌ [ResumeFeedbackPage] Periodic coin check failed:', error);
+        }
+      }, 5000);
+    }
+    
+    return () => {
+      if (coinRefreshInterval) {
+        clearInterval(coinRefreshInterval);
+      }
+    };
+  }, [user, showInsufficientCoinsModal, coinError]);
+
+  // 👀 TAB FOCUS COIN CHECK: Instantly refresh when user returns to tab
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (!document.hidden && user && showInsufficientCoinsModal && coinError) {
+        try {
+          const currentBalance = await CoinManager.getCoinBalance(user.uid);
+          const hasCoins = currentBalance >= LIMITS.COINS_PER_FEATURE;
+          
+          if (hasCoins) {
+            console.log('🎉 [ResumeFeedbackPage] Coins found on tab focus');
+            setShowInsufficientCoinsModal(false);
+            setCoinError(null);
+          }
+        } catch (error) {
+          console.error('❌ [ResumeFeedbackPage] Tab focus coin check failed:', error);
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+    };
+  }, [user, showInsufficientCoinsModal, coinError]);
+
   // 🔧 FIXED: Clear error functions
   const clearUploadError = useCallback(() => {
     setUploadError('');
