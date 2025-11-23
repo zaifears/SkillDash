@@ -393,6 +393,7 @@ export default function ResumeFeedbackPage() {
   const [currentStep, setCurrentStep] = useState<Step>('industry');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingTimeElapsed, setLoadingTimeElapsed] = useState(0); // Track loading time
   const [error, setError] = useState('');
   const [conversationEnded, setConversationEnded] = useState(false);
   const [parsedFeedback, setParsedFeedback] = useState<ResumeFeedback | null>(null);
@@ -419,6 +420,34 @@ export default function ResumeFeedbackPage() {
       router.replace(ROUTES.AUTH);
     }
   }, [user, loading, router]);
+
+  // ⏳ LOADING TIME TRACKER: Update UI message after 10 seconds
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      setLoadingTimeElapsed(0);
+      interval = setInterval(() => {
+        setLoadingTimeElapsed(prev => {
+          const newTime = prev + 1;
+          // Update the loading message after 10 seconds
+          if (newTime === 10) {
+            setMessages(prev => {
+              const lastMsg = prev[prev.length - 1];
+              if (lastMsg?.role === 'assistant' && typeof lastMsg.content === 'string') {
+                return [...prev.slice(0, -1), {
+                  role: 'assistant',
+                  content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. ⏳\n\n⚠️ **This is taking a bit longer than usual** (10+ seconds) because I'm:\n• Performing real-time market research for your industry\n• Analyzing your resume structure against ATS algorithms\n• Researching current job market trends in Bangladesh\n• Gathering competitive salary and positioning data\n\nPlease continue waiting... Analysis in progress! 🔄"
+                }];
+              }
+              return prev;
+            });
+          }
+          return newTime;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   useEffect(() => {
     if (currentStep === 'chat') {
@@ -568,12 +597,12 @@ export default function ResumeFeedbackPage() {
         return;
     }
 
-    // 🪙 Check coins first
+    // 🪙 Check coins first - use fresh balance check
     if (user) {
         console.log('🪙 Checking coins before analysis...');
-        const hasCoins = await CoinManager.hasEnoughCoins(user.uid, LIMITS.COINS_PER_FEATURE);
+        const currentBalance = await CoinManager.getCoinBalance(user.uid);
+        const hasCoins = currentBalance >= LIMITS.COINS_PER_FEATURE;
         if (!hasCoins) {
-            const currentBalance = await CoinManager.getCoinBalance(user.uid);
             setCoinError({ currentCoins: currentBalance, requiredCoins: LIMITS.COINS_PER_FEATURE });
             setShowInsufficientCoinsModal(true);
             return;
@@ -585,7 +614,10 @@ export default function ResumeFeedbackPage() {
     setCurrentStep('chat');
     setConversationEnded(false);
     setParsedFeedback(null);
-    setMessages([{ role: 'assistant', content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. This might take a moment..." }]);
+    setMessages([{ 
+      role: 'assistant', 
+      content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. ⏳\n\nThis might take a moment (typically 10-30 seconds) as I perform:\n• Real-time market research for your industry\n• Deep analysis of your resume structure and content\n• ATS optimization recommendations\n• Personalized career advice for Bangladesh\n\nPlease wait..." 
+    }]);
 
     try {
       const response = await fetchWithRetry('/api/resume-feedback', {
@@ -715,6 +747,7 @@ Invalid input detected. Please provide **plain resume text** without any code, s
       setCurrentStep('resume');
     } finally {
       setIsLoading(false);
+      setLoadingTimeElapsed(0);
     }
   }, [resumeText, industryPreference, user]);
 
@@ -763,6 +796,7 @@ Invalid input detected. Please provide **plain resume text** without any code, s
       setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, an error occurred: ${err.message}` }]);
     } finally {
       setIsLoading(false);
+      setLoadingTimeElapsed(0);
     }
   }, [userInput, isLoading, messages, resumeText, industryPreference, jobDescription, conversationEnded, user]);
 

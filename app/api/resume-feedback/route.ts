@@ -4,7 +4,6 @@ import { LIMITS } from '@/lib/constants';
 import { getGoogleAI, getGroqClient, getPerplexityClient } from '@/lib/utils/lazyAI';
 import { CoinManagerServer } from '@/lib/coinManagerServer';
 import { logger } from '@/lib/utils/logger';
-import { CoinBatchQueue } from '@/lib/coinBatching';
 
 // 🔥 PRODUCTION OPTIMIZATION: Force Node.js runtime for longer timeouts
 export const runtime = 'nodejs';
@@ -363,6 +362,50 @@ const calculateATSScore = (resumeText: string, jobDescription: string = ''): { a
     };
 };
 
+// --- RESPONSE NORMALIZATION ---
+const normalizeResumeFeedback = (obj: any): any => {
+    // Ensure all array fields are actually arrays
+    const ensureArray = (val: any, defaultVal: string[] = []): string[] => {
+        if (Array.isArray(val)) {
+            return val.filter(v => typeof v === 'string' || typeof v === 'number').map(v => String(v));
+        }
+        if (typeof val === 'string' && val.trim()) {
+            // Split comma-separated strings into arrays
+            return val.split(',').map(s => s.trim()).filter(s => s);
+        }
+        return defaultVal;
+    };
+    
+    return {
+        overallScore: obj.overallScore ?? 'N/A',
+        scoreJustification: obj.scoreJustification ?? '',
+        marketPositioning: obj.marketPositioning ?? '',
+        overallFeedback: obj.overallFeedback ?? '',
+        strengthsAnalysis: obj.strengthsAnalysis ?? {},
+        weaknessesAnalysis: obj.weaknessesAnalysis ?? {},
+        atsOptimization: obj.atsOptimization ?? {},
+        jdAlignment: obj.jdAlignment ?? {},
+        sectionFeedback: obj.sectionFeedback ?? {},
+        bangladeshSpecificAdvice: obj.bangladeshSpecificAdvice ?? {},
+        actionableImprovements: obj.actionableImprovements ?? {},
+        improvementPriority: obj.improvementPriority ?? {},
+        detailedSuggestions: {
+            contactInfo: ensureArray(obj.detailedSuggestions?.contactInfo || obj.sectionFeedback?.contactInfo?.feedback),
+            summary: ensureArray(obj.detailedSuggestions?.summary || obj.sectionFeedback?.summary?.feedback),
+            education: ensureArray(obj.detailedSuggestions?.education || obj.sectionFeedback?.education?.feedback),
+            experience: ensureArray(obj.detailedSuggestions?.experience || obj.sectionFeedback?.experience?.feedback),
+            projects: ensureArray(obj.detailedSuggestions?.projects || obj.sectionFeedback?.projects?.feedback),
+            skills: ensureArray(obj.detailedSuggestions?.skills || obj.sectionFeedback?.skills?.feedback),
+        },
+        physicalFormattingTips: ensureArray(obj.physicalFormattingTips || obj.atsOptimization?.formatRecommendations),
+        bangladeshContextTips: ensureArray(obj.bangladeshContextTips || obj.bangladeshSpecificAdvice?.visibilityTips?.split(',')),
+        suggestedActionVerbs: ensureArray(obj.suggestedActionVerbs),
+        linkedinSynergy: obj.linkedinSynergy ?? obj.bangladeshSpecificAdvice?.linkedinOptimization ?? '',
+        atsScore: typeof obj.atsScore === 'number' ? obj.atsScore : (obj.atsOptimization?.atsScore || 0),
+        marketInsights: ensureArray(obj.marketInsights || obj.marketInsights?.skillsToAcquire),
+    };
+};
+
 // --- SYSTEM INSTRUCTION ---
 const createSystemInstruction = (industryPreference: string, hasJobDescription: boolean, resumeText?: string, jobDescription?: string) => {
     // 🔒 SANITIZE: Remove potential injection attempts from user input
@@ -433,12 +476,15 @@ CRITICAL RESPONSE REQUIREMENTS:
 1. You MUST output ONLY valid JSON - NO markdown, NO explanations, NO extra text
 2. ALL fields MUST be present in the response
 3. Scores MUST be numeric (not strings) with proper ranges
-4. Arrays MUST contain at least 3 items per section
+4. Arrays MUST contain at least 3 items per section (skip trivial items)
 5. All percentages MUST be 0-100 numeric values
 6. Feedback MUST be specific, actionable, and data-driven
 7. Do NOT repeat generic advice - be precise to the resume content
 8. If JD provided: MUST include JD-specific alignment analysis
 9. If NO JD provided: MUST include industry standard recommendations
+10. ⚠️ WEAKNESSES: Focus on IMPACTFUL gaps only - skip trivial suggestions like "add phone number" or "use consistent spacing"
+11. ⚠️ WEAKNESSES: Only suggest things that will meaningfully improve job prospects in Bangladesh market
+12. ⚠️ WEAKNESSES: Avoid surface-level formatting advice, focus on content gaps and skill deficiencies
 
 IMPARTIALITY CHECKLIST:
 ✓ Score based on actual resume content, not assumptions
@@ -451,11 +497,13 @@ IMPARTIALITY CHECKLIST:
 
 RESPOND WITH THIS EXACT JSON STRUCTURE (no markdown, no extra text):
 
+⚠️ CRITICAL: The values below are EXAMPLES - you MUST calculate actual values for THIS specific resume!
+
 {
-  "overallScore": 6.8,
-  "scoreJustification": "Clear explanation of why this score was given, based on specific resume elements",
-  "marketPositioning": "Where this resume ranks in Bangladesh market (e.g., 'Top 15% for this role', 'Entry-level competitive')",
-  "overallFeedback": "2-3 sentences: biggest strengths and most critical areas for improvement",
+  "overallScore": "CALCULATE THIS (0-10 scale, e.g., 6.8, 7.2, 5.5) based on THIS resume, NOT the example",
+  "scoreJustification": "Your explanation of why THIS specific resume got THIS score",
+  "marketPositioning": "Where THIS resume ranks in Bangladesh market (be specific, NOT generic)",
+  "overallFeedback": "2-3 sentences analyzing THIS resume's actual strengths and weaknesses",
   "strengthsAnalysis": {
     "topStrengths": ["Specific strength with context", "Another strength with reason"],
     "whyMatters": "Explanation of market value"
@@ -465,8 +513,8 @@ RESPOND WITH THIS EXACT JSON STRUCTURE (no markdown, no extra text):
     "marketImpact": "How these gaps affect competitiveness"
   },
   "atsOptimization": {
-    "atsScore": 72,
-    "atsScoreJustification": "Why this ATS score was assigned",
+    "atsScore": "CALCULATE THIS (0-100 scale, e.g., 72, 85, 65) based on ATS analysis of THIS resume, NOT the example",
+    "atsScoreJustification": "Explain why THIS specific resume got THIS ATS score",
     "formattingIssues": ["Issue 1 with fix", "Issue 2 with remedy"],
     "keywordGaps": ["Missing keyword 1 (found in this JD/industry)", "Missing keyword 2"],
     "keywordMatches": ["Matched keyword 1", "Matched keyword 2"],
@@ -474,8 +522,8 @@ RESPOND WITH THIS EXACT JSON STRUCTURE (no markdown, no extra text):
     "atsImprovementPriority": "Most critical ATS fix needed"
   },
   "jdAlignment": {
-    "alignmentPercentage": 65,
-    "alignmentAnalysis": "How well resume matches JD requirements",
+    "alignmentPercentage": "CALCULATE THIS (0-100 if JD provided, else null - NOT 65 the example)",
+    "alignmentAnalysis": "Analyze THIS resume against the actual JD provided (or generic industry standards)",
     "matchedRequirements": ["Required skill found: X with Y experience", "Required qualification found"],
     "missingRequirements": ["Required but missing: X (critical)", "Nice-to-have missing: Y"],
     "suggestedAdditions": ["Add X certification mentioned in JD", "Highlight Y experience from current role"]
@@ -483,38 +531,38 @@ RESPOND WITH THIS EXACT JSON STRUCTURE (no markdown, no extra text):
   "sectionFeedback": {
     "contactInfo": {
       "status": "complete|incomplete",
-      "feedback": "Specific suggestions for improvement",
+      "feedback": "ONLY if truly problematic (e.g., missing email, unclear format). Skip trivial suggestions like 'add phone'.",
       "priority": "high|medium|low"
     },
     "summary": {
       "status": "complete|incomplete|missing",
-      "feedback": "Is it compelling? Does it match JD? Suggestions?",
+      "feedback": "Is it compelling? Does it match JD? Is it impactful and differentiating? OR missing entirely?",
       "priority": "high|medium|low"
     },
     "experience": {
       "status": "complete|incomplete",
-      "feedback": "Are achievements quantified? STAR method used? Action verbs strong?",
+      "feedback": "Are achievements quantified with metrics? STAR method used? Action verbs strong? Industry relevance?",
       "priority": "high|medium|low",
-      "examples": ["Suggestion 1 with context", "Suggestion 2 with reason"]
+      "examples": ["Specific weakness with context", "Missing impact metric example"]
     },
     "education": {
       "status": "complete|incomplete",
-      "feedback": "Is GPA/CGPA included? Relevant coursework? Achievements?",
+      "feedback": "Missing or weak: GPA/CGPA significance? Relevant coursework highlighted? Scholarships/honors?",
       "priority": "medium|low"
     },
     "skills": {
       "status": "complete|incomplete",
-      "feedback": "Are skills organized? Prioritized? Technical vs Soft skills clear?",
+      "feedback": "Weaknesses: Lack of technical depth? Missing industry-standard tools? Skills not aligned with target role?",
       "priority": "high|medium|low"
     },
     "projects": {
       "status": "complete|incomplete|missing",
-      "feedback": "Are projects relevant to target role? Do they demonstrate skills?",
+      "feedback": "Projects missing or weak in demonstrating impact? Lack of quantifiable results? Tech stack outdated?",
       "priority": "medium|low"
     },
     "certifications": {
       "status": "complete|incomplete|missing",
-      "feedback": "Are certifications relevant and current?",
+      "feedback": "Missing relevant certifications for the role? Outdated certifications? No industry-recognized credentials?",
       "priority": "medium|low"
     }
   },
@@ -608,6 +656,8 @@ async function withTimeout<T>(
 }
 
 // 1️⃣ PRIMARY: Perplexity Sonar (RESUME FEEDBACK)
+// Sonar provides good analysis + real-time web search context for better accuracy
+// Response includes search_results and citations, but we extract the JSON content
 async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     const perplexityClient = await getPerplexityClient();
     
@@ -617,21 +667,64 @@ async function tryPerplexityAPI(apiMessages: any[], systemInstruction: string): 
     
     const result = await withTimeout('Perplexity Sonar (Resume)', async () => {
         const messagesWithSystem = [ { role: 'system', content: systemInstruction }, ...apiMessages ];
-        const completion = await (perplexityClient as any).makeRequest('/chat/completions', {
+        
+        // Make the API request - Sonar includes web search results
+        const response = await fetch('https://api.perplexity.ai/chat/completions', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
-                messages: messagesWithSystem,
                 model: "sonar",
+                messages: messagesWithSystem,
                 max_tokens: 3000,
-                temperature: 0.2
+                temperature: 0.2,
+                stream: false
             })
         });
+        
+        console.log(`[Perplexity] Response status: ${response.status}`);
+        
+        // Check if response is OK
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('[Perplexity] Error response:', errorData);
+            throw new Error(`Perplexity API error (${response.status}): ${errorData.error?.message || errorData.message || JSON.stringify(errorData)}`);
+        }
+        
+        const completion = await response.json();
+        console.log(`[Perplexity] Response keys: ${Object.keys(completion).join(', ')}`);
+        console.log(`[Perplexity] Has search_results: ${!!completion.search_results}, Choices: ${completion.choices?.length || 0}`);
+        
+        // Check for API-level errors
+        if (completion.error) {
+            throw new Error(`Perplexity API error: ${completion.error.message || JSON.stringify(completion.error)}`);
+        }
+        
+        // Sonar returns web search results - check if content is actually JSON or search results
         const rawContent = completion.choices?.[0]?.message?.content;
-        if (!rawContent) throw new Error('No content in Perplexity response');
+        
+        if (!rawContent) {
+            console.warn('[Perplexity] No content found in response:', {
+                hasChoices: !!completion.choices,
+                choicesLength: completion.choices?.length,
+                firstChoice: JSON.stringify(completion.choices?.[0]).substring(0, 200),
+            });
+            throw new Error('No content in Perplexity Sonar response');
+        }
+        
+        // Extract JSON from the response content
+        // Sonar may include explanatory text, so we aggressively extract JSON
         const content = extractContentFromPerplexity(rawContent);
         if (!content) throw new Error('Could not extract content from Perplexity response');
-        return cleanAndExtractJSON(content);
-    }, 7000);
+        
+        // This will find and extract the JSON object from the content
+        const jsonContent = cleanAndExtractJSON(content);
+        console.log(`🔍 [Perplexity] Extracted JSON length: ${jsonContent.length} chars`);
+        
+        return jsonContent;
+    }, 10000); // 10 second timeout for web search + analysis
     
     return result.success ? { success: true, content: result.result, provider: 'perplexity-sonar' } : { success: false, error: result.error };
 }
@@ -661,23 +754,25 @@ async function tryGroqLlamaAPI(apiMessages: any[], systemInstruction: string): P
     return result.success ? { success: true, content: result.result, provider: 'groq-llama-3.3-70b' } : { success: false, error: result.error };
 }
 
-// 🔥 RESUME FEEDBACK: Perplexity → Groq Llama (2 providers only)
+// 🔥 RESUME FEEDBACK: Sonar (PRIMARY) → Groq Llama (FALLBACK)
 async function executeWithFallback(apiMessages: any[], systemInstruction: string): Promise<ProviderResult> {
     console.log('🔥 [STEP 2] Starting analysis with Resume feedback AI chain...');
     
     const providers = [
-        () => tryPerplexityAPI(apiMessages, systemInstruction),
-        () => tryGroqLlamaAPI(apiMessages, systemInstruction),
+        { name: 'Perplexity Sonar (Primary - with web search context)', fn: () => tryPerplexityAPI(apiMessages, systemInstruction) },
+        { name: 'Groq Llama (Fallback)', fn: () => tryGroqLlamaAPI(apiMessages, systemInstruction) },
     ];
     
     let lastError = '';
-    for (const providerFn of providers) {
-        const result = await providerFn();
+    for (const provider of providers) {
+        console.log(`⏳ [STEP 2] Trying ${provider.name}...`);
+        const result = await provider.fn();
         if (result.success) {
-            console.log(`🎯 [STEP 2] Analysis completed by ${result.provider}`);
+            console.log(`✅ [STEP 2] Analysis completed by ${result.provider}`);
             return result;
         }
         lastError = result.error || 'Unknown error';
+        console.warn(`⚠️ [STEP 2] ${provider.name} failed: ${lastError}`);
     }
     throw new Error(`All providers failed. Last error: ${lastError}`);
 }
@@ -756,13 +851,10 @@ export async function POST(req: NextRequest) {
                         requiredCoins: LIMITS.COINS_PER_FEATURE,
                     }, { status: 402 });
                 }
-                // ✅ Use atomic batching for coin operations
-                const batch = new CoinBatchQueue();
-                batch.add({ type: 'deduct', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'resume-feedback-file' });
-                batch.add({ type: 'log', userId, description: 'File upload analysis', metadata: { type: 'resume-feedback', method: 'file-upload' } });
-                const result = await batch.flush();
-                if (!result.success) {
-                    return NextResponse.json({ error: 'Coin deduction failed', details: result.message }, { status: 500 });
+                // ✅ Use server-side coin manager for file upload analysis
+                const deductResult = await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback', 'File upload analysis');
+                if (!deductResult.success) {
+                    return NextResponse.json({ error: 'Coin deduction failed', details: deductResult.error }, { status: 500 });
                 }
             }
             
@@ -815,13 +907,10 @@ export async function POST(req: NextRequest) {
                     requiredCoins: LIMITS.COINS_PER_FEATURE,
                 }, { status: 402 });
             }
-            // ✅ Use atomic batching for coin operations
-            const batch = new CoinBatchQueue();
-            batch.add({ type: 'deduct', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'resume-feedback-text' });
-            batch.add({ type: 'log', userId, description: 'Text analysis', metadata: { type: 'resume-feedback', method: 'text-input' } });
-            const result = await batch.flush();
-            if (!result.success) {
-                return NextResponse.json({ error: 'Coin deduction failed', details: result.message }, { status: 500 });
+            // ✅ Use server-side coin manager for text analysis
+            const deductResult = await CoinManagerServer.deductCoins(userId, LIMITS.COINS_PER_FEATURE, 'resume-feedback', 'Text analysis');
+            if (!deductResult.success) {
+                return NextResponse.json({ error: 'Coin deduction failed', details: deductResult.error }, { status: 500 });
             }
         } else if (isInitialAnalysis && !isFileUpload && !userId) {
             console.log('⚠️ [API] Initial analysis without userId - coins not deducted');
@@ -854,6 +943,9 @@ export async function POST(req: NextRequest) {
             }
             const cleanedJsonString = cleanAndExtractJSON(result.content);
             feedbackObject = JSON.parse(cleanedJsonString);
+            
+            // 🛡️ Validate and normalize response structure to ensure arrays are arrays
+            feedbackObject = normalizeResumeFeedback(feedbackObject);
         } catch (e: any) {
             console.error("SERVER-SIDE JSON PARSING FAILED:", e.message, "Raw content:", result.content);
             return NextResponse.json({ 

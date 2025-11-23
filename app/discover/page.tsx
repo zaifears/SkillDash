@@ -298,6 +298,29 @@ export default function DiscoverPage() {
     try {
       console.log('📤 [DiscoverPage] Sending message to API...');
       
+      // 🪙 FRESH COIN CHECK: Before sending, verify coins are still available
+      // This prevents stale state where frontend thinks user has coins but backend knows they don't
+      if (user) {
+        try {
+          const freshBalance = await CoinManager.getCoinBalance(user.uid);
+          if (freshBalance < LIMITS.COINS_PER_FEATURE) {
+            console.log(`⚠️ [DiscoverPage] Fresh coin check failed! Frontend: ${hasEnoughCoins}, Backend: ${freshBalance}`);
+            setHasEnoughCoins(false);
+            setIsInputDisabled(true);
+            setCoinError({ 
+              currentCoins: freshBalance, 
+              requiredCoins: LIMITS.COINS_PER_FEATURE 
+            });
+            setShowInsufficientCoinsModal(true);
+            setMessages(prev => prev.slice(0, -1)); // Remove the user message
+            setIsLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('❌ [DiscoverPage] Fresh coin check error (proceeding anyway):', error);
+        }
+      }
+      
       // ✅ UPDATED: Use fetchWithRetry instead of fetch
       const response = await fetchWithRetry('/api/discover-chat', {
         method: 'POST',

@@ -11,83 +11,83 @@ const BouncingBalls = dynamic(() => import('../../components/shared/BouncingBall
   loading: () => null
 });
 
-// Inline quiz data for maximum speed
+// Inline quiz data for maximum speed - OPTIMIZED COURSE MAPPING
 const QUIZ_DATA = [
   {
-    q: "What excites you most?",
+    q: "What's your primary interest?",
     o: [
-      { t: "Creating beautiful designs", s: ["graphic-design", "ui-ux-figma", "presentation-canva"] },
-      { t: "Building apps & software", s: ["flutter-development", "python-programming", "git-github"] },
-      { t: "Analyzing data & insights", s: ["excel-mastery", "power-bi", "financial-literacy"] },
-      { t: "Creating videos & content", s: ["video-editing-capcut", "audio-editing", "public-speaking"] }
+      { t: "Design & Visual Creativity", s: ["graphic-design", "ui-ux-figma", "presentation-canva", "video-editing-capcut"] },
+      { t: "Programming & Tech Development", s: ["python-programming", "flutter-development", "git-github", "critical-thinking"] },
+      { t: "Business & Data Analysis", s: ["excel-mastery", "power-bi", "financial-literacy", "python-programming"] },
+      { t: "Communication & Language", s: ["english-speaking", "public-speaking", "english-vocabulary", "typing-skills"] }
     ]
   },
   {
-    q: "Your ideal work environment?",
+    q: "What do you want to create?",
     o: [
-      { t: "Creative studio", s: ["graphic-design", "ui-ux-figma", "video-editing-capcut"] },
-      { t: "Tech company", s: ["flutter-development", "python-programming", "git-github"] },
-      { t: "Corporate office", s: ["excel-mastery", "power-bi", "financial-literacy"] },
-      { t: "Media company", s: ["video-editing-capcut", "audio-editing", "public-speaking"] }
+      { t: "Marketing materials, ads, social content", s: ["graphic-design", "presentation-canva", "video-editing-capcut", "public-speaking"] },
+      { t: "Mobile apps or software", s: ["flutter-development", "python-programming", "git-github", "critical-thinking"] },
+      { t: "Business dashboards & insights", s: ["power-bi", "excel-mastery", "financial-literacy", "presentation-canva"] },
+      { t: "Audio/video content for media", s: ["video-editing-capcut", "audio-editing", "public-speaking", "english-speaking"] }
     ]
   },
   {
-    q: "What motivates you?",
+    q: "Your work style preference?",
     o: [
-      { t: "Visual beauty & aesthetics", s: ["graphic-design", "ui-ux-figma", "presentation-canva"] },
-      { t: "Solving technical problems", s: ["python-programming", "flutter-development", "critical-thinking"] },
-      { t: "Data-driven decisions", s: ["excel-mastery", "power-bi", "financial-literacy"] },
-      { t: "Effective communication", s: ["public-speaking", "english-speaking", "presentation-canva"] }
+      { t: "Visual & creative with tools", s: ["graphic-design", "ui-ux-figma", "video-editing-capcut", "audio-editing"] },
+      { t: "Writing code & problem-solving", s: ["python-programming", "flutter-development", "git-github", "critical-thinking"] },
+      { t: "Working with numbers & insights", s: ["excel-mastery", "power-bi", "financial-literacy", "critical-thinking"] },
+      { t: "Speaking & connecting with people", s: ["public-speaking", "english-speaking", "presentation-canva", "english-vocabulary"] }
     ]
   },
   {
-    q: "Preferred learning style?",
+    q: "Career field you're aiming for?",
     o: [
-      { t: "Visual & hands-on projects", s: ["graphic-design", "ui-ux-figma", "video-editing-capcut"] },
-      { t: "Coding & building things", s: ["python-programming", "flutter-development", "git-github"] },
-      { t: "Structured practice", s: ["excel-mastery", "typing-skills", "english-vocabulary"] },
-      { t: "Presenting & teaching", s: ["public-speaking", "english-speaking", "presentation-canva"] }
+      { t: "UX/UI Design, Branding, Media", s: ["ui-ux-figma", "graphic-design", "presentation-canva", "video-editing-capcut"] },
+      { t: "Software Engineering, Startups", s: ["flutter-development", "python-programming", "git-github", "critical-thinking"] },
+      { t: "Finance, Business, Analytics", s: ["excel-mastery", "power-bi", "financial-literacy", "python-programming"] },
+      { t: "Teaching, Marketing, HR, Public role", s: ["public-speaking", "english-speaking", "presentation-canva", "english-vocabulary"] }
     ]
   },
   {
-    q: "Tools that interest you?",
+    q: "Most enjoyable activity for you?",
     o: [
-      { t: "Design tools (Canva, Figma)", s: ["graphic-design", "ui-ux-figma", "presentation-canva"] },
-      { t: "Programming languages", s: ["python-programming", "flutter-development", "git-github"] },
-      { t: "Spreadsheets & BI tools", s: ["excel-mastery", "power-bi", "financial-literacy"] },
-      { t: "Audio/Video editors", s: ["video-editing-capcut", "audio-editing", "presentation-canva"] }
+      { t: "Editing photos, videos, making graphics", s: ["video-editing-capcut", "graphic-design", "audio-editing", "ui-ux-figma"] },
+      { t: "Debugging code & building systems", s: ["python-programming", "git-github", "flutter-development", "critical-thinking"] },
+      { t: "Analyzing data & finding patterns", s: ["excel-mastery", "power-bi", "financial-literacy", "critical-thinking"] },
+      { t: "Presenting ideas & speaking confidently", s: ["public-speaking", "english-speaking", "presentation-canva", "typing-skills"] }
     ]
   },
   {
-    q: "Dream project type?",
+    q: "What software/tools interest you?",
     o: [
-      { t: "Design a brand identity", s: ["graphic-design", "ui-ux-figma", "presentation-canva"] },
-      { t: "Build a mobile app", s: ["flutter-development", "python-programming", "git-github"] },
-      { t: "Create business dashboard", s: ["power-bi", "excel-mastery", "financial-literacy"] },
-      { t: "Produce a video series", s: ["video-editing-capcut", "audio-editing", "public-speaking"] }
+      { t: "Canva, Figma, Adobe-like tools", s: ["graphic-design", "ui-ux-figma", "presentation-canva", "video-editing-capcut"] },
+      { t: "Programming languages & Git", s: ["python-programming", "flutter-development", "git-github", "critical-thinking"] },
+      { t: "Excel, Power BI, Google Sheets", s: ["excel-mastery", "power-bi", "financial-literacy", "typing-skills"] },
+      { t: "Video, audio, presentation software", s: ["video-editing-capcut", "audio-editing", "public-speaking", "english-speaking"] }
     ]
   },
   {
-    q: "Career priority?",
+    q: "Your learning goal timeline?",
     o: [
-      { t: "Creative expression", s: ["graphic-design", "ui-ux-figma", "video-editing-capcut"] },
-      { t: "Technical expertise", s: ["python-programming", "flutter-development", "git-github"] },
-      { t: "Business impact", s: ["excel-mastery", "power-bi", "financial-literacy"] },
-      { t: "Communication skills", s: ["public-speaking", "english-speaking", "critical-thinking"] }
+      { t: "Quick start, visual projects (days-weeks)", s: ["graphic-design", "video-editing-capcut", "presentation-canva", "typing-skills"] },
+      { t: "Deep technical mastery (weeks-months)", s: ["flutter-development", "python-programming", "git-github", "critical-thinking"] },
+      { t: "Career advancement in business (weeks-months)", s: ["power-bi", "excel-mastery", "financial-literacy", "python-programming"] },
+      { t: "Improve communication skills (ongoing)", s: ["public-speaking", "english-speaking", "english-vocabulary", "presentation-canva"] }
     ]
   },
   {
-    q: "Free time activity?",
+    q: "What problem do you want to solve?",
     o: [
-      { t: "Drawing & designing", s: ["graphic-design", "ui-ux-figma", "presentation-canva"] },
-      { t: "Coding personal projects", s: ["python-programming", "flutter-development", "git-github"] },
-      { t: "Reading business content", s: ["financial-literacy", "excel-mastery", "critical-thinking"] },
-      { t: "Creating content", s: ["video-editing-capcut", "public-speaking", "english-speaking"] }
+      { t: "Create professional visuals & presentations", s: ["graphic-design", "presentation-canva", "ui-ux-figma", "video-editing-capcut"] },
+      { t: "Build applications & automate tasks", s: ["python-programming", "flutter-development", "git-github", "critical-thinking"] },
+      { t: "Understand business data & finances", s: ["excel-mastery", "power-bi", "financial-literacy", "critical-thinking"] },
+      { t: "Communicate better & be understood", s: ["english-speaking", "public-speaking", "english-vocabulary", "audio-editing"] }
     ]
   }
 ];
 
-// Lightweight skill data
+// Lightweight skill data - ONLY includes skills that are actually available in courses
 const SKILLS = {
   "graphic-design": { name: "Graphic Design using Canva", desc: "Create stunning graphics and designs", logo: "/learn-skill/logos/canva.png" },
   "ui-ux-figma": { name: "UI/UX Design (Figma)", desc: "Design beautiful user interfaces", logo: "/learn-skill/logos/figma.png" },
@@ -105,7 +105,10 @@ const SKILLS = {
   "typing-skills": { name: "Fast Typing Skills", desc: "Master fast typing", logo: "/learn-skill/logos/typing_bird.png" },
   "english-vocabulary": { name: "English Vocabulary Practice", desc: "Enhance vocabulary", logo: "/learn-skill/logos/speakandimprove.png" },
   "critical-thinking": { name: "Critical Thinking", desc: "Develop analytical reasoning", logo: "/learn-skill/logos/critical_thinking.png" }
-};
+} as const;
+
+// Validate that all recommended skills exist in SKILLS
+const VALID_SKILL_IDS = Object.keys(SKILLS) as (keyof typeof SKILLS)[];
 
 export default function MiniTestPage() {
   const [step, setStep] = useState(0);
@@ -122,13 +125,22 @@ export default function MiniTestPage() {
     if (currentQ < QUIZ_DATA.length - 1) {
       setTimeout(() => setCurrentQ(prev => prev + 1), 200);
     } else {
+      // Improved scoring: weighted by frequency and position
       const scores: Record<string, number> = {};
+      
       newAnswers.forEach((ansIdx, qIdx) => {
-        QUIZ_DATA[qIdx].o[ansIdx].s.forEach(skillId => {
-          scores[skillId] = (scores[skillId] || 0) + 1;
+        const selectedSkills = QUIZ_DATA[qIdx].o[ansIdx].s;
+        selectedSkills.forEach(skillId => {
+          // Only count skills that exist in our SKILLS database
+          if (VALID_SKILL_IDS.includes(skillId as any)) {
+            // Weight: later questions count slightly more (user's refined interests)
+            const weight = 1 + (qIdx / QUIZ_DATA.length) * 0.3;
+            scores[skillId] = (scores[skillId] || 0) + weight;
+          }
         });
       });
 
+      // Get top 4 skills with better ranking
       const topSkills = Object.entries(scores)
         .sort(([,a], [,b]) => b - a)
         .slice(0, 4)
@@ -182,7 +194,7 @@ export default function MiniTestPage() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>8 Questions</span>
+                <span>{QUIZ_DATA.length} Questions</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

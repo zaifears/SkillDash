@@ -53,10 +53,20 @@ CollapsibleSection.displayName = 'CollapsibleSection';
 // --- Main Feedback Card ---
 const FeedbackCard = ({ feedback, providerInfo }: { feedback: ResumeFeedback, providerInfo?: string }) => {
     const renderInfoCards = (items: string[] | undefined, icon: string) => {
-        if (!items || items.length === 0) return null;
+        // 🛡️ Defensive check: ensure items is an array before calling map
+        if (!items) return null;
+        
+        // Handle case where items is a string instead of array
+        let itemsArray = Array.isArray(items) ? items : [];
+        if (typeof items === 'string' && items.trim()) {
+            itemsArray = [items];
+        }
+        
+        if (itemsArray.length === 0) return null;
+        
         return (
             <div className="space-y-3">
-                {items.map((item, i) => <InfoCard key={i} text={item} icon={icon} />)}
+                {itemsArray.map((item, i) => <InfoCard key={i} text={String(item)} icon={icon} />)}
             </div>
         );
     };
@@ -65,42 +75,66 @@ const FeedbackCard = ({ feedback, providerInfo }: { feedback: ResumeFeedback, pr
         <div className="space-y-6">
             {/* Header with Scores */}
             <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-6 rounded-xl shadow-lg">
-                <h2 className="text-2xl font-bold mb-4">Your Resume Analysis</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                    <div>
-                        <p className="text-4xl font-bold">{feedback.overallScore || 'N/A'}</p>
-                        <p className="text-sm opacity-80">Overall Score</p>
+                <h2 className="text-2xl font-bold mb-6">Your Resume Analysis</h2>
+                <div className="grid grid-cols-2 gap-6 sm:gap-8 text-center mb-6">
+                    <div className="flex flex-col items-center justify-center">
+                        <p className="text-5xl sm:text-6xl font-bold mb-2">{feedback.overallScore || 'N/A'}</p>
+                        <p className="text-sm sm:text-base font-medium opacity-90">out of 10</p>
                     </div>
-                    <div>
-                        <p className="text-4xl font-bold">{feedback.atsScore || 'N/A'}/10</p>
-                        <p className="text-sm opacity-80">ATS Readiness</p>
+                    <div className="flex flex-col items-center justify-center">
+                        <p className="text-5xl sm:text-6xl font-bold mb-2">
+                            {typeof feedback.atsScore === 'number' ? Math.min(100, Math.max(0, feedback.atsScore)) : 'N/A'}
+                        </p>
+                        <p className="text-sm sm:text-base font-medium opacity-90">ATS Score (0-100)</p>
                     </div>
                 </div>
-                <div className="mt-4 bg-white/10 p-4 rounded-lg">
-                    <ReactMarkdown className="prose prose-invert prose-sm">{feedback.overallFeedback}</ReactMarkdown>
+                <div className="mt-4 bg-white/10 p-4 rounded-lg border border-white/20">
+                    <ReactMarkdown className="prose prose-invert prose-sm max-w-none text-center leading-relaxed">
+                        {feedback.overallFeedback}
+                    </ReactMarkdown>
                 </div>
             </div>
 
             {/* Detailed Feedback Sections */}
             <CollapsibleSection title="Detailed Suggestions" emoji="📝" defaultOpen={true}>
-                 <div className="space-y-6">
-                    {feedback.detailedSuggestions?.contactInfo && <div>
-                        <h4 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">Contact Info</h4>
-                        {renderInfoCards(feedback.detailedSuggestions.contactInfo, '📞')}
+                <div className="space-y-8">
+                    {feedback.detailedSuggestions?.contactInfo && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>📞</span> Contact Information
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.contactInfo, '✓')}
                     </div>}
-                    {feedback.detailedSuggestions?.summary && <div>
-                        <h4 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">Summary/Objective</h4>
-                        {renderInfoCards(feedback.detailedSuggestions.summary, '📄')}
+                    {feedback.detailedSuggestions?.summary && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>📄</span> Professional Summary/Objective
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.summary, '✓')}
                     </div>}
-                    {feedback.detailedSuggestions?.experience && <div>
-                        <h4 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">Experience</h4>
-                        {renderInfoCards(feedback.detailedSuggestions.experience, '💼')}
+                    {feedback.detailedSuggestions?.experience && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>💼</span> Work Experience
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.experience, '✓')}
                     </div>}
-                    {feedback.detailedSuggestions?.skills && <div>
-                        <h4 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">Skills</h4>
-                        {renderInfoCards(feedback.detailedSuggestions.skills, '💡')}
+                    {feedback.detailedSuggestions?.education && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>🎓</span> Education
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.education, '✓')}
                     </div>}
-                 </div>
+                    {feedback.detailedSuggestions?.skills && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>💡</span> Skills & Competencies
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.skills, '✓')}
+                    </div>}
+                    {feedback.detailedSuggestions?.projects && <div className="space-y-2">
+                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            <span>🚀</span> Projects & Achievements
+                        </h4>
+                        {renderInfoCards(feedback.detailedSuggestions.projects, '✓')}
+                    </div>}
+                </div>
             </CollapsibleSection>
 
             <CollapsibleSection title="Physical Resume & Formatting" emoji="📄">
@@ -113,9 +147,9 @@ const FeedbackCard = ({ feedback, providerInfo }: { feedback: ResumeFeedback, pr
 
             <CollapsibleSection title="Suggested Action Verbs" emoji="✨">
                 <div className="flex flex-wrap gap-2">
-                   {feedback.suggestedActionVerbs?.map((verb, i) => (
+                   {feedback.suggestedActionVerbs && Array.isArray(feedback.suggestedActionVerbs) ? feedback.suggestedActionVerbs.map((verb, i) => (
                        <span key={`verb-${i}`} className="bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">{verb}</span>
-                   ))}
+                   )) : null}
                 </div>
             </CollapsibleSection>
 
