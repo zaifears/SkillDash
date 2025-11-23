@@ -302,8 +302,22 @@ const CoinsPage: React.FC = () => {
                 </svg>
                 <p className="text-sm font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wide">Send Money To:</p>
               </div>
-              <div className="text-4xl font-bold text-pink-600 dark:text-pink-400 text-center my-4 tracking-wider font-mono">
-                {bkashNumber}
+              <div className="flex items-center justify-center gap-4 my-4">
+                <div className="text-4xl font-bold text-pink-600 dark:text-pink-400 tracking-wider font-mono">
+                  {bkashNumber}
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(bkashNumber);
+                    alert('bKash number copied to clipboard!');
+                  }}
+                  className="flex-shrink-0 bg-pink-600 hover:bg-pink-700 text-white p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center"
+                  title="Copy bKash number"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
               </div>
               <div className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-black/20 p-3 rounded-lg">
                 <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
