@@ -92,8 +92,8 @@ export default function DiscoverPage() {
         console.log('🪙 [DiscoverPage] Validating coin balance...');
         
         try {
-          // Allow time for Firebase connection to stabilize
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // Allow more time for Firebase connection to stabilize (was 800ms, now 1500ms)
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
           // Direct Firebase check for most reliable result
           const userDocRef = doc(db, 'users', user.uid);
@@ -104,6 +104,7 @@ export default function DiscoverPage() {
             setCoinsChecked(true);
             setHasEnoughCoins(false);
             setIsInputDisabled(true);
+            setShowInsufficientCoinsModal(true);
             return;
           }
           
@@ -115,11 +116,13 @@ export default function DiscoverPage() {
           
           // Set states based on coin availability
           if (actualHasEnough) {
+            console.log('✅ [DiscoverPage] User has enough coins - enabling chat');
             setHasEnoughCoins(true);
             setIsInputDisabled(false); // Enable input when coins available
-            setShowInsufficientCoinsModal(false);
+            setShowInsufficientCoinsModal(false); // ✅ FIX: Make sure modal is hidden
             setCoinError(null);
           } else {
+            console.log('❌ [DiscoverPage] User does NOT have enough coins - showing modal');
             setHasEnoughCoins(false);
             setIsInputDisabled(true); // Keep input disabled when no coins
             setCoinError({ 
@@ -147,6 +150,7 @@ export default function DiscoverPage() {
           setCoinsChecked(true);
           setHasEnoughCoins(false);
           setIsInputDisabled(true);
+          setShowInsufficientCoinsModal(true);
         }
       }
     };

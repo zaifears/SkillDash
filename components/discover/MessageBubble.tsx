@@ -16,8 +16,8 @@ const MessageBubble = React.memo<MessageBubbleProps>(({ role, content }) => {
       {role === 'assistant' && <BotIcon />}
       <div className={`max-w-xs sm:max-w-lg px-4 py-3 rounded-2xl shadow-sm ${
         role === 'user' 
-          ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-br-none' 
-          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-bl-none'
+          ? 'bg-blue-600 text-white font-semibold rounded-br-none' 
+          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-bl-none text-gray-900 dark:text-white'
       }`}>
         {typeof content === 'string' ? (
           <div className="prose dark:prose-invert max-w-none prose-sm sm:prose-base break-words">
