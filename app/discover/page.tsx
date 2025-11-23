@@ -54,7 +54,7 @@ export default function DiscoverPage() {
   const [coinError, setCoinError] = useState<{currentCoins: number; requiredCoins: number} | null>(null);
   
   // 🛡️ ANTI-SPAM STATE MANAGEMENT (3-TRIGGER SYSTEM)
-  const [isInputDisabled, setIsInputDisabled] = useState(true); // Start disabled until coins verified
+  const [isInputDisabled, setIsInputDisabled] = useState(false); // Enable until backend validates coins
   const [conversationBlocked, setConversationBlocked] = useState(false);
   const [warningCount, setWarningCount] = useState(0);
   const [maxWarningsReached, setMaxWarningsReached] = useState(false);
@@ -83,80 +83,16 @@ export default function DiscoverPage() {
     }
   }, [user, loading, router]);
 
-  // 🪙 ROBUST COIN CHECK WITH PROPER STATE MANAGEMENT
+  // 🪙 COIN CHECK: Trust backend validation at API call time
+  // Frontend coin refresh allows users to see when coins become available
   useEffect(() => {
-    const performCoinCheck = async () => {
-      if (user && !coinCheckAttempted.current) {
-        coinCheckAttempted.current = true;
-        
-        console.log('🪙 [DiscoverPage] Validating coin balance...');
-        
-        try {
-          // Allow more time for Firebase connection to stabilize (was 800ms, now 1500ms)
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Direct Firebase check for most reliable result
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          if (!userDoc.exists()) {
-            console.error('❌ [DiscoverPage] User document not found');
-            setCoinsChecked(true);
-            setHasEnoughCoins(false);
-            setIsInputDisabled(true);
-            setShowInsufficientCoinsModal(true);
-            return;
-          }
-          
-          const userData = userDoc.data();
-          const directCoinBalance = userData?.coins || 0;
-          const actualHasEnough = directCoinBalance >= LIMITS.COINS_PER_FEATURE;
-          
-          console.log(`💰 [DiscoverPage] Coin validation: ${directCoinBalance} >= ${LIMITS.COINS_PER_FEATURE} = ${actualHasEnough}`);
-          
-          // Set states based on coin availability
-          if (actualHasEnough) {
-            console.log('✅ [DiscoverPage] User has enough coins - enabling chat');
-            setHasEnoughCoins(true);
-            setIsInputDisabled(false); // Enable input when coins available
-            setShowInsufficientCoinsModal(false); // ✅ FIX: Make sure modal is hidden
-            setCoinError(null);
-          } else {
-            console.log('❌ [DiscoverPage] User does NOT have enough coins - showing modal');
-            setHasEnoughCoins(false);
-            setIsInputDisabled(true); // Keep input disabled when no coins
-            setCoinError({ 
-              currentCoins: directCoinBalance, 
-              requiredCoins: LIMITS.COINS_PER_FEATURE 
-            });
-            setShowInsufficientCoinsModal(true);
-          }
-          
-          setCoinsChecked(true);
-          
-        } catch (error: any) {
-          console.error('❌ [DiscoverPage] Coin validation failed:', error);
-          
-          // Retry logic for network issues
-          if (coinCheckRetries < 3) {
-            console.log(`🔄 [DiscoverPage] Retrying coin check (${coinCheckRetries + 1}/3)`);
-            setCoinCheckRetries(prev => prev + 1);
-            coinCheckAttempted.current = false;
-            return;
-          }
-          
-          // After retries failed, assume no coins for security
-          console.log('🚫 [DiscoverPage] Max retries reached - disabling chat');
-          setCoinsChecked(true);
-          setHasEnoughCoins(false);
-          setIsInputDisabled(true);
-          setShowInsufficientCoinsModal(true);
-        }
-      }
-    };
-
-    performCoinCheck();
-  }, [user, coinCheckRetries]);
+    if (user) {
+      coinCheckAttempted.current = true;
+      // Start with unknown state - backend will validate when user sends message
+      setCoinsChecked(true);
+      console.log('🪙 [DiscoverPage] Ready for coin validation at API time');
+    }
+  }, [user]);
 
   // 🚦 NEW: Rate limit countdown effect
   useEffect(() => {

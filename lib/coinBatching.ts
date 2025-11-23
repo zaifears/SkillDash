@@ -3,7 +3,7 @@ import { collection, writeBatch, doc, getDoc, increment } from 'firebase/firesto
 import { db } from './firebase';
 
 export interface CoinBatchOperation {
-  type: 'add' | 'deduct' | 'logTransaction' | 'updateProfile';
+  type: 'add' | 'deduct' | 'log' | 'updateProfile';
   userId?: string;
   amount?: number;
   description?: string;
@@ -38,18 +38,24 @@ export async function executeCoinBatch(
       return { success: false, message: 'User ID required' };
     }
 
-    // Pre-flight: Check user has sufficient balance if deducting
+    // Pre-flight: Calculate total coins needed for all deductions
+    let totalCoinsNeeded = 0;
     for (const op of operations) {
       if (op.type === 'deduct' && op.amount) {
-        const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-          return { success: false, message: 'User not found' };
-        }
-        const currentBalance = userSnap.data().coins || 0;
-        if (currentBalance < op.amount) {
-          return { success: false, message: 'Insufficient coins' };
-        }
+        totalCoinsNeeded += op.amount;
+      }
+    }
+
+    // Check user has sufficient balance for ALL deductions
+    if (totalCoinsNeeded > 0) {
+      const userRef = doc(db, 'users', userId);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        return { success: false, message: 'User not found' };
+      }
+      const currentBalance = userSnap.data().coins || 0;
+      if (currentBalance < totalCoinsNeeded) {
+        return { success: false, message: `Insufficient coins: has ${currentBalance}, needs ${totalCoinsNeeded}` };
       }
     }
 
@@ -93,12 +99,11 @@ export async function executeCoinBatch(
           }
           break;
 
-        case 'logTransaction':
+        case 'log':
           batch.set(txnRef, {
             userId,
             type: op.metadata?.type || 'other',
-            amount: op.amount || 0,
-            description: op.description || 'Transaction',
+            description: op.description || 'Transaction log entry',
             timestamp: new Date().toISOString(),
             metadata: op.metadata || {}
           });
@@ -133,7 +138,7 @@ export async function executeCoinBatch(
  */
 export class CoinBatchQueue {
   private queue: CoinBatchOperation[] = [];
-  private processing = false;
+  private processingPromise: Promise<BatchOperationResult> | null = null;
   private readonly maxRetries = 3;
 
   add(operation: CoinBatchOperation): void {
@@ -141,15 +146,24 @@ export class CoinBatchQueue {
   }
 
   async flush(): Promise<BatchOperationResult> {
-    if (this.processing) {
-      return { success: false, message: 'Already processing' };
+    // Fix #1: Use Promise-based locking instead of flag to prevent race conditions
+    if (this.processingPromise) {
+      return this.processingPromise;
     }
 
     if (!this.queue.length) {
       return { success: false, message: 'Queue is empty' };
     }
 
-    this.processing = true;
+    this.processingPromise = this.executeFlush();
+    try {
+      return await this.processingPromise;
+    } finally {
+      this.processingPromise = null;
+    }
+  }
+
+  private async executeFlush(): Promise<BatchOperationResult> {
     let result: BatchOperationResult = { success: false, message: 'Unknown error' };
     let attempts = 0;
 
@@ -158,6 +172,7 @@ export class CoinBatchQueue {
         result = await executeCoinBatch(this.queue);
         if (result.success) {
           this.queue = []; // Clear queue on success
+          return result;
         }
       } catch (error) {
         console.error(`Attempt ${attempts + 1} failed, retrying...`, error);
@@ -170,7 +185,12 @@ export class CoinBatchQueue {
       }
     }
 
-    this.processing = false;
+    // Fix #4: Always clear queue after retries exhausted
+    if (!result.success) {
+      console.warn('[CoinBatchQueue] All retries exhausted. Clearing failed operations from queue.');
+      this.queue = [];
+    }
+
     return result;
   }
 

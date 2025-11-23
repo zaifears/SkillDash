@@ -193,8 +193,8 @@ export class CoinManagerServer {
     }
   }
 
-  // Get user's coin balance
-  static async getCoinBalance(userId: string): Promise<number> {
+  // Get user's coin balance with timeout protection
+  static async getCoinBalance(userId: string, timeoutMs: number = 5000): Promise<number> {
     const context = 'getCoinBalance';
     try {
       if (!userId) {
@@ -202,18 +202,28 @@ export class CoinManagerServer {
         return 0;
       }
       logInfo(context, `Getting coin balance for user ${userId}...`);
-      await this.ensureUserExists(userId);
-      const userDoc = await db.collection('users').doc(userId).get();
-      if (!userDoc.exists) {
-        logWarning(context, `User document still not found for ${userId} after creation attempt - returning 0 balance`);
-        return 0;
-      }
-      const userData = userDoc.data();
-      const balance = userData?.coins || 0;
+
+      // Fix #8: Add timeout to prevent indefinite hangs
+      const timeoutPromise = new Promise<number>((_, reject) =>
+        setTimeout(() => reject(new Error(`Firestore query timeout after ${timeoutMs}ms`)), timeoutMs)
+      );
+
+      const queryPromise = (async () => {
+        await this.ensureUserExists(userId);
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+          logWarning(context, `User document still not found for ${userId} after creation attempt`);
+          return 0;
+        }
+        const userData = userDoc.data();
+        return userData?.coins || 0;
+      })();
+
+      const balance = await Promise.race([queryPromise, timeoutPromise]);
       logSuccess(context, `User ${userId} balance: ${balance} coins`);
       return balance;
     } catch (error: any) {
-      logError(context, error, { userId });
+      logError(context, error, { userId, timeoutMs });
       return 0;
     }
   }
@@ -254,6 +264,14 @@ export class CoinManagerServer {
         const userData = userDoc.data();
         const currentCoins = userData?.coins || 0;
         logInfo(context, `Current balance: ${currentCoins} coins`);
+
+        // Fix #7: Detect and auto-correct negative coin balance (database corruption)
+        if (currentCoins < 0) {
+          logWarning(context, `Detected negative coin balance for user ${userId}: ${currentCoins}. Auto-correcting to 0.`, { userId, negativeBalance: currentCoins });
+          transaction.update(userDocRef, { coins: 0 });
+          throw new Error('Account balance was corrupted and has been reset to 0. Please contact support.');
+        }
+
         if (currentCoins < amount) {
           throw new Error(`Insufficient coins: has ${currentCoins}, needs ${amount}`);
         }

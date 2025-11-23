@@ -499,7 +499,7 @@ export async function POST(req: NextRequest) {
                 // ✅ Use atomic batching for coin operations
                 const batch = new CoinBatchQueue();
                 batch.add({ type: 'deduct', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'resume-feedback-file' });
-                batch.add({ type: 'logTransaction', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'File upload analysis', metadata: { type: 'resume-feedback', method: 'file-upload' } });
+                batch.add({ type: 'log', userId, description: 'File upload analysis', metadata: { type: 'resume-feedback', method: 'file-upload' } });
                 const result = await batch.flush();
                 if (!result.success) {
                     return NextResponse.json({ error: 'Coin deduction failed', details: result.message }, { status: 500 });
@@ -558,7 +558,7 @@ export async function POST(req: NextRequest) {
             // ✅ Use atomic batching for coin operations
             const batch = new CoinBatchQueue();
             batch.add({ type: 'deduct', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'resume-feedback-text' });
-            batch.add({ type: 'logTransaction', userId, amount: LIMITS.COINS_PER_FEATURE, description: 'Text analysis', metadata: { type: 'resume-feedback', method: 'text-input' } });
+            batch.add({ type: 'log', userId, description: 'Text analysis', metadata: { type: 'resume-feedback', method: 'text-input' } });
             const result = await batch.flush();
             if (!result.success) {
                 return NextResponse.json({ error: 'Coin deduction failed', details: result.message }, { status: 500 });
