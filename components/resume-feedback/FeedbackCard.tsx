@@ -52,13 +52,15 @@ CollapsibleSection.displayName = 'CollapsibleSection';
 
 // --- Main Feedback Card ---
 const FeedbackCard = ({ feedback, providerInfo }: { feedback: ResumeFeedback, providerInfo?: string }) => {
-    const renderInfoCards = (items: string[] | undefined, icon: string) => {
+    const renderInfoCards = (items: string[] | string | undefined, icon: string) => {
         // 🛡️ Defensive check: ensure items is an array before calling map
         if (!items) return null;
         
         // Handle case where items is a string instead of array
-        let itemsArray = Array.isArray(items) ? items : [];
-        if (typeof items === 'string' && items.trim()) {
+        let itemsArray: string[] = [];
+        if (Array.isArray(items)) {
+            itemsArray = items;
+        } else if (typeof items === 'string' && items.trim()) {
             itemsArray = [items];
         }
         
