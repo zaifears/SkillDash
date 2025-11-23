@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://skilldash.live/about-us</loc><lastmod>2025-11-22T16:06:48.994Z</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-<url><loc>https://skilldash.live/debug</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/mini-test</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/profile</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>daily</changefreq><priority>1</priority></url>
-<url><loc>https://skilldash.live/auth</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/policy</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/admin</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/learn-skill</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://skilldash.live/coins</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/opportunities</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://skilldash.live/opportunities/bizcomp</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/discover</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://skilldash.live/opportunities/hiring</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://skilldash.live/resume-feedback</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://skilldash.live/opportunities/job-seeker</loc><lastmod>2025-11-22T16:06:48.998Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/about-us</loc><lastmod>2025-11-23T12:51:45.266Z</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+<url><loc>https://skilldash.live/debug</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/mini-test</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/profile</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>daily</changefreq><priority>1</priority></url>
+<url><loc>https://skilldash.live/policy</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/admin</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/coins</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/learn-skill</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://skilldash.live/auth</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/discover</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://skilldash.live/opportunities</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://skilldash.live/opportunities/bizcomp</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/opportunities/hiring</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://skilldash.live/resume-feedback</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://skilldash.live/opportunities/job-seeker</loc><lastmod>2025-11-23T12:51:45.267Z</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
 </urlset>
