@@ -4,7 +4,7 @@ import './globals.css'
 import Navbar from '../components/Navbar'
 import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
-import SparkEffectInitializer from '../components/SparkEffectInitializer'
+import SparkEffectInitializer from '@/components/SparkEffectInitializer'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
@@ -18,7 +18,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'SkillDash - Bridge the Skill Gap for Students',
+  title: 'SkillDash - Bridge the Skill Gap',
   description: 'Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.',
   keywords: [
     "skill assessment platform", "student career readiness", "AI resume feedback", 
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkillDash - Bridge the Skill Gap for Students',
+    title: 'SkillDash - Bridge the Skill Gap',
     description: 'From skill discovery to job match: AI-powered paths and real opportunities await.',
     images: ['https://skilldash.live/web-app-manifest-512x512.png'],
     creator: '@SkillDash',
@@ -148,7 +148,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "SkillDash",
-              "alternateName": "SkillDash - Bridge the Skill Gap for Students",
+              "alternateName": "SkillDash - Bridge the Skill Gap",
               "description": "Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.",
               "url": "https://skilldash.live",
               "sameAs": [
