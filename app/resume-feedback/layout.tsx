@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Resume Feedback',
-  description: 'Get AI-powered resume analysis and improvement suggestions',
+  title: 'Resume Feedback - Expert Review & AI Insights | SkillDash',
+  description: 'Get expert-reviewed feedback, tailor your resume with AI insights and present your experience in a way that opens doors to jobs and gigs.',
   openGraph: {
-    title: 'Resume Feedback | SkillDash',
-    description: 'Get AI-powered resume analysis and improvement suggestions',
+    title: 'Resume Feedback | SkillDash - Bridge the Skill Gap',
+    description: 'Get expert-reviewed feedback, tailor your resume with AI insights and present your experience in a way that opens doors to jobs and gigs.',
     url: 'https://skilldash.live/resume-feedback',
     type: 'website',
     images: [
@@ -14,14 +14,14 @@ export const metadata: Metadata = {
         url: '/og/og-image-resume.jpg',
         width: 1200,
         height: 630,
-        alt: 'Resume Feedback on SkillDash'
+        alt: 'Resume feedback and workshop for students'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Resume Feedback | SkillDash',
-    description: 'Get AI-powered resume analysis and improvement suggestions',
+    description: 'Build a job-ready resume with AI feedback and expert guidance',
     images: ['/og/og-image-resume.jpg']
   }
 };

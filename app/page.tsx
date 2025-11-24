@@ -16,26 +16,26 @@ const ContentSections = lazy(() =>
 
 // ✅ NEW: Custom metadata for homepage
 export const metadata: Metadata = {
-  title: 'SkillDash - AI Gateway for Career Readiness',
-  description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+  title: 'SkillDash - Bridge the Skill Gap',
+  description: "Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.",
   openGraph: {
-    title: 'SkillDash - AI Gateway for Career Readiness',
-    description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+    title: 'SkillDash - Bridge the Skill Gap',
+    description: "Unlock your potential with AI-driven skill discovery, targeted learning, resume workshops and access to career opportunities.",
     url: 'https://skilldash.live',
     type: 'website',
     images: [
       {
-        url: '/og/og-image.jpg', // ✅ Using your custom homepage OG image
+        url: '/og/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'SkillDash - AI-powered career platform for Bangladesh youth'
+        alt: 'SkillDash - Bridge the Skill Gap'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkillDash - AI Gateway for Career Readiness',
-    description: "Unlock your potential with AI-powered skill discovery and personalized learning",
+    title: 'SkillDash - Bridge the Skill Gap',
+    description: "From skill discovery to job match: AI-powered paths and real opportunities await.",
     images: ['/og/og-image.jpg']
   }
 };
@@ -46,9 +46,6 @@ export default function HomePage() {
       
       {/* ✅ TOP SECTION: Light background with transparent navbar area */}
       <div className="relative bg-white dark:bg-gray-900 transition-colors duration-300 flex-1">
-        
-        {/* ✅ NAVBAR TRANSPARENT ZONE - This prevents background showing through navbar */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-transparent z-40"></div>
         
         {/* ✅ Optimized Floating Circles - Reduced for performance */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">

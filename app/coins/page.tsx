@@ -652,7 +652,7 @@ const CoinsPage: React.FC = () => {
                 </div>
               </div>
               <p className="text-blue-800 dark:text-blue-200 mb-4 text-sm sm:text-base leading-relaxed">
-                Get comprehensive AI-powered feedback on your resume tailored for the Bangladesh job market.
+                Get comprehensive AI-powered feedback on your resume with expert insights tailored to your career goals.
               </p>
               <button
                 onClick={() => router.push(ROUTES.RESUME_FEEDBACK)}

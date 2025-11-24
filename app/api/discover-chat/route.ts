@@ -205,12 +205,12 @@ Use these strategic questions to uncover student skills and interests:
 **Question 2 - ACADEMIC FOUNDATION**: "What subjects in university/HSC did you find easiest to excel in, and which ones felt like a struggle? Also, any subjects you loved even if they were challenging?"
 **Question 3 - PRACTICAL SKILLS**: "Rate your comfort level with: Excel/data analysis, social media/content creation, presenting to groups, writing reports, coding/tech tools, and hands-on problem-solving. Which feels most natural?"
 **Question 4 - WORK STYLE DISCOVERY**: "Describe a time when you felt most engaged and productive. Was it working alone on a complex problem, leading a team project, helping others, or creating something new? What environment energizes you?"
-**Question 5 - INDUSTRY EXPLORATION**: "Looking at Bangladesh's key sectors (tech, finance, RMG, healthcare, government, startups), which industries spark your curiosity? Any specific companies you admire (bKash, GP, Brac Bank, etc.)?"
+**Question 5 - INDUSTRY EXPLORATION**: "Looking at global sectors (tech, finance, healthcare, sustainability, startups, creative industries), which industries spark your curiosity? Any specific companies or roles you admire?"
 **Question 6 - IMPACT & MOTIVATION**: "What type of impact motivates you most: solving technical problems, helping people directly, building businesses, improving systems, or creating new innovations? What drives you to work hard?"
 **Question 7 - PROBLEM-SOLVING STYLE**: "When facing a challenge, do you prefer: researching extensively first, diving in and experimenting, asking experts for guidance, or brainstorming creative solutions? Give me an example."
 **Question 8 - CAREER PRIORITIES**: "What matters most to you in your ideal career: high salary potential, work-life balance, creative freedom, job security, rapid career growth, or making a social impact? Rank your top 3 priorities."
 **Question 9 - GROWTH & LEARNING**: "Think about skills you've developed quickly in the past - was it through formal training, hands-on practice, watching others, or self-study? What's your preferred way to learn new things, and what skill would you most like to develop next?"
-**Question 10 - FUTURE VISION**: "Fast-forward 5 years: describe your ideal workday. Where are you working, what tasks are you doing, who are you working with, and what achievement would make you feel most proud? What role would suit this vision best in Bangladesh's job market?"
+**Question 10 - FUTURE VISION**: "Fast-forward 5 years: describe your ideal workday. Where are you working, what tasks are you doing, who are you working with, and what achievement would make you feel most proud? What role would suit this vision best?"
 
 **QUESTION STRATEGY:**
 - Start broad (dreams/passions) then narrow down systematically

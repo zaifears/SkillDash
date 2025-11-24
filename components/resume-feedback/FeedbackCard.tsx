@@ -16,7 +16,6 @@ interface ResumeFeedback {
         skills?: string[];
     };
     physicalFormattingTips?: string[];
-    bangladeshContextTips?: string[];
     suggestedActionVerbs?: string[];
     linkedinSynergy?: string;
     atsScore?: number;
@@ -141,10 +140,6 @@ const FeedbackCard = ({ feedback, providerInfo }: { feedback: ResumeFeedback, pr
 
             <CollapsibleSection title="Physical Resume & Formatting" emoji="📄">
                 {renderInfoCards(feedback.physicalFormattingTips, '🎨')}
-            </CollapsibleSection>
-
-            <CollapsibleSection title="Bangladesh Market Tips" emoji="🇧🇩">
-                {renderInfoCards(feedback.bangladeshContextTips, '📈')}
             </CollapsibleSection>
 
             <CollapsibleSection title="Suggested Action Verbs" emoji="✨">

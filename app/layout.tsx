@@ -17,13 +17,13 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'SkillDash: AI-Powered Career Platform for Bangladesh\'s Youth',
-  description: 'Discover skills, learn courses, get AI resume feedback, and find job opportunities. The leading career development platform for Bangladesh\'s youth with personalized learning paths.',
+  title: 'SkillDash - Bridge the Skill Gap for Students',
+  description: 'Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.',
   keywords: [
-    "Bangladesh jobs", "skill development", "AI career platform", "resume feedback", 
-    "digital skills Bangladesh", "youth employment", "career opportunities", 
-    "freelancing Bangladesh", "job training", "professional development",
-    "AI powered learning", "career readiness", "skill assessment"
+    "skill assessment platform", "student career readiness", "AI resume feedback", 
+    "skills to job", "learn digital skills", "career platform students", 
+    "job training platform", "skill verification", "talent-to-employment", 
+    "freelance skills platform", "career opportunities", "professional development"
   ],
   authors: [{ name: 'SkillDash Team' }],
   creator: 'SkillDash',
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "SkillDash - AI Gateway for Career Readiness",
-    description: "Unlock your potential with AI-powered skill discovery, personalized learning, and career opportunities designed for Bangladesh's youth.",
+    title: "SkillDash - Bridge the Skill Gap",
+    description: "Unlock your potential with AI-driven skill discovery, targeted learning, resume workshops and access to career opportunities.",
     url: "https://skilldash.live",
     siteName: "SkillDash",
     type: "website",
@@ -51,16 +51,16 @@ export const metadata: Metadata = {
         url: "https://skilldash.live/web-app-manifest-512x512.png",
         width: 512,
         height: 512,
-        alt: "SkillDash - AI Gateway for Career Readiness",
+        alt: "SkillDash - Bridge the Skill Gap",
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkillDash - AI Gateway for Career Readiness',
-    description: 'Unlock your potential with AI-powered skill discovery and career opportunities for Bangladesh\'s youth.',
+    title: 'SkillDash - Bridge the Skill Gap for Students',
+    description: 'From skill discovery to job match: AI-powered paths and real opportunities await.',
     images: ['https://skilldash.live/web-app-manifest-512x512.png'],
-    creator: '@SkillDashBD',
+    creator: '@SkillDash',
   },
   icons: {
     icon: [
@@ -144,12 +144,12 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "SkillDash",
-              "alternateName": "SkillDash - AI Gateway for Career Readiness",
-              "description": "AI-Powered platform for Bangladesh's youth to discover skills, learn new courses, get resume feedback, and find opportunities.",
+              "alternateName": "SkillDash - Bridge the Skill Gap for Students",
+              "description": "Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.",
               "url": "https://skilldash.live",
               "sameAs": [
                 "https://www.facebook.com/skilldash",
-                "https://twitter.com/skilldashbd",
+                "https://twitter.com/skilldash",
                 "https://www.linkedin.com/company/skilldash"
               ],
               "potentialAction": {
@@ -170,8 +170,7 @@ export default function RootLayout({
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "contactType": "customer service",
-                  "areaServed": "BD",
-                  "availableLanguage": ["English", "Bengali"]
+                  "availableLanguage": ["English"]
                 }
               }
             })
@@ -186,21 +185,20 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "EducationalOrganization",
               "name": "SkillDash",
-              "description": "AI-powered skill development and career platform for Bangladesh's youth",
+              "description": "AI-assessed skill development and career platform for students worldwide",
               "url": "https://skilldash.live",
               "logo": "https://skilldash.live/web-app-manifest-512x512.png",
-              "areaServed": "BD",
               "educationalCredentialAwarded": "Digital Skills Certificate",
               "offers": [
                 {
                   "@type": "Course",
-                  "name": "AI-Powered Skill Discovery",
+                  "name": "AI-Assessed Skill Discovery",
                   "description": "Discover your hidden talents and potential career paths"
                 },
                 {
                   "@type": "Course", 
                   "name": "Resume Feedback Service",
-                  "description": "Get AI-powered feedback on your resume"
+                  "description": "Get expert feedback on your resume with AI insights"
                 }
               ]
             })

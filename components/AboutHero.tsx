@@ -7,7 +7,7 @@ const AboutHero = () => {
         About SkillDash
       </h1>
       <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-        We are passionate students building a bridge between education and employment in Bangladesh.
+        We are passionate students building a bridge between education and employment globally.
       </p>
     </section>
   );

@@ -489,7 +489,7 @@ const TestInterestSection = memo(() => {
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed mb-12">
             Discover your passion through hands-on learning. Each skill comes with carefully curated courses 
-            from expert educators in both <strong>Bangla</strong> and <strong>English</strong>.
+            from expert educators in <strong>English</strong> and additional languages.
           </p>
 
           {/* Mini Test CTA - FIXED MOBILE LAYOUT */}

@@ -60,7 +60,14 @@ const TypingAnimation = () => {
 
 const TypingHeroSection = () => {
     return (
-        <section className="relative py-16 px-6 text-center overflow-hidden mt-20">
+        <section className="relative py-16 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[500px] sm:min-h-[600px] flex items-center justify-center" style={{
+            backgroundImage: 'url(/hero-background.png)',
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center top',
+        }}>
+            {/* Dark overlay for light mode and gradient for dark mode */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/60 dark:from-black/70 dark:via-black/60 dark:to-black/50 pointer-events-none"></div>
+
             {/* FIXED: Inline bouncing balls that match the dark background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-20 right-16 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-optimized-bounce opacity-80 shadow-lg" style={{ animationDelay: '0s', animationDuration: '4s' }}></div>
@@ -71,10 +78,10 @@ const TypingHeroSection = () => {
                 <div className="absolute bottom-20 right-24 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-optimized-bounce opacity-80 shadow-sm" style={{ animationDelay: '2.5s', animationDuration: '4.2s' }}></div>
             </div>
 
-            <div className="max-w-6xl mx-auto relative z-10">
+            <div className="max-w-6xl mx-auto relative z-10 py-8 sm:py-12 md:py-16 px-4 sm:px-6">
                 {/* Main Heading */}
-                <div className="relative mb-8">
-                    <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-normal md:leading-relaxed">
+                <div className="relative mb-6 sm:mb-8">
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-normal md:leading-relaxed">
                         Bridge the Skill Gap
                     </h1>
                     
@@ -84,26 +91,26 @@ const TypingHeroSection = () => {
                 </div>
 
                 {/* Subtitle */}
-                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-                    From Classroom to Career. Your AI-powered journey to discover, grow, and showcase your real-world skills.
+                <p className="text-base sm:text-lg md:text-2xl text-gray-700 dark:text-gray-200 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-2">
+                    Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.
                 </p>
 
                 {/* CTA Button */}
-                <div className="relative inline-block mb-16">
+                <div className="relative inline-block mb-12 sm:mb-16">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-lg opacity-75 animate-pulse"></div>
                     <Link 
                         href="/discover" 
-                        className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-8 rounded-full hover:scale-105 transform transition-all duration-300 inline-flex items-center gap-3 shadow-xl hover:shadow-2xl"
+                        className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-full hover:scale-105 transform transition-all duration-300 inline-flex items-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl text-sm sm:text-base"
                     >
                         Discover your talent with SkillDash AI
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </Link>
                 </div>
 
                 {/* Typing Animation */}
-                <div className="text-gray-500 dark:text-gray-400 text-2xl md:text-3xl font-medium pb-16 flex items-center justify-center gap-x-3 h-14 md:h-16">
+                <div className="text-gray-600 dark:text-gray-300 text-lg sm:text-2xl md:text-3xl font-medium pb-8 sm:pb-16 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 h-auto sm:h-14 md:h-16">
                     <span>Unlock your</span>
                     <TypingAnimation />
                 </div>

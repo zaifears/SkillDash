@@ -308,7 +308,6 @@ interface ResumeFeedback {
         skills?: string[];
     };
     physicalFormattingTips?: string[];
-    bangladeshContextTips?: string[];
     suggestedActionVerbs?: string[];
     linkedinSynergy?: string;
     atsScore?: number;
@@ -355,12 +354,6 @@ const convertJsonToReadableText = (feedback: ResumeFeedback): string => {
   if (feedback.physicalFormattingTips) {
     text += `FORMATTING TIPS:\n`;
     feedback.physicalFormattingTips.forEach(tip => text += `• ${tip}\n`);
-    text += `\n`;
-  }
-  
-  if (feedback.bangladeshContextTips) {
-    text += `BANGLADESH CONTEXT TIPS:\n`;
-    feedback.bangladeshContextTips.forEach(tip => text += `• ${tip}\n`);
     text += `\n`;
   }
   
@@ -436,7 +429,7 @@ export default function ResumeFeedbackPage() {
               if (lastMsg?.role === 'assistant' && typeof lastMsg.content === 'string') {
                 return [...prev.slice(0, -1), {
                   role: 'assistant',
-                  content: "Got it! I'm now analyzing your resume with the context of the Bangladesh job market. ⏳\n\n⚠️ **This is taking a bit longer than usual** (10+ seconds) because I'm:\n• Performing real-time market research for your industry\n• Analyzing your resume structure against ATS algorithms\n• Researching current job market trends in Bangladesh\n• Gathering competitive salary and positioning data\n\nPlease continue waiting... Analysis in progress! 🔄"
+                  content: "Got it! I'm now analyzing your resume with market insights. ⏳\n\n⚠️ **This is taking a bit longer than usual** (10+ seconds) because I'm:\n• Performing real-time market research for your industry\n• Analyzing your resume structure against ATS algorithms\n• Researching current job market trends\n• Gathering competitive salary and positioning data\n\nPlease continue waiting... Analysis in progress! 🔄"
                 }];
               }
               return prev;

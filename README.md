@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/skilldash-logo.png" alt="SkillDash Logo" width="120" />
-  <h1>SkillDash</h1>
-  <strong>The AI-Powered Skill Platform for Youth</strong>
+  <h1>SkillDash - Bridge the Skill Gap</h1>
+  <strong>AI-Powered Career Readiness Platform for Students</strong>
   <br/><br/>
   <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs" alt="Next.js"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-blue?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS"/>
@@ -11,7 +11,7 @@
 
 ---
 
-SkillDash is an **all-in-one, AI-powered platform** to bridge the skill gap for university and college students.  
+SkillDash is an **all-in-one, AI-powered platform** designed to bridge the skill gap for students worldwide.  
 We transform career preparation into an engaging, gamified journey—helping you convert academic knowledge into real skills and connecting you directly to economic opportunities.
 
 ---
@@ -34,11 +34,11 @@ We transform career preparation into an engaging, gamified journey—helping you
 
 | Feature               | Description |
 |-----------------------|-------------|
-| 🔍 **AI Skill Quest** | A personalized, interactive chat with our SkillDashAI analyzes your interests, aptitudes, and academic background through strategic questioning to reveal your hidden talents and suggest career paths tailored to job market. Our intelligent system asks 5-10 targeted questions covering your passions, academic strengths, practical skills, work preferences, and career priorities to provide comprehensive career guidance. |
-| <img src="public/coin/coin.png" alt="Coin" width="20" /> **Coin System** | A strategic resource management system that balances platform sustainability with user accessibility. Users need coins to access premium AI-powered career analysis features, ensuring quality service while maintaining affordability. The system encourages thoughtful engagement with career development tools and helps maintain platform resources for delivering high-quality AI insights. |
-| 🎓 **Learn New Skills** | Access curated learning pathways and career courses specifically tailored to your Skill Quest results and the job market. Build job-ready skills that employers actually need, with content optimized for local industry requirements. Our skill development recommendations align with your personal strengths and market opportunities to maximize career impact. |
-| 📄 **AI Resume Feedback** | Receive instant, actionable resume feedback from our AI Coach, specifically tailored for job openings. Get detailed analysis of your resume's effectiveness, keyword optimization for local ATS systems, and specific suggestions for improvement based on industry standards and hiring manager preferences in the market. |
-| 💼 **Find Opportunities** | Unlock exclusive access to a carefully curated portal of part-time jobs, internships, and freelance opportunities specifically relevant to student. Build real-world experience while studying, develop your professional network, and gain practical skills that complement your academic learning for a stronger career foundation. |
+| 🔍 **AI Skill Quest** | A personalized, interactive chat with our SkillDashAI analyzes your interests, aptitudes, and academic background through strategic questioning to reveal your hidden talents and suggest career paths. Our intelligent system asks targeted questions covering your passions, academic strengths, practical skills, work preferences, and career priorities to provide comprehensive career guidance. |
+| <img src="public/coin/coin.png" alt="Coin" width="20" /> **Coin System** | A strategic resource management system that balances platform sustainability with user accessibility. Users need coins to access premium AI-powered career analysis features, ensuring quality service while maintaining affordability. The system encourages thoughtful engagement with career development tools and helps maintain platform resources for delivering high-quality insights. |
+| 🎓 **Learn New Skills** | Access curated learning pathways and career courses tailored to your Skill Quest results and market demands. Build job-ready skills that employers actually need, with content designed for global career relevance. Our skill development recommendations align with your personal strengths and market opportunities to maximize career impact. |
+| 📄 **AI Resume Feedback** | Receive instant, actionable resume feedback from our AI Coach, tailored for your career goals. Get detailed analysis of your resume's effectiveness, keyword optimization for ATS systems, and specific suggestions for improvement based on industry standards and hiring manager preferences. |
+| 💼 **Find Opportunities** | Unlock exclusive access to a carefully curated portal of part-time jobs, internships, and freelance opportunities. Build real-world experience while studying, develop your professional network, and gain practical skills that complement your academic learning for a stronger career foundation. |
 
 ---
 
@@ -166,9 +166,9 @@ The opportunities portal connects students with real-world experience through ca
 
 ## 🌟 Mission
 
-**Bridging the skills gap by making career development:**
+**Bridging the Skill Gap by making career development:**
 - **Accessible** - Core features available with transparent resource requirements
-- **Intelligent** - AI-powered insights tailored to local job market realities
+- **Intelligent** - AI-powered insights aligned to global job market trends
 - **Practical** - Real-world job market insights and actionable career guidance
 - **Personalized** - Individual career recommendations based on your unique strengths and interests
 
@@ -176,7 +176,7 @@ The opportunities portal connects students with real-world experience through ca
 
 ## 🏆 About This Project
 
-SkillDash is an innovative platform showcasing cutting-edge AI solutions for youth development. This platform represents our vision of using artificial intelligence to solve real-world challenges in career development and skills gap bridging.
+SkillDash is an innovative platform showcasing cutting-edge AI solutions for student development globally. This platform represents our vision of using artificial intelligence to solve real-world challenges in career development and skills gap bridging.
 
 **Our Focus:**
 - **Problem Statement:** Addressing unemployment and underemployment among university graduates

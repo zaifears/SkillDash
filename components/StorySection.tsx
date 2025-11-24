@@ -65,7 +65,7 @@ const StorySection = () => {
           The Spark
         </h2>
         <p className="max-w-4xl mx-auto text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
-          Our passion for solving real-world problems inspired us to create SkillDash. We harness AI to bridge the gap between education and employment, empowering the future leaders of Bangladesh with personalized career guidance and skill development.
+          Our passion for solving real-world problems inspired us to create SkillDash. We harness AI to bridge the gap between education and employment, empowering students globally with personalized career guidance and skill development.
         </p>
       </section>
     </>
