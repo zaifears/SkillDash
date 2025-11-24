@@ -443,6 +443,17 @@ button:disabled {
     display: none !important;
   }
 }
+
+/* ============================================
+   HERO BACKGROUND IMAGE OPTIMIZATION
+   ============================================ */
+/* Hide hero background on mobile devices for performance */
+@media (max-width: 768px) {
+  .hero-background-container {
+    background-image: none !important;
+  }
+}
+
 /* Improve contrast - SAFE FIX */
 .bg-blue-500 { background-color: #1d4ed8 !important; }
 .bg-purple-500 { background-color: #6d28d9 !important; }

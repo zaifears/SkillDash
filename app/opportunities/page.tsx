@@ -16,7 +16,15 @@ const Footer = dynamic(() => import('../../components/shared/Footer'), {
 
 export default function OpportunitiesPage() {
   return (
-    <div className="w-full bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-black dark:to-blue-950/30 overflow-x-hidden relative">
+    <div className="hero-background-container w-full overflow-x-hidden relative" style={{
+      backgroundImage: 'url(/hero-background.png)',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center top',
+      backgroundSize: 'cover',
+    }}>
+      {/* Dark overlay for light mode and gradient for dark mode */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/60 dark:from-black/70 dark:via-black/60 dark:to-black/50 pointer-events-none"></div>
+
       {/* Background Animation */}
       <BackgroundAnimation />
 

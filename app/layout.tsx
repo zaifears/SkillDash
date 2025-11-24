@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '../components/Navbar'
 import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
+import SparkEffectInitializer from '../components/SparkEffectInitializer'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
@@ -121,6 +122,9 @@ export default function RootLayout({
         {/* Canonical URL */}
         <link rel="canonical" href="https://skilldash.live" />
         
+        {/* Sitemap Link for Search Engines */}
+        <link rel="sitemap" type="application/xml" href="https://skilldash.live/sitemap.xml" />
+        
         {/* 🚀 DEFERRED GTM - Loads AFTER page loads (MOBILE FIX) */}
         <script
           dangerouslySetInnerHTML={{
@@ -219,6 +223,7 @@ export default function RootLayout({
         
         <AuthProvider>
           <EmailVerificationBanner />
+          <SparkEffectInitializer />
           
           <div className="relative min-h-screen">
             <Navbar />

@@ -60,7 +60,7 @@ const TypingAnimation = () => {
 
 const TypingHeroSection = () => {
     return (
-        <section className="relative py-16 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[500px] sm:min-h-[600px] flex items-center justify-center" style={{
+        <section className="hero-background-container relative py-16 sm:py-18 md:py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[700px] sm:min-h-[650px] md:min-h-[700px] flex items-center justify-center" style={{
             backgroundImage: 'url(/hero-background.png)',
             backgroundAttachment: 'fixed',
             backgroundPosition: 'center top',
@@ -78,10 +78,10 @@ const TypingHeroSection = () => {
                 <div className="absolute bottom-20 right-24 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-optimized-bounce opacity-80 shadow-sm" style={{ animationDelay: '2.5s', animationDuration: '4.2s' }}></div>
             </div>
 
-            <div className="max-w-6xl mx-auto relative z-10 py-8 sm:py-12 md:py-16 px-4 sm:px-6">
+            <div className="max-w-6xl mx-auto relative z-10 py-16 sm:py-12 md:py-16 px-4 sm:px-6">
                 {/* Main Heading */}
-                <div className="relative mb-6 sm:mb-8">
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-normal md:leading-relaxed">
+                <div className="relative mb-8 sm:mb-8 md:mb-10">
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent leading-normal md:leading-relaxed transition-all duration-500 hover:scale-105 cursor-pointer">
                         Bridge the Skill Gap
                     </h1>
                     
@@ -91,12 +91,12 @@ const TypingHeroSection = () => {
                 </div>
 
                 {/* Subtitle */}
-                <p className="text-base sm:text-lg md:text-2xl text-gray-700 dark:text-gray-200 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-2">
+                <p className="text-base sm:text-lg md:text-2xl text-gray-700 dark:text-gray-200 mb-10 sm:mb-12 md:mb-14 max-w-4xl mx-auto leading-relaxed px-2">
                     Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.
                 </p>
 
                 {/* CTA Button */}
-                <div className="relative inline-block mb-12 sm:mb-16">
+                <div className="relative inline-block mb-12 sm:mb-16 md:mb-16">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-lg opacity-75 animate-pulse"></div>
                     <Link 
                         href="/discover" 
@@ -110,7 +110,7 @@ const TypingHeroSection = () => {
                 </div>
 
                 {/* Typing Animation */}
-                <div className="text-gray-600 dark:text-gray-300 text-lg sm:text-2xl md:text-3xl font-medium pb-8 sm:pb-16 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 h-auto sm:h-14 md:h-16">
+                <div className="text-gray-600 dark:text-gray-300 text-lg sm:text-2xl md:text-3xl font-medium pb-8 sm:pb-12 md:pb-16 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 h-auto sm:h-14 md:h-16">
                     <span>Unlock your</span>
                     <TypingAnimation />
                 </div>

@@ -170,8 +170,16 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50">
+    <div className="hero-background-container min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative" style={{
+      backgroundImage: 'url(/hero-background.png)',
+      backgroundAttachment: 'fixed',
+      backgroundPosition: 'center top',
+      backgroundSize: 'cover',
+    }}>
+      {/* Dark overlay for light mode and gradient for dark mode */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/60 dark:from-black/70 dark:via-black/60 dark:to-black/50 pointer-events-none"></div>
+
+      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-slate-800/90 p-8 rounded-2xl shadow-2xl backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 relative z-10">
         
         <div className="text-center">
           <OptimizedImage

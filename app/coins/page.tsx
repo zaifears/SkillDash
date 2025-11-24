@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CoinManager } from '@/lib/coinManager';
 import TransactionHistory from '@/components/coins/TransactionHistory';
+import Footer from '@/components/shared/Footer';
 import { LoadingScreen } from '@/lib/components/shared';
 import { ROUTES, MESSAGES, LIMITS } from '@/lib/constants';
 import { db } from '@/lib/firebase';
@@ -718,6 +719,11 @@ const CoinsPage: React.FC = () => {
             Refresh Balance
           </button>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mx-4 mt-16">
+        <Footer />
       </div>
     </div>
   );

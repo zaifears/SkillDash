@@ -18,6 +18,8 @@ export const MESSAGES = {
 export const ROUTES = {
   AUTH: '/auth',
   DISCOVER: '/discover',
+  LEARN_SKILL: '/learn-skill',
   RESUME_FEEDBACK: '/resume-feedback',
+  OPPORTUNITIES: '/opportunities',
   COINS: '/coins',
 } as const;
