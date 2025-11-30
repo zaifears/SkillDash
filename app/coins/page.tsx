@@ -156,35 +156,51 @@ const CoinsPage: React.FC = () => {
     setRechargeError('');
     setRechargeSuccess('');
 
-    try {
-      await addDoc(collection(db, 'recharge_requests'), {
-        userId: user.uid,
-        userName: user.displayName || 'User',
-        userEmail: user.email,
-        amount: totalPrice,
-        coins: coinAmount,
-        trxId: trxId.trim(),
-        bkashNumber: bkashNumber,
-        status: 'pending',
-        createdAt: new Date(),
-        processedAt: null,
-        processedBy: null
-      });
+    let retries = 3;
+    let lastError: any = null;
 
-      setRechargeSuccess('✅ Recharge request submitted! Wait for approval.');
-      setTrxId('');
-      setCoinAmount(10);
-      
-      // Auto-hide form after success
-      setTimeout(() => {
-        setShowRechargeForm(false);
-        setRechargeSuccess('');
-      }, 3000);
-    } catch (err: any) {
-      setRechargeError('Failed to submit request: ' + err.message);
-    } finally {
-      setIsSubmitting(false);
+    while (retries > 0) {
+      try {
+        await addDoc(collection(db, 'recharge_requests'), {
+          userId: user.uid,
+          userName: user.displayName || 'User',
+          userEmail: user.email,
+          amount: totalPrice,
+          coins: coinAmount,
+          trxId: trxId.trim(),
+          bkashNumber: bkashNumber,
+          status: 'pending',
+          createdAt: new Date(),
+          processedAt: null,
+          processedBy: null
+        });
+
+        setRechargeSuccess('✅ Recharge request submitted! Wait for approval.');
+        setTrxId('');
+        setCoinAmount(10);
+        
+        // Auto-hide form after success
+        setTimeout(() => {
+          setShowRechargeForm(false);
+          setRechargeSuccess('');
+        }, 3000);
+        
+        setIsSubmitting(false);
+        return; // Success, exit
+      } catch (err: any) {
+        lastError = err;
+        retries--;
+        
+        if (retries > 0) {
+          // Wait 1 second before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
     }
+
+    // All retries failed
+    setRechargeError(`Failed to submit request after ${3} attempts: ${lastError?.message || 'Network error'}`);
+    setIsSubmitting(false);
   };
 
   if (authLoading || loading) {

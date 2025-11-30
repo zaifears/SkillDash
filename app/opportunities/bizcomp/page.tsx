@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingScreen } from '@/lib/components/shared';
 import { ROUTES, MESSAGES } from '@/lib/constants';
+import BizCompDetailsModal from '@/components/ui/BizCompDetailsModal';
 
 // Lazy Load Footer
 const Footer = dynamic(() => import('@/components/shared/Footer'), {
@@ -75,7 +76,7 @@ const BizCompHeader = memo(() => (
 BizCompHeader.displayName = 'BizCompHeader';
 
 // Competition Card Component
-const BizCompCard = memo(({ comp }: { comp: FormattedBusinessCompetition }) => {
+const BizCompCard = memo(({ comp, onViewDetails }: { comp: FormattedBusinessCompetition; onViewDetails: (comp: FormattedBusinessCompetition) => void }) => {
   const isExpired = new Date(comp.registrationDeadline) < new Date();
 
   return (
@@ -103,16 +104,12 @@ const BizCompCard = memo(({ comp }: { comp: FormattedBusinessCompetition }) => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        {comp.detailsLink && (
-          <a
-            href={comp.detailsLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 text-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-          >
-            View Details
-          </a>
-        )}
+        <button
+          onClick={() => onViewDetails(comp)}
+          className="flex-1 text-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+        >
+          View Details
+        </button>
         <a
           href={comp.registrationLink}
           target="_blank"
@@ -204,6 +201,8 @@ export default function BizCompPage() {
   const [competitions, setCompetitions] = useState<FormattedBusinessCompetition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCompetition, setSelectedCompetition] = useState<FormattedBusinessCompetition | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Authentication Wall
   useEffect(() => {
@@ -248,6 +247,16 @@ export default function BizCompPage() {
     }
   }, [fetchComps, user, authLoading]);
 
+  const handleViewDetails = useCallback((comp: FormattedBusinessCompetition) => {
+    setSelectedCompetition(comp);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedCompetition(null);
+  }, []);
+
   const renderContent = () => {
     if (isLoading) {
       return <LoadingSkeleton />;
@@ -261,7 +270,7 @@ export default function BizCompPage() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {competitions.map((comp) => (
-          <BizCompCard key={comp.id} comp={comp} />
+          <BizCompCard key={comp.id} comp={comp} onViewDetails={handleViewDetails} />
         ))}
       </div>
     );
@@ -285,6 +294,14 @@ export default function BizCompPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {renderContent()}
       </div>
+
+      {/* Modal */}
+      <BizCompDetailsModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        competition={selectedCompetition}
+      />
+
       <Footer />
     </div>
   );

@@ -136,9 +136,17 @@ export default function AuthPage() {
     setShowSignupSuccess(false)
 
     try {
-      await signInWithSocialProviderAndCreateProfile(googleProvider)
+      // Add 30 second timeout for Google sign-in
+      const googleSignInPromise = signInWithSocialProviderAndCreateProfile(googleProvider)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Google sign-in timed out. Please try again.')), 30000)
+      )
+      
+      await Promise.race([googleSignInPromise, timeoutPromise])
     } catch (err: any) {
-      setError(sanitizeError(err))
+      const errorMsg = sanitizeError(err)
+      setError(errorMsg)
+      console.error('Google sign-in error:', err)
     } finally {
       setIsLoading(false)
     }
