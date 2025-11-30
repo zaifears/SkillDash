@@ -376,7 +376,7 @@ const CoinsPage: React.FC = () => {
                   <span>⚡</span>
                   <span>Quick Select:</span>
                 </label>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[5, 10, 25, 50].map((amount) => (
                     <button
                       key={amount}

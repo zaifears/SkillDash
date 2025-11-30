@@ -4,6 +4,29 @@ Allow: /
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
+Disallow: /debug/
+Disallow: /minitest/
+Disallow: /mini-test/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# GPTBot
+User-agent: GPTBot
+Allow: /
+
+# CCBot
+User-agent: CCBot
+Allow: /
+
+# anthropic-ai
+User-agent: anthropic-ai
+Allow: /
 
 # Host
 Host: https://skilldash.live

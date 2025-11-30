@@ -134,21 +134,36 @@ export default function AuthPage() {
     setIsLoading(true)
     setError('')
     setShowSignupSuccess(false)
+    // ✅ NEW: Give immediate feedback to user
+    setMessage('Connecting to Google... If a popup does not appear, check your popup blocker.')
 
     try {
-      // Add 30 second timeout for Google sign-in
+      // ✅ NEW: Increased to 45 second timeout for slower networks
       const googleSignInPromise = signInWithSocialProviderAndCreateProfile(googleProvider)
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Google sign-in timed out. Please try again.')), 30000)
+        setTimeout(() => reject(new Error('Connection timed out. Network might be slow or popup blocked.')), 45000)
       )
       
       await Promise.race([googleSignInPromise, timeoutPromise])
     } catch (err: any) {
-      const errorMsg = sanitizeError(err)
+      // ✅ NEW: Better error messages for popup-specific issues
+      let errorMsg = sanitizeError(err)
+      
+      if (err.code === 'auth/popup-closed-by-user') {
+        errorMsg = 'Sign-in was cancelled. Please try again.'
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMsg = '⚠️ Popup blocked! Please allow popups for this site in your browser settings, or try Firefox/Safari.'
+      } else if (err.message?.includes('timed out') || err.message?.includes('Network might be slow')) {
+        errorMsg = '⏱️ Connection took too long. Check your internet or try Email/Password login instead.'
+      } else if (err.message?.includes('popup-closed-by-user')) {
+        errorMsg = 'Sign-in popup was closed. Please try again.'
+      }
+      
       setError(errorMsg)
       console.error('Google sign-in error:', err)
     } finally {
       setIsLoading(false)
+      setMessage('') // Clear message
     }
   }
 

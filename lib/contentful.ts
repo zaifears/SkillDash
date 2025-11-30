@@ -193,13 +193,25 @@ export async function getJobOpportunities(limit = 20): Promise<JobOpportunity[]>
   if (cachedData) return cachedData;
 
   try {
+    // ✅ NEW: Fetch extra items to account for filtering expired ones
     const entries = await getContentfulClient().getEntries<JobOpportunitySkeleton>({
       content_type: 'SkillDashJobs',
       order: ['-sys.createdAt'],
-      limit,
+      limit: limit + 20, // Fetch 20 extra to account for expired jobs
     });
-    cache.set(cacheKey, entries.items, 15 * 60 * 1000); // 15 min cache
-    return entries.items;
+
+    // ✅ NEW: Filter out expired jobs server-side
+    const now = new Date();
+    const activeJobs = entries.items
+      .filter(job => {
+        const deadline = job.fields.deadlineToApply ? new Date(job.fields.deadlineToApply) : null;
+        // Keep if no deadline is set OR deadline is in the future
+        return !deadline || deadline >= now;
+      })
+      .slice(0, limit); // Trim to requested limit after filtering
+
+    cache.set(cacheKey, activeJobs, 15 * 60 * 1000); // 15 min cache
+    return activeJobs;
   } catch (error) {
     console.error('Error fetching job opportunities:', error);
     return [];

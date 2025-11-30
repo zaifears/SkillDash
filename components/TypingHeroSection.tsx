@@ -60,7 +60,7 @@ const TypingAnimation = () => {
 
 const TypingHeroSection = () => {
     return (
-        <section className="hero-background-container relative py-16 sm:py-18 md:py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[700px] sm:min-h-[650px] md:min-h-[700px] flex items-center justify-center" style={{
+        <section className="hero-background-container relative py-16 sm:py-18 md:py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[450px] sm:min-h-[550px] md:min-h-[700px] flex items-center justify-center" style={{
             backgroundImage: 'url(/hero-background.png)',
             backgroundAttachment: 'fixed',
             backgroundPosition: 'center top',

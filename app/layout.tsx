@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar'
 import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import SparkEffectInitializer from '@/components/SparkEffectInitializer'
+import CookieConsent from '@/components/CookieConsent'
+import SentryInitializer from '@/components/SentryInitializer'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 
@@ -224,11 +226,14 @@ export default function RootLayout({
         <AuthProvider>
           <EmailVerificationBanner />
           <SparkEffectInitializer />
+          <SentryInitializer />
           
           <div className="relative min-h-screen">
             <Navbar />
             <main role="main">{children}</main>
           </div>
+          
+          <CookieConsent />
         </AuthProvider>
         
         <SpeedInsights />
