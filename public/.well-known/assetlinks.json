@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.skilldash.simulator",
+        "sha256_cert_fingerprints": ["0A:31:A2:8F:FE:CC:67:4F:65:68:25:91:88:0F:4C:06:6D:19:F9:A3:5A:2B:CA:2F:5C:C6:3A:7D:BF:DA:35:65"]
+      }
+    }]
