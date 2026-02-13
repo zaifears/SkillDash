@@ -23,3 +23,33 @@ export const ROUTES = {
   OPPORTUNITIES: '/opportunities',
   COINS: '/coins',
 } as const;
+
+// Domain Configuration - Works across skill-dash.vercel.app and skilldash.live
+// Note: skill-dash.vercel.app is the primary default (Vercel is maintained indefinitely)
+// skilldash.live is kept as fallback but could expire
+export const DOMAINS = {
+  MAIN: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app',
+  HR: process.env.NEXT_PUBLIC_HR_DOMAIN || 'https://hr.skilldash.live',
+} as const;
+
+/**
+ * Get full URL for a path on the main domain
+ * Works across different deployments (production, Vercel preview, local)
+ */
+export function getMainUrl(path: string = ''): string {
+  const baseUrl = DOMAINS.MAIN;
+  if (!path) return baseUrl;
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${normalizedPath}`;
+}
+
+/**
+ * Get full URL for a path on the HR domain
+ */
+export function getHRUrl(path: string = ''): string {
+  const baseUrl = DOMAINS.HR;
+  if (!path) return baseUrl;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${normalizedPath}`;
+}

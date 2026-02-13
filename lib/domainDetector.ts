@@ -1,20 +1,39 @@
 /**
  * Domain Detection Utility
  * Detects which domain the app is running on and provides helper functions
+ * Supports: skilldash.live, skill-dash.vercel.app, and localhost
  */
 
 export type Domain = 'main' | 'hr';
 
 /**
+ * Gets the current hostname (works both client and server-side)
+ * On server-side, uses environment variables as fallback
+ */
+function getCurrentHostname(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.hostname;
+  }
+  // Server-side: extract from NODE_ENV or use default
+  return process.env.VERCEL_URL || 'skill-dash.vercel.app';
+}
+
+/**
+ * Gets the current protocol (works both client and server-side)
+ */
+function getCurrentProtocol(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.protocol.replace(':', '');
+  }
+  return process.env.NODE_ENV === 'production' ? 'https' : 'http';
+}
+
+/**
  * Detects current domain
- * @returns 'main' for skilldash.live, 'hr' for hr.skilldash.live
+ * @returns 'main' for skilldash.live/skill-dash.vercel.app, 'hr' for hr.skilldash.live
  */
 export function getDomain(): Domain {
-  if (typeof window === 'undefined') {
-    return 'main'; // Default to main on server-side
-  }
-
-  const host = window.location.hostname;
+  const host = getCurrentHostname();
 
   // Check if on HR subdomain
   if (host.includes('hr.') || host === 'hr.skilldash.live') {
@@ -26,32 +45,35 @@ export function getDomain(): Domain {
 
 /**
  * Gets base URL for current domain
- * @returns Base URL string
+ * Works correctly on both Vercel and custom domains
  */
 export function getBaseUrl(): string {
-  if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skilldash.live';
-  }
-
+  const hostname = getCurrentHostname();
+  const protocol = getCurrentProtocol();
   const domain = getDomain();
-  const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
 
   if (domain === 'hr') {
     // If on HR domain but localhost, construct localhost HR URL
     if (isLocalhost) {
-      const port = window.location.port ? `:${window.location.port}` : '';
+      const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':3000';
       return `http://localhost${port}/hr`;
     }
-    return process.env.NEXT_PUBLIC_HR_DOMAIN || 'https://hr.skilldash.live';
+    return process.env.NEXT_PUBLIC_HR_DOMAIN || `https://hr.skilldash.live`;
   }
 
   // Main domain
   if (isLocalhost) {
-    const port = window.location.port ? `:${window.location.port}` : '';
+    const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':3000';
     return `http://localhost${port}`;
   }
-  return process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skilldash.live';
+
+  // Return current domain URL
+  if (hostname.includes('vercel.app')) {
+    return `${protocol}://${hostname}`;
+  }
+
+  return process.env.NEXT_PUBLIC_MAIN_DOMAIN || `https://skill-dash.vercel.app`;
 }
 
 /**

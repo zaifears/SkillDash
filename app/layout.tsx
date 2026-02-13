@@ -9,6 +9,7 @@ import CookieConsent from '@/components/CookieConsent'
 import SentryInitializer from '@/components/SentryInitializer'
 import HRRedirectProvider from '@/components/HRRedirectProvider'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
+import IOSInstallGuide from '@/components/iOSInstallGuide'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import ServiceWorkerCleanup from '@/components/ServiceWorkerCleanup'
@@ -48,13 +49,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SkillDash - Bridge the Skill Gap",
     description: "Unlock your potential with AI-driven skill discovery, targeted learning, resume workshops and access to career opportunities.",
-    url: "https://skilldash.live",
+    url: process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app",
     siteName: "SkillDash",
     type: "website",
     locale: "en_US",
     images: [
       {
-        url: "https://skilldash.live/web-app-manifest-512x512.png",
+        url: `${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app"}/web-app-manifest-512x512.png`,
         width: 512,
         height: 512,
         alt: "SkillDash - Bridge the Skill Gap",
@@ -65,7 +66,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SkillDash - Bridge the Skill Gap',
     description: 'From skill discovery to job match: AI-powered paths and real opportunities await.',
-    images: ['https://skilldash.live/web-app-manifest-512x512.png'],
+    images: [`${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app"}/web-app-manifest-512x512.png`],
     creator: '@SkillDash',
   },
   icons: {
@@ -79,9 +80,9 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
-  metadataBase: new URL('https://skilldash.live'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app'),
   alternates: {
-    canonical: 'https://skilldash.live',
+    canonical: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app',
   },
   verification: {
     google: 'NRcmZt1gkRaisYql52KCRUqEJCyGeTGyXsntWkqYFFk',
@@ -240,6 +241,7 @@ export default function RootLayout({
         </noscript>
         
         <ServiceWorkerRegistration />
+        <IOSInstallGuide />
         <AuthProvider>
           <HRRedirectProvider>
             <EmailVerificationBanner />
