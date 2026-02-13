@@ -9,7 +9,7 @@
   <br/>
 
   <a href="https://skilldash.live/simulator"><img src="https://img.shields.io/badge/🚀_Live_Demo-skilldash.live-8b5cf6?style=for-the-badge" alt="Live Demo"/></a>
-  <a href="https://github.com/zaifears/SkillDash/releases/download/v1.0.0-simulator/SkillDash.Simulator.apk"><img src="https://img.shields.io/badge/📱_Download-APK-34D399?style=for-the-badge" alt="Download APK"/></a>
+  <a href="https://www.skilldash.live/skilldash-simulator.apk"><img src="https://img.shields.io/badge/📱_Download-APK-34D399?style=for-the-badge" alt="Download APK"/></a>
 
   <br/><br/>
 
@@ -43,7 +43,7 @@ SkillDash Simulator is a **state-of-the-art, risk-free environment** designed to
 
 <div align="center">
   <br/>
-  <a href="https://github.com/zaifears/SkillDash/releases/download/v1.0.0-simulator/SkillDash.Simulator.apk">
+  <a href="https://www.skilldash.live/skilldash-simulator.apk">
     <img src="https://img.shields.io/badge/📥_Download_SkillDash_Simulator-APK-8b5cf6?style=for-the-badge&logoColor=white" alt="Download APK" />
   </a>
   <br/><br/>
