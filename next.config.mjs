@@ -130,6 +130,16 @@ const nextConfig = {
     ];
   },
 
+  // Rewrites for manifest file compatibility
+  async rewrites() {
+    return [
+      {
+        source: '/manifest.webmanifest',
+        destination: '/site.webmanifest',
+      },
+    ];
+  },
+
   // Domain-based redirects for multi-domain support
   async redirects() {
     const hrDomain = process.env.NEXT_PUBLIC_HR_DOMAIN || 'https://hr.skilldash.live';

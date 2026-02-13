@@ -8,6 +8,7 @@ import SparkEffectInitializer from '@/components/SparkEffectInitializer'
 import CookieConsent from '@/components/CookieConsent'
 import SentryInitializer from '@/components/SentryInitializer'
 import HRRedirectProvider from '@/components/HRRedirectProvider'
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import ServiceWorkerCleanup from '@/components/ServiceWorkerCleanup'
@@ -238,6 +239,7 @@ export default function RootLayout({
           ></iframe>
         </noscript>
         
+        <ServiceWorkerRegistration />
         <AuthProvider>
           <HRRedirectProvider>
             <EmailVerificationBanner />

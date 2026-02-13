@@ -1,10 +1,59 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Offline</title>
-  </head>
-  <body>
-    <h1>You are offline</h1>
-    <p>This page will appear when you have no internet connection.</p>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You are offline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { font-size: 4rem; margin: 0; color: #8b5cf6; }
+        .kaomoji { font-size: 2rem; margin: 1rem 0; display: block; }
+        h2 { margin: 1rem 0; font-size: 1.5rem; }
+        p { color: #6b7280; line-height: 1.5; margin-bottom: 1.5rem; }
+        .btn {
+            background-color: #8b5cf6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .btn:hover { background-color: #7c3aed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <span class="kaomoji">¯\_(ツ)_/¯</span>
+        <h2>Page Not Found<br><small style="font-size: 1rem; color: #666">(Or you are just offline lol)</small></h2>
+        <p>
+            Oops! It seems the page you're looking for doesn't exist, has been moved, or the ISP doing you dirty.
+            <br><br>
+            Don't worry, I made this website using AI, so it was bound to happen XD.
+        </p>
+        <button onclick="window.location.reload()" class="btn">Try Again</button>
+    </div>
+</body>
 </html>
