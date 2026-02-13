@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 // FIXED: Proper TypeScript interface with optional properties
 interface FooterLink {
@@ -29,39 +27,6 @@ const FOOTER_LINKS: FooterSection = {
 
 const Footer = React.memo(() => {
   const currentYear = new Date().getFullYear();
-  
-  // ✅ State for user count
-  const [userCount, setUserCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // ✅ NEW: Fetch from public_stats document (SECURE & FAST)
-  useEffect(() => {
-    const fetchUserCount = async () => {
-      try {
-        // Read public stats document (allowed by security rules)
-        const statsDocRef = doc(db, 'public_stats', 'site_stats');
-        const statsDoc = await getDoc(statsDocRef);
-        
-        if (statsDoc.exists()) {
-          const count = statsDoc.data()?.userCount || 0;
-          
-          // Round up to nearest hundred for better display
-          const roundedCount = Math.ceil(count / 100) * 100;
-          setUserCount(roundedCount);
-        } else {
-          console.warn('⚠️ Stats document not found. Please create public_stats/site_stats in Firestore.');
-          setUserCount(null);
-        }
-      } catch (error) {
-        console.error('❌ Failed to fetch user count:', error);
-        setUserCount(null); // Silent fail - don't show count if error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserCount();
-  }, []);
 
   return (
     <footer className="border-t border-gray-200/50 dark:border-gray-800/50 pt-10 mt-16 bg-white/30 dark:bg-black/30 backdrop-blur-sm rounded-t-3xl">
@@ -82,23 +47,6 @@ const Footer = React.memo(() => {
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
             Empowering students with AI-driven career guidance and skill development.
           </p>
-          
-          {/* ✅ OPTION 2: Larger with Subtitle */}
-          {!loading && userCount !== null && (
-            <div className="flex flex-col items-start mt-3 space-y-1">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-                <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
-                  {userCount.toLocaleString()}+
-                </span>
-              </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium pl-7">
-                registered users
-              </span>
-            </div>
-          )}
         </div>
         
         {/* Footer Links */}

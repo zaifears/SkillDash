@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Component } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
-import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile } from '../../lib/firebase'
+import { auth, signUpWithEmailPasswordAndProfile, googleProvider, githubProvider, signInWithSocialProviderAndCreateProfile, isInAppBrowser } from '../../lib/firebase'
 import { useRouter } from 'next/navigation'
 import { validateEmail, validatePassword, sanitizeError, rateLimit } from '../../lib/authUtils'
 import { humanizeAuthError } from '../../lib/authErrorHandler'
@@ -30,8 +30,15 @@ function AuthPageContent() {
   const [message, setMessage] = useState('')
   const [redirectMessage, setRedirectMessage] = useState<string | null>(null)
   const [showSignupSuccess, setShowSignupSuccess] = useState(false)
+  const [inAppBrowser, setInAppBrowser] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
   const router = useRouter()
   const { executeRecaptcha } = useGoogleReCaptcha()
+
+  // Detect in-app browser on mount
+  useEffect(() => {
+    setInAppBrowser(isInAppBrowser())
+  }, [])
 
   // reCAPTCHA verification helper
   const verifyRecaptcha = async (action: string): Promise<boolean> => {
@@ -85,11 +92,8 @@ function AuthPageContent() {
     const fixRecaptchaBadge = () => {
       const badge = document.querySelector('.grecaptcha-badge') as HTMLElement
       if (badge) {
-        const isMobile = window.innerWidth < 1024
-        badge.style.zIndex = isMobile ? '51' : '9999'
-        badge.style.bottom = isMobile ? '72px' : '16px'
-        badge.style.position = 'fixed'
-        badge.style.right = '8px'
+        // Remove any inline width Google sets so our CSS collapse works
+        badge.style.removeProperty('width')
       }
     }
 
@@ -97,7 +101,7 @@ function AuthPageContent() {
     fixRecaptchaBadge()
 
     // Also run on window resize
-    const resizeObserver = window.addEventListener('resize', fixRecaptchaBadge)
+    window.addEventListener('resize', fixRecaptchaBadge)
 
     // Keep checking for the badge if it's not there yet (Google loads it async)
     const checkInterval = setInterval(fixRecaptchaBadge, 500)
@@ -601,9 +605,55 @@ function AuthPageContent() {
             </div>
 
             {/* RIGHT COLUMN - Social Auth (desktop only) */}
-            <div className="hidden lg:flex flex-col justify-center gap-6">
+            <div className="hidden lg:flex flex-col justify-center gap-6 pt-20">
+              {/* Show different content based on view */}
+              {!isSignUp ? (
+                // Sign In View - Show New Here Box
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4">
+                  <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(true);
+                      setError('');
+                      setMessage('');
+                      setShowSignupSuccess(false);
+                    }}
+                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  >
+                    Create Your Account
+                  </button>
+                  <p className="text-slate-400 text-xs text-center mt-3">
+                    Join SkillDash
+                  </p>
+                </div>
+              ) : (
+                // Sign Up View - Show Sign In Link
+                <div className="text-center">
+                  <p className="text-slate-400 text-xs">
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSignUp(false);
+                        setError('');
+                        setMessage('');
+                        setShowSignupSuccess(false);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 font-semibold transition"
+                    >
+                      Sign in
+                    </button>
+                  </p>
+                </div>
+              )}
+
               {/* Or Divider */}
-              <p className="text-slate-400 text-center font-medium text-sm">or</p>
+              <div className="flex items-center">
+                <div className="flex-1 border-t border-slate-600"></div>
+                <span className="px-3 text-slate-400 text-xs">or</span>
+                <div className="flex-1 border-t border-slate-600"></div>
+              </div>
 
               {/* Social Buttons */}
               <div className="space-y-3">
@@ -632,81 +682,15 @@ function AuthPageContent() {
                   Continue with GitHub
                 </button>
               </div>
-
-              {/* Another Or Divider */}
-              <div className="flex items-center">
-                <div className="flex-1 border-t border-slate-600"></div>
-                <span className="px-3 text-slate-400 text-xs">or</span>
-                <div className="flex-1 border-t border-slate-600"></div>
-              </div>
-
-              {/* Show different content based on view */}
-              {!isSignUp ? (
-                // Sign In View - Show New Here Box
-                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSignUp(true);
-                      setError('');
-                      setMessage('');
-                      setShowSignupSuccess(false);
-                    }}
-                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                  >
-                    Create Your Account
-                  </button>
-                  <p className="text-slate-400 text-xs text-center mt-3">
-                    Join thousands learning new skills on SkillDash
-                  </p>
-                </div>
-              ) : (
-                // Sign Up View - Show Sign In Link
-                <div className="text-center">
-                  <p className="text-slate-400 text-xs">
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSignUp(false);
-                        setError('');
-                        setMessage('');
-                        setShowSignupSuccess(false);
-                      }}
-                      className="text-blue-400 hover:text-blue-300 font-semibold transition"
-                    >
-                      Sign in
-                    </button>
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
           {/* Mobile Social Auth - only shown on mobile AND during sign-in */}
           {!isSignUp && (
             <div className="lg:hidden mt-6 pt-6 border-t border-slate-700">
-              {/* Or Divider */}
-              <p className="text-slate-400 text-center mb-4 font-medium text-sm">or</p>
-
-              {/* Social Auth Component */}
-              <SocialAuth 
-                handleGoogleSignIn={handleGoogleSignIn}
-                handleGitHubSignIn={handleGitHubSignIn}
-                isLoading={isLoading}
-              />
-
-              {/* Another Or Divider */}
-              <div className="flex items-center my-6">
-                <div className="flex-1 border-t border-slate-600"></div>
-                <span className="px-3 text-slate-400 text-xs">or</span>
-                <div className="flex-1 border-t border-slate-600"></div>
-              </div>
-
               {/* New Here Registration Box - Only show on sign in view */}
               {!isSignUp && (
-                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
                   <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
                   <button
                     type="button"
@@ -721,10 +705,25 @@ function AuthPageContent() {
                     Create Your Account
                   </button>
                   <p className="text-slate-400 text-xs text-center mt-3">
-                    Join thousands learning new skills on SkillDash
+                    Join SkillDash
                   </p>
                 </div>
               )}
+
+              {/* Or Divider */}
+              <div className="flex items-center my-6">
+                <div className="flex-1 border-t border-slate-600"></div>
+                <span className="px-3 text-slate-400 text-xs">or</span>
+                <div className="flex-1 border-t border-slate-600"></div>
+              </div>
+
+              {/* Social Auth Component */}
+              <SocialAuth 
+                handleGoogleSignIn={handleGoogleSignIn}
+                handleGitHubSignIn={handleGitHubSignIn}
+                isLoading={isLoading}
+                isInAppBrowser={inAppBrowser}
+              />
             </div>
           )}
 
@@ -791,22 +790,13 @@ class AuthErrorBoundary extends Component<
 export default function AuthPage() {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
-  if (!siteKey) {
-    // Fallback if no reCAPTCHA key configured
-    return (
-      <AuthErrorBoundary>
-        <AuthPageContent />
-      </AuthErrorBoundary>
-    )
-  }
-
   return (
     <AuthErrorBoundary>
       <GoogleReCaptchaProvider
-        reCaptchaKey={siteKey}
+        reCaptchaKey={siteKey || 'dummy-key'}
         scriptProps={{
-          async: true,
-          defer: true,
+          async: false,
+          defer: false,
           appendTo: 'head',
         }}
       >

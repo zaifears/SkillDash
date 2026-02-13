@@ -16,6 +16,10 @@ export function humanizeAuthError(error: any): string {
     return 'Incorrect password. Try again or use "Forgot Password" to reset it.';
   }
   
+  if (code.includes('auth/invalid-credential')) {
+    return 'Invalid email or password. Please check and try again.';
+  }
+  
   if (code.includes('auth/email-already-in-use')) {
     return 'An account with this email already exists. Try signing in instead.';
   }

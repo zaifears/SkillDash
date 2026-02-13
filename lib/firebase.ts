@@ -129,6 +129,17 @@ export const handleSocialSignInResult = async (user: any) => {
     return user;
 };
 
+/**
+ * Detect if user is in an in-app browser (Instagram, Facebook, TikTok, LinkedIn, etc.)
+ * These browsers block Google OAuth with 403: disallowed_useragent
+ */
+export const isInAppBrowser = (): boolean => {
+    if (typeof window === 'undefined' || !navigator?.userAgent) return false;
+    const ua = navigator.userAgent.toLowerCase();
+    return /fban|fbav|instagram|linkedinapp|tiktok|snapchat|twitter|wv|webview|micromessenger|line\/|kakaotalk|naver|daum|samsung browser\/\d.*mobile vr/i.test(ua)
+        || (ua.includes('android') && !ua.includes('chrome'));
+};
+
 export const signInWithSocialProviderAndCreateProfile = async (
     provider: GoogleAuthProvider | GithubAuthProvider
 ) => {
