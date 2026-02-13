@@ -1,0 +1,80 @@
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+- Experiments (use with caution):
+  ┬À optimizePackageImports
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 51s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/35) ...
+(node:12552) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  Generating static pages using 3 workers (8/35) 
+  Generating static pages using 3 workers (17/35) 
+  Generating static pages using 3 workers (26/35) 
+Ô£ô Generating static pages using 3 workers (35/35) in 2.7s
+  Finalizing page optimization ...
+ÔÜá Failed to copy traced files for A:\SkillDash\.next\server\app\_not-found\page.js Error: EINVAL: invalid argument, copyfile 'A:\SkillDash\.next\server\chunks\ssr\[externals]_node:inspector_7a4283c6._.js' -> 'A:\SkillDash\.next\standalone\.next\server\chunks\ssr\[externals]_node:inspector_7a4283c6._.js'
+    at ignore-listed frames {
+  errno: -4071,
+  code: 'EINVAL',
+  syscall: 'copyfile',
+  path: 'A:\\SkillDash\\.next\\server\\chunks\\ssr\\[externals]_node:inspector_7a4283c6._.js',
+  dest: 'A:\\SkillDash\\.next\\standalone\\.next\\server\\chunks\\ssr\\[externals]_node:inspector_7a4283c6._.js'
+}
+
+Route (app)                         Revalidate  Expire
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /about-us
+Ôö£ Ôùï /admin
+Ôö£ Ôùï /admin/recharge
+Ôö£ ãÆ /api/admin/reset-rate-limit
+Ôö£ ãÆ /api/admin/user-analytics
+Ôö£ ãÆ /api/auth/session
+Ôö£ Ôùï /api/bizcomp                            1h      1y
+Ôö£ ãÆ /api/coins/add
+Ôö£ ãÆ /api/coins/statistics
+Ôö£ ãÆ /api/coins/transactions
+Ôö£ ãÆ /api/debug-info
+Ôö£ ãÆ /api/discover-chat
+Ôö£ ãÆ /api/health
+Ôö£ ãÆ /api/holidays
+Ôö£ ãÆ /api/hr/applicants
+Ôö£ ãÆ /api/hr/applicants/[id]
+Ôö£ ãÆ /api/hr/job-postings
+Ôö£ ãÆ /api/hr/job-postings/[id]
+Ôö£ ãÆ /api/log-error
+Ôö£ ãÆ /api/resume-feedback
+Ôö£ Ôùï /api/sitemap
+Ôö£ ãÆ /api/stock-sync
+Ôö£ ãÆ /api/upload-drive
+Ôö£ ãÆ /api/verify-recaptcha
+Ôö£ Ôùï /auth
+Ôö£ Ôùï /coins
+Ôö£ Ôùï /debug
+Ôö£ Ôùï /discover
+Ôö£ Ôùï /go
+Ôö£ ãÆ /go/[code]
+Ôö£ Ôùï /hr
+Ôö£ Ôùï /hr/auth
+Ôö£ Ôùï /hr/profile
+Ôö£ Ôùï /learn-skill
+Ôö£ Ôùï /mini-test
+Ôö£ Ôùï /opportunities
+Ôö£ Ôùï /opportunities/bizcomp
+Ôö£ Ôùï /opportunities/job-seeker
+Ôö£ ãÆ /opportunities/job-seeker/[id]
+Ôö£ Ôùï /policy
+Ôö£ Ôùï /profile
+Ôö£ Ôùï /resume-feedback
+Ôö£ Ôùï /simulator
+Ôöö Ôùï /upload
+
+
+ãÆ Proxy (Middleware)
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

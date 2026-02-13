@@ -1,0 +1,24 @@
+
+> skilldash@0.1.0 prebuild A:\SkillDash
+> pnpm run clean
+
+
+> skilldash@0.1.0 clean A:\SkillDash
+> rimraf .next out
+
+
+> skilldash@0.1.0 build A:\SkillDash
+> next build
+
+Ôû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+- Experiments (use with caution):
+  ┬À optimizePackageImports
+
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: ENOENT: no such file or directory, open 'A:\SkillDash\.next\static\YHltE6ig9EgchB1-Ge_mG\_buildManifest.js.tmp.6768oqe6m6p'
+    at ignore-listed frames
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.
