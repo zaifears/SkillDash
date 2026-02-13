@@ -63,23 +63,22 @@ module.exports = {
     '/coins',
     '/policy',
     '/profile',
+    '/opportunities/hiring',
   ],
 
   transform: async (config, path) => {
     // Custom transform for priorities and change frequencies
     const priorities = {
       '/': 1.0,
-      '/discover': 0.9,
-      '/learn-skill': 0.9,
-      '/resume-feedback': 0.9,
       '/opportunities': 0.9,
-      '/about-us': 0.8,
-      '/opportunities/job-seeker': 0.75,
-      '/opportunities/hiring': 0.75,
-      '/opportunities/bizcomp': 0.7,
-      // MERGED: New Simulator Priorities
-      '/simulator': 1.0,
       '/go': 0.9,
+      '/simulator': 0.9,
+      '/about-us': 0.3,
+      '/discover': 0.3,
+      '/learn-skill': 0.3,
+      '/opportunities/bizcomp': 0.3,
+      '/opportunities/job-seeker': 0.3,
+      '/resume-feedback': 0.2,
     };
 
     const changefreqs = {
