@@ -147,11 +147,18 @@ export const useSimulator = () => {
         (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.data() as MarketInfo;
+            console.log('📊 Market data loaded:', data.stocks.length, 'stocks, categoryMap has', Object.keys(categoryMap).length, 'entries');
+            
             // Merge categories from the separate categories document
             const mergedStocks = data.stocks.map(stock => ({
               ...stock,
               category: categoryMap[stock.symbol] || stock.category
             }));
+            
+            // Count how many got categories
+            const categorizedCount = mergedStocks.filter(s => s.category).length;
+            console.log(`📌 Merged categories: ${categorizedCount}/${mergedStocks.length} stocks now have categories`);
+            
             setMarketInfo({ ...data, stocks: mergedStocks });
           } else {
             setMarketInfo({ stocks: [], lastUpdated: new Date().toISOString(), totalStocks: 0 });
@@ -187,16 +194,20 @@ export const useSimulator = () => {
         (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.data();
-            setCategoryMap(data.categories || {});
+            const categories = data.categories || {};
+            console.log('✅ Categories loaded:', Object.keys(categories).length, 'stocks categorized');
+            setCategoryMap(categories);
+          } else {
+            console.warn('⚠️ Categories document not found at', `artifacts/${appId}/public/data/market_info/categories`);
           }
         },
         (err) => {
-          console.warn('Could not load stock categories:', err);
+          console.warn('❌ Could not load stock categories:', err);
           // Non-fatal — prices still work without categories
         }
       );
     } catch (err) {
-      console.warn('Error setting up categories listener:', err);
+      console.warn('❌ Error setting up categories listener:', err);
     }
 
     return () => {
