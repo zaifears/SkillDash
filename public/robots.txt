@@ -1,32 +1,74 @@
 # *
 User-agent: *
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 Disallow: /debug/
 Disallow: /minitest/
 Disallow: /mini-test/
+Disallow: /auth/
+Disallow: /coins/
+Disallow: /policy/
+Disallow: /profile/
+Disallow: /discover/
+Disallow: /learn-skill/
+Disallow: /opportunities/
+Disallow: /resume-feedback/
+Disallow: /hr/
+Disallow: /upload/
+Disallow: /go/
+Disallow: /about-us/
 
 # Googlebot
 User-agent: Googlebot
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /debug/
+Disallow: /minitest/
+Disallow: /mini-test/
+Disallow: /auth/
+Disallow: /coins/
+Disallow: /policy/
+Disallow: /profile/
+Disallow: /discover/
+Disallow: /learn-skill/
+Disallow: /opportunities/
+Disallow: /resume-feedback/
+Disallow: /hr/
+Disallow: /upload/
+Disallow: /go/
+Disallow: /about-us/
 
 # Bingbot
 User-agent: Bingbot
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
 
 # GPTBot
 User-agent: GPTBot
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
 
 # CCBot
 User-agent: CCBot
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
 
 # anthropic-ai
 User-agent: anthropic-ai
 Allow: /
+Allow: /simulator
+Allow: /simulator/trade
 
 # Host
 Host: https://skilldash.live

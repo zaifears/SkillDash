@@ -24,13 +24,14 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'SkillDash - Bridge the Skill Gap',
-  description: 'Discover your strengths, complete AI-assessed learning paths, perfect your resume and unlock career opportunities.',
+  title: 'SkillDash - DSE Paper Trading Simulator | Practice Stock Market Risk-Free',
+  description: 'Practice trading Dhaka Stock Exchange stocks with virtual currency. The only free DSE simulator with real-time market data, T+1 settlement rules, and 0.3% commission simulation. Learn stock investing without risking real money.',
   keywords: [
-    "skill assessment platform", "student career readiness", "AI resume feedback", 
-    "skills to job", "learn digital skills", "career platform students", 
-    "job training platform", "skill verification", "talent-to-employment", 
-    "freelance skills platform", "career opportunities", "professional development"
+    "DSE simulator", "paper trading Bangladesh", "Dhaka Stock Exchange simulator",
+    "virtual stock trading", "stock market practice Bangladesh", "DSE stocks",
+    "learn stock trading", "free paper trading", "Bangladesh stock market",
+    "trading simulator", "practice trading", "virtual trading Bangladesh",
+    "stock market learning", "DSE practice", "risk-free trading"
   ],
   authors: [{ name: 'SkillDash Team' }],
   creator: 'SkillDash',
@@ -47,26 +48,26 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "SkillDash - Bridge the Skill Gap",
-    description: "Unlock your potential with AI-driven skill discovery, targeted learning, resume workshops and access to career opportunities.",
-    url: process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app",
+    title: "SkillDash - DSE Paper Trading Simulator - Practice Stock Trading Risk-Free",
+    description: "The only free paper trading simulator built for the Dhaka Stock Exchange. Trade 300+ DSE stocks with virtual currency, real-time market data, T+1 settlement rules, and 0.3% commission. Learn investing without financial risk.",
+    url: process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skilldash.live",
     siteName: "SkillDash",
     type: "website",
     locale: "en_US",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app"}/web-app-manifest-512x512.png`,
+        url: `${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skilldash.live"}/web-app-manifest-512x512.png`,
         width: 512,
         height: 512,
-        alt: "SkillDash - Bridge the Skill Gap",
+        alt: "SkillDash - DSE Paper Trading Simulator",
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkillDash - Bridge the Skill Gap',
-    description: 'From skill discovery to job match: AI-powered paths and real opportunities await.',
-    images: [`${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skill-dash.vercel.app"}/web-app-manifest-512x512.png`],
+    title: 'SkillDash - DSE Paper Trading Simulator',
+    description: 'Practice trading Dhaka Stock Exchange stocks risk-free with virtual currency. Learn stock investing with real market data and realistic trading rules.',
+    images: [`${process.env.NEXT_PUBLIC_MAIN_DOMAIN || "https://skilldash.live"}/web-app-manifest-512x512.png`],
     creator: '@SkillDash',
   },
   icons: {
@@ -80,14 +81,14 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skilldash.live'),
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app',
+    canonical: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skilldash.live',
   },
   verification: {
     google: 'NRcmZt1gkRaisYql52KCRUqEJCyGeTGyXsntWkqYFFk',
   },
-  category: 'education',
+  category: 'finance',
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',

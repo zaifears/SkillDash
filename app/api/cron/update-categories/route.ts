@@ -83,41 +83,32 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Get the current market data from artifacts
+    // 2. Write categories to a SEPARATE document so the 3-minute stock-sync
+    //    never overwrites them. Categories only change on Tuesdays.
     const db = getDb();
     const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
-    const marketRef = db.collection('artifacts').doc(appId)
+    const categoriesRef = db.collection('artifacts').doc(appId)
       .collection('public').doc('data')
-      .collection('market_info').doc('latest');
-    
-    const marketSnapshot = await marketRef.get();
-    if (!marketSnapshot.exists) {
-      return NextResponse.json({ error: 'Market data not found' }, { status: 404 });
+      .collection('market_info').doc('categories');
+
+    // Build a plain object { symbol: category } for Firestore
+    const categoryObject: Record<string, string> = {};
+    for (const [symbol, group] of categoryMap.entries()) {
+      categoryObject[symbol] = group;
     }
 
-    const marketData = marketSnapshot.data() as any;
-    const stocks = marketData.stocks || [];
-
-    // 3. Add categories to each stock in the array
-    const updatedStocks = stocks.map((stock: any) => ({
-      ...stock,
-      category: categoryMap.get(stock.symbol) || undefined
-    }));
-
-    // 4. Update the market_info document with categories
-    await marketRef.set({
-      stocks: updatedStocks,
+    await categoriesRef.set({
+      categories: categoryObject,
       lastUpdated: new Date().toISOString(),
-      totalStocks: stocks.length
+      totalCategorized: categoryMap.size
     });
 
-    const totalUpdated = Array.from(categoryMap.values()).length;
-    console.log(`✅ Scraper completed: Updated ${totalUpdated} stocks with categories in market data`);
+    const totalUpdated = categoryMap.size;
+    console.log(`✅ Scraper completed: Saved ${totalUpdated} stock categories to separate document`);
 
     return NextResponse.json({
       success: true,
       updated: totalUpdated,
-      marketStocksUpdated: stocks.length,
       details: results.map(r => ({ group: r.group, count: r.symbols.length }))
     });
 

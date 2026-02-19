@@ -109,7 +109,11 @@ export const useSimulator = () => {
   
   // Unsubscribe refs to prevent memory leaks
   const marketUnsubscribe = useRef<Unsubscribe | null>(null);
+  const categoriesUnsubscribe = useRef<Unsubscribe | null>(null);
   const stateUnsubscribe = useRef<Unsubscribe | null>(null);
+
+  // Category map stored separately so 3-minute price refreshes never overwrite it
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   // Load Bangladesh holidays on mount
   useEffect(() => {
@@ -127,7 +131,7 @@ export const useSimulator = () => {
     loadHolidays();
   }, []);
 
-  // Listen to market data
+  // Listen to market data (prices only — categories are in a separate doc)
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -142,7 +146,13 @@ export const useSimulator = () => {
         marketRef,
         (snapshot) => {
           if (snapshot.exists()) {
-            setMarketInfo(snapshot.data() as MarketInfo);
+            const data = snapshot.data() as MarketInfo;
+            // Merge categories from the separate categories document
+            const mergedStocks = data.stocks.map(stock => ({
+              ...stock,
+              category: categoryMap[stock.symbol] || stock.category
+            }));
+            setMarketInfo({ ...data, stocks: mergedStocks });
           } else {
             setMarketInfo({ stocks: [], lastUpdated: new Date().toISOString(), totalStocks: 0 });
           }
@@ -160,6 +170,38 @@ export const useSimulator = () => {
     return () => {
       if (marketUnsubscribe.current) {
         marketUnsubscribe.current();
+      }
+    };
+  }, [user, db, categoryMap]);
+
+  // Listen to stock categories (separate doc, only updated weekly on Tuesdays)
+  useEffect(() => {
+    if (!user) return;
+
+    try {
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const categoriesRef = doc(db, 'artifacts', appId, 'public', 'data', 'market_info', 'categories');
+
+      categoriesUnsubscribe.current = onSnapshot(
+        categoriesRef,
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setCategoryMap(data.categories || {});
+          }
+        },
+        (err) => {
+          console.warn('Could not load stock categories:', err);
+          // Non-fatal — prices still work without categories
+        }
+      );
+    } catch (err) {
+      console.warn('Error setting up categories listener:', err);
+    }
+
+    return () => {
+      if (categoriesUnsubscribe.current) {
+        categoriesUnsubscribe.current();
       }
     };
   }, [user, db]);
@@ -554,6 +596,9 @@ export const useSimulator = () => {
     return () => {
       if (marketUnsubscribe.current) {
         marketUnsubscribe.current();
+      }
+      if (categoriesUnsubscribe.current) {
+        categoriesUnsubscribe.current();
       }
       if (stateUnsubscribe.current) {
         stateUnsubscribe.current();

@@ -173,29 +173,12 @@ async function handleStockSync(request: NextRequest) {
       .collection('public').doc('data')
       .collection('market_info').doc('latest');
 
-    // Read existing data to preserve stock categories (set by update-categories cron)
-    const existingDoc = await docRef.get();
-    const existingCategoryMap = new Map<string, string>();
-    if (existingDoc.exists) {
-      const existingStocks = existingDoc.data()?.stocks || [];
-      for (const stock of existingStocks) {
-        if (stock.category) {
-          existingCategoryMap.set(stock.symbol, stock.category);
-        }
-      }
-    }
-
-    // Merge existing categories into the fresh market data
-    const mergedMarketData = marketData.map(stock => {
-      const category = existingCategoryMap.get(stock.symbol);
-      return category ? { ...stock, category } : stock;
-    });
-
-    // Update the market_info document with current timestamp
+    // Write ONLY price data — categories live in a separate document
+    // (market_info/categories) updated by the weekly cron, so we never overwrite them
     await docRef.set({
-      stocks: mergedMarketData,
+      stocks: marketData,
       lastUpdated: new Date().toISOString(),
-      totalStocks: mergedMarketData.length
+      totalStocks: marketData.length
     });
 
     return NextResponse.json({

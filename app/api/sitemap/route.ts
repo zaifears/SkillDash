@@ -2,22 +2,14 @@ import { NextResponse } from 'next/server';
 
 const baseUrl = 'https://skilldash.live';
 
+// Only DSE Paper Trading related pages
 const staticPages = [
-  // Primary Pages (High Priority)
+  // Homepage (entry point)
   { url: '/', priority: '1.00', changefreq: 'daily' },
-  { url: '/discover', priority: '0.90', changefreq: 'weekly' },
-  { url: '/learn-skill', priority: '0.90', changefreq: 'weekly' },
-  { url: '/resume-feedback', priority: '0.90', changefreq: 'weekly' },
-  { url: '/opportunities', priority: '0.90', changefreq: 'daily' },
   
-  // Secondary Pages (Medium-High Priority)
-  { url: '/about-us', priority: '0.80', changefreq: 'monthly' },
-  { url: '/opportunities/job-seeker', priority: '0.75', changefreq: 'weekly' },
-  { url: '/opportunities/hiring', priority: '0.75', changefreq: 'weekly' },
-  { url: '/opportunities/bizcomp', priority: '0.70', changefreq: 'weekly' },
-  
-  // Tertiary Pages (Medium Priority)
-  { url: '/mini-test', priority: '0.64', changefreq: 'weekly' },
+  // DSE Simulator Pages (Core focus)
+  { url: '/simulator', priority: '0.95', changefreq: 'weekly' },
+  { url: '/simulator/trade', priority: '0.95', changefreq: 'weekly' },
 ];
 
 export async function GET() {

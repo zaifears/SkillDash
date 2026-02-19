@@ -3,15 +3,15 @@ module.exports = {
   siteUrl: 'https://skilldash.live',
   generateRobotsTxt: true,
   autoLastmod: true,
-  outDir: './public', // Explicitly define output directory for safety
+  outDir: './public',
   
-  // 1. Force add the virtual /simulator/trade page (since it's a modal, not a file)
+  // Only include DSE Paper Trading pages
   additionalPaths: async (config) => {
     return [
       {
         loc: '/simulator/trade',
         changefreq: 'weekly',
-        priority: 0.9,
+        priority: 0.95,
         lastmod: new Date().toISOString(),
       },
     ]
@@ -21,28 +21,67 @@ module.exports = {
     policies: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/_next/', '/admin/', '/debug/', '/minitest/', '/mini-test/'],
+        allow: ['/', '/simulator', '/simulator/trade'],
+        disallow: [
+          '/api/',
+          '/_next/',
+          '/admin/',
+          '/debug/',
+          '/minitest/',
+          '/mini-test/',
+          '/auth/',
+          '/coins/',
+          '/policy/',
+          '/profile/',
+          '/discover/',
+          '/learn-skill/',
+          '/opportunities/',
+          '/resume-feedback/',
+          '/hr/',
+          '/upload/',
+          '/go/',
+          '/about-us/',
+        ],
       },
       {
         userAgent: 'Googlebot',
-        allow: '/',
+        allow: ['/', '/simulator', '/simulator/trade'],
+        disallow: [
+          '/api/',
+          '/_next/',
+          '/admin/',
+          '/debug/',
+          '/minitest/',
+          '/mini-test/',
+          '/auth/',
+          '/coins/',
+          '/policy/',
+          '/profile/',
+          '/discover/',
+          '/learn-skill/',
+          '/opportunities/',
+          '/resume-feedback/',
+          '/hr/',
+          '/upload/',
+          '/go/',
+          '/about-us/',
+        ],
       },
       {
         userAgent: 'Bingbot',
-        allow: '/',
+        allow: ['/', '/simulator', '/simulator/trade'],
       },
       {
         userAgent: 'GPTBot',
-        allow: '/',
+        allow: ['/', '/simulator', '/simulator/trade'],
       },
       {
         userAgent: 'CCBot',
-        allow: '/',
+        allow: ['/', '/simulator', '/simulator/trade'],
       },
       {
         userAgent: 'anthropic-ai',
-        allow: '/',
+        allow: ['/', '/simulator', '/simulator/trade'],
       },
     ],
     additionalSitemaps: [
@@ -52,44 +91,67 @@ module.exports = {
   
   exclude: [
     '/api/*',
+    '/api/**/*',
+    '/admin',
     '/admin/*',
+    '/admin/**/*',
     '/404',
     '/500',
     '/debug',
+    '/debug/*',
+    '/minitest',
     '/minitest/*',
     '/mini-test',
+    '/mini-test/*',
     '/_*',
+    '/_*/*',
     '/auth',
+    '/auth/*',
     '/coins',
+    '/coins/*',
     '/policy',
+    '/policy/*',
     '/profile',
-    '/opportunities/hiring',
+    '/profile/*',
+    '/discover',
+    '/discover/*',
+    '/learn-skill',
+    '/learn-skill/*',
+    '/opportunities',
+    '/opportunities/*',
+    '/opportunities/**/*',
+    '/resume-feedback',
+    '/resume-feedback/*',
+    '/hr',
+    '/hr/*',
+    '/hr/**/*',
+    '/upload',
+    '/upload/*',
+    '/go',
+    '/go/*',
+    '/about-us',
+    '/about-us/*',
   ],
 
   transform: async (config, path) => {
-    // Custom transform for priorities and change frequencies
+    // Only allow DSE simulator pages in the sitemap
+    const allowedPaths = ['/', '/simulator', '/simulator/trade'];
+    
+    if (!allowedPaths.includes(path)) {
+      return null; // Exclude this path from sitemap
+    }
+
+    // Custom transform for DSE Paper Trading pages only
     const priorities = {
       '/': 1.0,
-      '/opportunities': 0.9,
-      '/go': 0.9,
-      '/simulator': 0.9,
-      '/about-us': 0.3,
-      '/discover': 0.3,
-      '/learn-skill': 0.3,
-      '/opportunities/bizcomp': 0.3,
-      '/opportunities/job-seeker': 0.3,
-      '/resume-feedback': 0.2,
+      '/simulator': 0.95,
+      '/simulator/trade': 0.95,
     };
 
     const changefreqs = {
       '/': 'daily',
-      '/discover': 'weekly',
-      '/learn-skill': 'weekly',
-      '/resume-feedback': 'weekly',
-      '/opportunities': 'daily',
-      '/about-us': 'monthly',
-      // MERGED: New Simulator Frequency
       '/simulator': 'weekly',
+      '/simulator/trade': 'weekly',
     };
 
     return {
@@ -98,6 +160,6 @@ module.exports = {
       priority: priorities[path] || 0.5,
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
       alternateRefs: config.alternateRefs ?? [],
-    };
+    }
   },
-};
+}
