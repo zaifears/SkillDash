@@ -19,11 +19,7 @@
     "postbuild": "next-sitemap",
     "deps-check": "pnpm outdated",
     "deps-update": "pnpm update",
-    "security-audit": "pnpm audit --audit-level moderate",
-    "cap-build": "pnpm build && cap copy apk/android",
-    "cap-dev": "cap open apk/android",
-    "cap-sync": "cap sync apk/android",
-    "apk": "pnpm cap-build && cd apk/android && ./gradlew assembleDebug"
+    "security-audit": "pnpm audit --audit-level moderate"
   },
   "dependencies": {
     "@ai-sdk/perplexity": "^2.0.20",
@@ -54,9 +50,6 @@
     "vercel": "^48.12.1"
   },
   "devDependencies": {
-    "@capacitor/android": "^7.4.4",
-    "@capacitor/cli": "^7.4.4",
-    "@capacitor/core": "^7.4.4",
     "@tailwindcss/typography": "^0.5.19",
     "@types/json-schema": "^7.0.15",
     "@types/node": "24.5.2",
