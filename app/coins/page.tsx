@@ -382,7 +382,7 @@ const CoinsPage: React.FC = () => {
                     <span className="font-bold text-gray-900 dark:text-white">{pricePerCoin} BDT</span>
                   </div>
                   <div className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Total: {totalPrice} BDT
+                    Total: {totalPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })} BDT
                   </div>
                 </div>
               </div>
@@ -411,7 +411,7 @@ const CoinsPage: React.FC = () => {
                         {amount}
                       </div>
                       <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 font-medium">
-                        {amount * pricePerCoin} BDT
+                        {(amount * pricePerCoin).toLocaleString(undefined, { maximumFractionDigits: 2 })} BDT
                       </div>
                     </button>
                   ))}
@@ -481,7 +481,7 @@ const CoinsPage: React.FC = () => {
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Submit Request ({totalPrice} BDT)</span>
+                    <span>Submit Request ({totalPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })} BDT)</span>
                   </>
                 )}
               </button>
@@ -509,7 +509,7 @@ const CoinsPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-2">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white">
-                        {req.coins} Coins - {req.amount} BDT
+                        {req.coins} Coins - {req.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} BDT
                       </div>
                       <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
                         TrxID: <span className="font-mono text-[10px] sm:text-sm">{req.trxId}</span>

@@ -791,7 +791,7 @@ export default function SimulatorTradePage() {
               <div className="mb-4">
                 <div className="text-blue-200 text-[10px] uppercase mb-1">Net Equity</div>
                 <div className="text-3xl font-bold font-mono tracking-tight">
-                  ৳{(simulatorState.balance + simulatorState.totalCurrentValue).toLocaleString()}
+                  ৳{(simulatorState.balance + simulatorState.totalCurrentValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
               
@@ -799,15 +799,15 @@ export default function SimulatorTradePage() {
               <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/20 mb-4">
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-blue-200 text-[10px] uppercase">Buying Power</div>
-                  <div className="font-mono font-semibold text-lg">৳{simulatorState.balance.toLocaleString()}</div>
+                  <div className="font-mono font-semibold text-lg">৳{simulatorState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-blue-200 text-[10px] uppercase">Total Invested</div>
-                  <div className="font-mono font-semibold text-lg">৳{simulatorState.totalInvested.toLocaleString()}</div>
+                  <div className="font-mono font-semibold text-lg">৳{simulatorState.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-blue-200 text-[10px] uppercase">Portfolio Value</div>
-                  <div className="font-mono font-semibold text-lg">৳{simulatorState.totalCurrentValue.toLocaleString()}</div>
+                  <div className="font-mono font-semibold text-lg">৳{simulatorState.totalCurrentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 </div>
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-blue-200 text-[10px] uppercase">Total Return</div>
@@ -1074,13 +1074,13 @@ export default function SimulatorTradePage() {
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500 dark:text-gray-400">৳{stockPrice.toFixed(2)} × {qty}</span>
                           <span className="font-mono text-gray-900 dark:text-white">
-                            ৳{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            ৳{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500 dark:text-gray-400">Commission (0.3%)</span>
                           <span className="font-mono text-amber-600 dark:text-amber-400">
-                            {tradeType === 'buy' ? '+' : '-'}৳{commission.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {tradeType === 'buy' ? '+' : '-'}৳{commission.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div className="flex justify-between pt-1.5 border-t border-gray-200 dark:border-gray-700">
@@ -1090,14 +1090,14 @@ export default function SimulatorTradePage() {
                           <span className={`text-base font-bold font-mono ${
                             tradeType === 'buy' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                           }`}>
-                            ৳{total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            ৳{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
 
                         {/* Warnings */}
                         {tradeType === 'buy' && !canAfford && shortage > 0 && (
                           <div className="text-[11px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded border border-red-200 dark:border-red-800/50">
-                            Insufficient balance. Need ৳{shortage.toLocaleString(undefined, { minimumFractionDigits: 2 })} more.
+                            Insufficient balance. Need ৳{shortage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more.
                           </div>
                         )}
                         

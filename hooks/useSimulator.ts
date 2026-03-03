@@ -302,26 +302,31 @@ export const useSimulator = () => {
 
   // Calculate portfolio value based on current market prices (using safe money math)
   const calculatePortfolioValue = (portfolio: PortfolioItem[], stocks: Stock[]): number => {
-    const totalPaisa = portfolio.reduce((total, item) => {
+    const total = portfolio.reduce((sum, item) => {
       const stock = stocks.find(s => s.symbol === item.symbol);
-      return total + (stock ? toPaisa(stock.ltp) * item.quantity : 0);
+      if (!stock || !stock.ltp || stock.ltp <= 0 || stock.ltp > 100000) {
+        // Skip invalid/corrupted stock prices (no DSE stock exceeds ৳100,000)
+        return sum;
+      }
+      // Use moneyMultiply to avoid paisa overflow with large intermediate integers
+      return moneyAdd(sum, moneyMultiply(stock.ltp, item.quantity));
     }, 0);
-    return fromPaisa(totalPaisa);
+    return roundMoney(total);
   };
 
   // Calculate total gain/loss
   const calculateGainLoss = (portfolio: PortfolioItem[], stocks: Stock[]): number => {
     const currentValue = calculatePortfolioValue(portfolio, stocks);
-    const invested = portfolio.reduce((total, item) => total + item.totalCost, 0);
-    return currentValue - invested;
+    const invested = portfolio.reduce((total, item) => moneyAdd(total, item.totalCost), 0);
+    return roundMoney(moneySubtract(currentValue, invested));
   };
 
   // Calculate gain/loss percentage
   const calculateGainLossPercent = (portfolio: PortfolioItem[], stocks: Stock[]): number => {
-    const invested = portfolio.reduce((total, item) => total + item.totalCost, 0);
+    const invested = portfolio.reduce((total, item) => moneyAdd(total, item.totalCost), 0);
     if (invested === 0) return 0;
     const gainLoss = calculateGainLoss(portfolio, stocks);
-    return (gainLoss / invested) * 100;
+    return roundMoney((gainLoss / invested) * 100);
   };
 
   // Handle buy transaction

@@ -361,7 +361,7 @@ export default function AdminRechargePage() {
                           </svg>
                           <label className="text-sm font-bold text-green-700 dark:text-green-300 uppercase">Amount</label>
                         </div>
-                        <div className="font-bold text-3xl text-green-600 dark:text-green-400 mb-1">{req.amount} BDT</div>
+                        <div className="font-bold text-3xl text-green-600 dark:text-green-400 mb-1">{req.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} BDT</div>
                         <div className="text-base font-bold text-green-700 dark:text-green-300">{req.coins} Coins</div>
                       </div>
 

@@ -168,7 +168,7 @@ const HRJobPostings: React.FC<Props> = ({
                       {/* Budget */}
                       {job.budget && (
                         <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
-                          💰 ${job.budget.toLocaleString()}
+                          💰 ${job.budget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </span>
                       )}
                     </div>
