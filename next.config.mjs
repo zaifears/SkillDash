@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   typescript: {
     // Keep TypeScript checking enabled
     ignoreBuildErrors: false,
@@ -39,15 +38,6 @@ const nextConfig = {
     } : false,
   },
 
-  // Webpack configuration to handle Windows path issues with colons
-  webpack: (config, { isServer }) => {
-    if (isServer && process.platform === 'win32') {
-      config.output.chunkFilename = '[id].js';
-      config.output.filename = '[name].js';
-    }
-    return config;
-  },
-  
   // Fixed HTTP headers with correct regex
   async headers() {
     return [
