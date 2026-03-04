@@ -232,7 +232,7 @@ export class CoinManagerServer {
   static async deductCoins(
     userId: string, 
     amount: number = 1, 
-    feature: 'resume-feedback' | 'discover' | 'premium-feature' | 'ai-analysis',
+    feature: 'premium-feature' | 'ai-analysis',
     description?: string
   ): Promise<CoinOperationResult> {
     const context = 'deductCoins';
@@ -382,19 +382,29 @@ export class CoinManagerServer {
       
       // >>>>>> PREVENT DUPLICATE <<<<<<
       if (reason === 'welcome_bonus') {
+        // 1. Check coinTransactions collection (reliable log)
         const previousBonus = await db.collection('coinTransactions')
           .where('userId', '==', userId)
           .where('reason', '==', 'welcome_bonus')
           .where('success', '==', true)
           .limit(1)
           .get();
-        if (!previousBonus.empty) {
-          logInfo(context, `Welcome bonus already granted for user ${userId}, skipping duplicate.`);
+        
+        // 2. Also check welcomeBonusGranted flag on user doc (faster)
+        const userDocRef = db.collection('users').doc(userId);
+        const userDoc = await db.collection('users').doc(userId).get();
+        const hasFlag = userDoc.exists && userDoc.data()?.welcomeBonusGranted === true;
+        
+        if (!previousBonus.empty || hasFlag) {
+          logInfo(context, `Welcome bonus already granted for user ${userId}, skipping duplicate.`, {
+            foundInTransactions: !previousBonus.empty,
+            hasFlag: hasFlag
+          });
           return {
             success: true,
             newBalance: await this.getCoinBalance(userId),
             error: "Welcome bonus already granted for this user.",
-            transactionId: previousBonus.docs[0].id,
+            transactionId: previousBonus.docs[0]?.id || 'flagged',
             timestamp,
           };
         }
@@ -408,13 +418,18 @@ export class CoinManagerServer {
         let beforeBalance = 0;
         if (!userDoc.exists) {
           const newBalance = amount;
-          transaction.set(userDocRef, {
+          const updateData: any = {
             coins: newBalance,
             createdAt: timestamp,
             lastCoinUpdate: timestamp,
             createdBy: 'CoinManagerServer',
             [`${reason}GrantedAt`]: timestamp
-          });
+          };
+          // Mark welcome bonus as granted to prevent re-granting
+          if (reason === 'welcome_bonus') {
+            updateData.welcomeBonusGranted = true;
+          }
+          transaction.set(userDocRef, updateData);
           logInfo(context, `Created new user document with ${newBalance} coins`);
           return { newBalance, beforeBalance: 0 };
         }
@@ -422,14 +437,19 @@ export class CoinManagerServer {
         currentCoins = userData?.coins || 0;
         beforeBalance = currentCoins;
         const newBalance = currentCoins + amount;
-        transaction.update(userDocRef, { 
+        const updateData: any = { 
           coins: newBalance,
           lastCoinUpdate: timestamp,
           lastCoinAction: 'add',
           [`${reason}LastGranted`]: timestamp,
           [`${reason}GrantCount`]: (userData[`${reason}GrantCount`] || 0) + 1,
           [`${reason}TotalAmount`]: (userData[`${reason}TotalAmount`] || 0) + amount
-        });
+        };
+        // Mark welcome bonus as granted to prevent re-granting
+        if (reason === 'welcome_bonus') {
+          updateData.welcomeBonusGranted = true;
+        }
+        transaction.update(userDocRef, updateData);
         logSuccess(context, `Transaction successful: ${currentCoins} → ${newBalance} coins`);
         return { newBalance, beforeBalance };
       });

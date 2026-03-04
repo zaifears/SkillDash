@@ -4,7 +4,7 @@
  * Supports: skilldash.live, skill-dash.vercel.app, and localhost
  */
 
-export type Domain = 'main' | 'hr';
+export type Domain = 'main';
 
 /**
  * Gets the current hostname (works both client and server-side)
@@ -30,16 +30,9 @@ function getCurrentProtocol(): string {
 
 /**
  * Detects current domain
- * @returns 'main' for skilldash.live/skill-dash.vercel.app, 'hr' for hr.skilldash.live
+ * @returns 'main' for skilldash.live/skill-dash.vercel.app
  */
 export function getDomain(): Domain {
-  const host = getCurrentHostname();
-
-  // Check if on HR subdomain
-  if (host.includes('hr.') || host === 'hr.skilldash.live') {
-    return 'hr';
-  }
-
   return 'main';
 }
 
@@ -50,17 +43,7 @@ export function getDomain(): Domain {
 export function getBaseUrl(): string {
   const hostname = getCurrentHostname();
   const protocol = getCurrentProtocol();
-  const domain = getDomain();
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-
-  if (domain === 'hr') {
-    // If on HR domain but localhost, construct localhost HR URL
-    if (isLocalhost) {
-      const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':3000';
-      return `http://localhost${port}/hr`;
-    }
-    return process.env.NEXT_PUBLIC_HR_DOMAIN || `https://hr.skilldash.live`;
-  }
 
   // Main domain
   if (isLocalhost) {
@@ -77,19 +60,11 @@ export function getBaseUrl(): string {
 }
 
 /**
- * Checks if running on HR subdomain
- * @returns true if on HR subdomain, false otherwise
- */
-export function isHRDomain(): boolean {
-  return getDomain() === 'hr';
-}
-
-/**
  * Gets the correct Firebase config based on domain
- * @returns 'student' or 'hr' to determine which Firebase to use
+ * @returns 'student' to determine which Firebase to use
  */
-export function getFirebaseType(): 'student' | 'hr' {
-  return isHRDomain() ? 'hr' : 'student';
+export function getFirebaseType(): 'student' {
+  return 'student';
 }
 
 /**
@@ -108,9 +83,6 @@ export function formatPathForDomain(path: string): string {
  * @returns Login page URL
  */
 export function getLoginUrl(): string {
-  if (isHRDomain()) {
-    return formatPathForDomain('/auth');
-  }
   return formatPathForDomain('/auth');
 }
 
@@ -119,9 +91,6 @@ export function getLoginUrl(): string {
  * @returns Dashboard page URL
  */
 export function getDashboardUrl(): string {
-  if (isHRDomain()) {
-    return formatPathForDomain('/');
-  }
   return formatPathForDomain('/profile');
 }
 
@@ -130,9 +99,6 @@ export function getDashboardUrl(): string {
  * @returns Profile page URL
  */
 export function getProfileUrl(): string {
-  if (isHRDomain()) {
-    return formatPathForDomain('/profile');
-  }
   return formatPathForDomain('/profile');
 }
 
@@ -142,15 +108,16 @@ export function getProfileUrl(): string {
  * @returns true if path is restricted to main domain
  */
 export function isMainDomainOnly(path: string): boolean {
-  const mainOnlyPaths = ['/discover', '/resume-feedback', '/coins', '/learn-skill'];
+  const mainOnlyPaths = ['/coins'];
   return mainOnlyPaths.some((p) => path.startsWith(p));
 }
 
 /**
- * Checks if a path is restricted to HR domain only
+ * Checks if a path is restricted to HR domain only (deprecated)
  * @param path - Path to check
- * @returns true if path is restricted to HR domain
+ * @returns Always false as HR domain is not supported
+ * @deprecated HR domain is no longer supported
  */
 export function isHRDomainOnly(path: string): boolean {
-  return path.includes('/hr');
+  return false;
 }

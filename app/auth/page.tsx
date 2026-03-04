@@ -270,6 +270,16 @@ function AuthPageContent() {
       setError('Please enter a valid email address.')
       return
     }
+
+    if (!rateLimit(`forgot:${formData.email}`)) {
+      setError('Too many password reset attempts. Please try again later.')
+      return
+    }
+
+    // Verify reCAPTCHA to prevent bot spam of password reset emails
+    const isHuman = await verifyRecaptcha('forgot_password')
+    if (!isHuman) return
+
     setIsLoading(true)
     setError('')
     setMessage('')
@@ -290,7 +300,7 @@ function AuthPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center p-4 pt-20 relative z-0">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center px-4 py-8 pt-24 pb-12 sm:p-8 sm:pt-28 relative z-0">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
@@ -300,10 +310,10 @@ function AuthPageContent() {
 
       {/* Main card - centered */}
       <div className="w-full max-w-4xl relative z-10">
-        <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700/50">
+        <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 sm:p-8 shadow-2xl border border-slate-700/50">
           
           {/* 2-column grid: 1 col on mobile, 65/35 split on lg screens */}
-          <div className="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-6 sm:gap-8">
             
             {/* LEFT COLUMN - Form */}
             <div className="flex flex-col justify-center">
@@ -317,7 +327,7 @@ function AuthPageContent() {
               {/* Sign In View */}
               {!isSignUp && (
                 <>
-                  <h1 className="text-3xl font-bold text-white mb-2">Welcome back!</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back!</h1>
                   <p className="text-slate-400 mb-6 text-sm">Sign in to your account</p>
                   
                   {error && (
@@ -412,7 +422,7 @@ function AuthPageContent() {
               {/* Sign Up View */}
               {isSignUp && (
                 <>
-                  <h1 className="text-3xl font-bold text-white mb-2">Create account</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Create account</h1>
                   <p className="text-slate-400 mb-6 text-sm">Join SkillDash today</p>
                   
                   {showSignupSuccess && (
@@ -423,8 +433,8 @@ function AuthPageContent() {
                           <h4 className="font-semibold text-green-300 mb-1">Welcome to SkillDash!</h4>
                           <div className="text-green-200 space-y-1">
                             <p>📧 Check your email and click the verification link</p>
-                            <p>🪙 After verification, your 5 welcome coins will appear in ~5 minutes</p>
-                            <p>🔄 Refresh the page if coins don't appear after verification</p>
+                            <p>🪙 After verification, your 10,000 welcome coins will be credited automatically</p>
+                            <p>🔄 Click "I Already Verified" in the banner after verification</p>
                           </div>
                         </div>
                       </div>
@@ -605,12 +615,12 @@ function AuthPageContent() {
             </div>
 
             {/* RIGHT COLUMN - Social Auth (desktop only) */}
-            <div className="hidden lg:flex flex-col justify-center gap-6 pt-20">
+            <div className="hidden lg:flex flex-col justify-center gap-6 pt-0">
               {/* Show different content based on view */}
               {!isSignUp ? (
                 // Sign In View - Show New Here Box
-                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
+                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-6">
+                  <p className="text-slate-300 text-sm font-semibold mb-4">New here?</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -619,11 +629,11 @@ function AuthPageContent() {
                       setMessage('');
                       setShowSignupSuccess(false);
                     }}
-                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="w-full py-3 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   >
                     Create Your Account
                   </button>
-                  <p className="text-slate-400 text-xs text-center mt-3">
+                  <p className="text-slate-400 text-xs text-center mt-4">
                     Join SkillDash
                   </p>
                 </div>
@@ -685,60 +695,48 @@ function AuthPageContent() {
             </div>
           </div>
 
-          {/* Mobile Social Auth - only shown on mobile AND during sign-in */}
-          {!isSignUp && (
-            <div className="lg:hidden mt-6 pt-6 border-t border-slate-700">
-              {/* New Here Registration Box - Only show on sign in view */}
-              {!isSignUp && (
-                <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-                  <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSignUp(true);
-                      setError('');
-                      setMessage('');
-                      setShowSignupSuccess(false);
-                    }}
-                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                  >
-                    Create Your Account
-                  </button>
-                  <p className="text-slate-400 text-xs text-center mt-3">
-                    Join SkillDash
-                  </p>
-                </div>
-              )}
-
-              {/* Or Divider */}
-              <div className="flex items-center my-6">
-                <div className="flex-1 border-t border-slate-600"></div>
-                <span className="px-3 text-slate-400 text-xs">or</span>
-                <div className="flex-1 border-t border-slate-600"></div>
+          {/* Mobile Alternate Actions & Social Auth */}
+          <div className="lg:hidden mt-6 pt-6 border-t border-slate-700">
+            {/* New Here Registration Box (Only show during Sign In) */}
+            {!isSignUp && (
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg p-5 mb-6">
+                <p className="text-slate-300 text-sm font-semibold mb-3">New here?</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setError('');
+                    setMessage('');
+                    setShowSignupSuccess(false);
+                  }}
+                  className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                >
+                  Create Your Account
+                </button>
+                <p className="text-slate-400 text-xs text-center mt-3">
+                  Join SkillDash
+                </p>
               </div>
+            )}
 
-              {/* Social Auth Component */}
-              <SocialAuth 
-                handleGoogleSignIn={handleGoogleSignIn}
-                handleGitHubSignIn={handleGitHubSignIn}
-                isLoading={isLoading}
-                isInAppBrowser={inAppBrowser}
-              />
+            {/* Social Auth Header */}
+            <div className="flex items-center mb-6 mt-2">
+              <div className="flex-1 border-t border-slate-600"></div>
+              <span className="px-3 text-slate-400 text-xs">
+                {isSignUp ? 'Or sign up with' : 'Or sign in with'}
+              </span>
+              <div className="flex-1 border-t border-slate-600"></div>
             </div>
-          )}
 
-          {/* HR Portal Link */}
-          <div className="mt-6 pt-6 border-t border-slate-700">
-            <a
-              href="/opportunities/hiring/auth"
-              className="flex items-center justify-center gap-2 text-xs text-slate-400 hover:text-blue-400 transition"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span>HR Portal</span>
-            </a>
+            {/* Social Auth Component */}
+            <SocialAuth 
+              handleGoogleSignIn={handleGoogleSignIn}
+              handleGitHubSignIn={handleGitHubSignIn}
+              isLoading={isLoading}
+              isInAppBrowser={inAppBrowser}
+            />
           </div>
+
         </div>
       </div>
     </div>
@@ -790,10 +788,21 @@ class AuthErrorBoundary extends Component<
 export default function AuthPage() {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
+  // If site key is missing, render without reCAPTCHA provider
+  // (verifyRecaptcha will show a user-facing error when executeRecaptcha is unavailable)
+  if (!siteKey) {
+    console.warn('reCAPTCHA site key not found — auth reCAPTCHA unavailable.')
+    return (
+      <AuthErrorBoundary>
+        <AuthPageContent />
+      </AuthErrorBoundary>
+    )
+  }
+
   return (
     <AuthErrorBoundary>
       <GoogleReCaptchaProvider
-        reCaptchaKey={siteKey || 'dummy-key'}
+        reCaptchaKey={siteKey}
         scriptProps={{
           async: false,
           defer: false,

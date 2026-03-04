@@ -5,13 +5,37 @@ module.exports = {
   autoLastmod: true,
   outDir: './public',
   
-  // Only include DSE Paper Trading pages
+  // Include main pages and feature pages
   additionalPaths: async (config) => {
     return [
       {
         loc: '/simulator/trade',
         changefreq: 'weekly',
         priority: 0.95,
+        lastmod: new Date().toISOString(),
+      },
+      {
+        loc: '/go',
+        changefreq: 'weekly',
+        priority: 0.7,
+        lastmod: new Date().toISOString(),
+      },
+      {
+        loc: '/about-us',
+        changefreq: 'monthly',
+        priority: 0.6,
+        lastmod: new Date().toISOString(),
+      },
+      {
+        loc: '/profile',
+        changefreq: 'weekly',
+        priority: 0.5,
+        lastmod: new Date().toISOString(),
+      },
+      {
+        loc: '/coins',
+        changefreq: 'weekly',
+        priority: 0.7,
         lastmod: new Date().toISOString(),
       },
     ]
@@ -21,67 +45,29 @@ module.exports = {
     policies: [
       {
         userAgent: '*',
-        allow: ['/', '/simulator', '/simulator/trade'],
-        disallow: [
-          '/api/',
-          '/_next/',
-          '/admin/',
-          '/debug/',
-          '/minitest/',
-          '/mini-test/',
-          '/auth/',
-          '/coins/',
-          '/policy/',
-          '/profile/',
-          '/discover/',
-          '/learn-skill/',
-          '/opportunities/',
-          '/resume-feedback/',
-          '/hr/',
-          '/upload/',
-          '/go/',
-          '/about-us/',
-        ],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
+        disallow: ['/api/', '/_next/'],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/simulator', '/simulator/trade'],
-        disallow: [
-          '/api/',
-          '/_next/',
-          '/admin/',
-          '/debug/',
-          '/minitest/',
-          '/mini-test/',
-          '/auth/',
-          '/coins/',
-          '/policy/',
-          '/profile/',
-          '/discover/',
-          '/learn-skill/',
-          '/opportunities/',
-          '/resume-feedback/',
-          '/hr/',
-          '/upload/',
-          '/go/',
-          '/about-us/',
-        ],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
+        disallow: ['/api/', '/_next/'],
       },
       {
         userAgent: 'Bingbot',
-        allow: ['/', '/simulator', '/simulator/trade'],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
       },
       {
         userAgent: 'GPTBot',
-        allow: ['/', '/simulator', '/simulator/trade'],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
       },
       {
         userAgent: 'CCBot',
-        allow: ['/', '/simulator', '/simulator/trade'],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
       },
       {
         userAgent: 'anthropic-ai',
-        allow: ['/', '/simulator', '/simulator/trade'],
+        allow: ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'],
       },
     ],
     additionalSitemaps: [
@@ -92,66 +78,37 @@ module.exports = {
   exclude: [
     '/api/*',
     '/api/**/*',
-    '/admin',
-    '/admin/*',
-    '/admin/**/*',
-    '/404',
-    '/500',
-    '/debug',
-    '/debug/*',
-    '/minitest',
-    '/minitest/*',
-    '/mini-test',
-    '/mini-test/*',
     '/_*',
     '/_*/*',
-    '/auth',
-    '/auth/*',
-    '/coins',
-    '/coins/*',
-    '/policy',
-    '/policy/*',
-    '/profile',
-    '/profile/*',
-    '/discover',
-    '/discover/*',
-    '/learn-skill',
-    '/learn-skill/*',
-    '/opportunities',
-    '/opportunities/*',
-    '/opportunities/**/*',
-    '/resume-feedback',
-    '/resume-feedback/*',
-    '/hr',
-    '/hr/*',
-    '/hr/**/*',
-    '/upload',
-    '/upload/*',
-    '/go',
-    '/go/*',
-    '/about-us',
-    '/about-us/*',
   ],
 
   transform: async (config, path) => {
-    // Only allow DSE simulator pages in the sitemap
-    const allowedPaths = ['/', '/simulator', '/simulator/trade'];
+    // Allow these pages in the sitemap
+    const allowedPaths = ['/', '/simulator', '/simulator/trade', '/go', '/about-us', '/profile', '/coins'];
     
     if (!allowedPaths.includes(path)) {
       return null; // Exclude this path from sitemap
     }
 
-    // Custom transform for DSE Paper Trading pages only
+    // Custom transform for allowed pages only
     const priorities = {
       '/': 1.0,
       '/simulator': 0.95,
       '/simulator/trade': 0.95,
+      '/go': 0.7,
+      '/about-us': 0.6,
+      '/profile': 0.5,
+      '/coins': 0.5,
     };
 
     const changefreqs = {
       '/': 'daily',
       '/simulator': 'weekly',
       '/simulator/trade': 'weekly',
+      '/go': 'weekly',
+      '/about-us': 'monthly',
+      '/profile': 'weekly',
+      '/coins': 'weekly',
     };
 
     return {

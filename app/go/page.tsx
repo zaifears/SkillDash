@@ -2,21 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp, Timestamp, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, Timestamp, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { Link2, Clock, Copy, Check, AlertCircle, Calendar, Trash2, Info } from 'lucide-react';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-
-// Firebase configuration using HR Firebase environment variables
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_HR_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_HR_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_HR_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_HR_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_HR_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_HR_FIREBASE_APP_ID,
-};
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { dbGo } from '@/lib/firebase/firebaseGo';
 
 // Expiration options in days
 const EXPIRATION_OPTIONS = [
@@ -65,7 +53,7 @@ export default function UrlShortener() {
     
     try {
       setLoadingHistory(true);
-      const q = query(collection(db, 'short_links'), where('creatorId', '==', user.uid));
+      const q = query(collection(dbGo, 'short_links'), where('creatorId', '==', user.uid));
       const snapshot = await getDocs(q);
       
       const links: ShortLink[] = snapshot.docs.map(doc => {
@@ -94,7 +82,7 @@ export default function UrlShortener() {
     if (!confirm('Are you sure you want to delete this link?')) return;
     
     try {
-      await deleteDoc(doc(db, 'short_links', code));
+      await deleteDoc(doc(dbGo, 'short_links', code));
       setUserLinks(userLinks.filter(link => link.id !== code));
     } catch (err: any) {
       setError('Failed to delete link: ' + err.message);
@@ -135,7 +123,7 @@ export default function UrlShortener() {
       }
 
       // 2. Check for collision
-      const docRef = doc(db, 'short_links', code);
+      const docRef = doc(dbGo, 'short_links', code);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {

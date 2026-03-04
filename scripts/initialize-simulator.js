@@ -51,7 +51,7 @@ async function initializeSimulator(userId) {
 
     // Initialize with default values
     const initialState = {
-      balance: 10000, // ৳10,000 Fake BDT
+      balance: 10000, // 10,000 Coins (1 Coin = 1 BDT)
       portfolio: [],
       totalInvested: 0,
       totalCurrentValue: 0,

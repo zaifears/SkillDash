@@ -1,7 +1,6 @@
 'use client';
 
-import React, { Suspense, lazy, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, lazy } from 'react';
 import TypingHeroSection from '../components/TypingHeroSection';
 import CoreFeaturesSection from '../components/CoreFeaturesSection';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -17,23 +16,8 @@ const ContentSections = lazy(() =>
 );
 
 export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect HR domain to HR dashboard
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      if (hostname === 'hr.skilldash.live' || (hostname === 'localhost' && window.location.pathname === '/')) {
-        // Check if we're on HR domain
-        if (hostname === 'hr.skilldash.live') {
-          router.replace('/hr');
-        }
-      }
-    }
-  }, [router]);
-
   return (
-    <div className="min-h-screen overflow-hidden flex flex-col pb-20 lg:pb-0">
+    <div className="min-h-screen overflow-x-hidden flex flex-col pb-20 lg:pb-0 w-full">
       
       {/* ✅ TOP SECTION: Light background with transparent navbar area */}
       <div className="relative bg-white dark:bg-gray-900 transition-colors duration-300 flex-1">

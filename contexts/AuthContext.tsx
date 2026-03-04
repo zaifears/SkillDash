@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { 
   User, 
   onAuthStateChanged, 
@@ -11,7 +11,6 @@ import {
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleSocialSignInResult } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { fetchWithRetry } from '@/lib/utils/apiClient';
 import { updateUserCount } from '@/lib/utils/updateStats';
 
 // ✅ localStorage cache interface
@@ -47,8 +46,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [welcomeBonusGranted, setWelcomeBonusGranted] = useState(false);
   const [userCountUpdated, setUserCountUpdated] = useState(false);
+  const userCountUpdatedRef = useRef(false);
+  const welcomeBonusAttemptedRef = useRef(false);
   // Track whether we're still resolving a redirect OAuth callback.
   // Keeps `loading: true` so the UI never flashes the login page.
   const [redirectChecked, setRedirectChecked] = useState(false);
@@ -83,6 +83,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRedirectChecked(true);
     }
   }, []);
+
+  // 🪙 Grant 10,000 welcome bonus to verified users (email AND social)
+  // Multi-layer dedup: session ref → Firestore flag → server-side checks
+  // Writes to simulator/state.balance (the real displayed balance)
+  const grantWelcomeBonus = async (currentUser: User) => {
+    // 🔒 LAYER 1: Session dedup
+    if (welcomeBonusAttemptedRef.current) {
+      return;
+    }
+
+    // 🔒 LAYER 2: Must be verified (social users are auto-verified)
+    if (!currentUser.emailVerified) {
+      return;
+    }
+
+    // 🔒 LAYER 3: Check Firestore flag (cross-session dedup)
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists() && userDoc.data()?.welcomeBonusGranted === true) {
+        welcomeBonusAttemptedRef.current = true; // Don't re-check this session
+        return;
+      }
+    } catch (checkErr) {
+      console.error('❌ Failed to check bonus flag:', checkErr);
+      return;
+    }
+
+    welcomeBonusAttemptedRef.current = true;
+    const provider = currentUser.providerData[0]?.providerId || 'unknown';
+    console.log(`🪙 Granting 10k bonus to verified user: ${currentUser.uid} (${provider})`);
+
+    try {
+      const idToken = await currentUser.getIdToken(true);
+      const response = await fetch('/api/auth/grant-social-bonus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ provider }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Welcome bonus granted! New balance:', data.newBalance);
+      } else {
+        console.log('ℹ️ Welcome bonus status:', data.error || 'Already granted');
+      }
+    } catch (err) {
+      console.error('❌ Failed to grant welcome bonus:', err);
+      welcomeBonusAttemptedRef.current = false; // Allow retry
+    }
+  };
 
   // ✅ Load cached user from localStorage on mount
   useEffect(() => {
@@ -130,8 +184,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await signOut(auth);
         setUser(null);
         setIsEmailVerified(false);
-        setWelcomeBonusGranted(false);
         setUserCountUpdated(false);
+        userCountUpdatedRef.current = false;
         setLoading(false);
         return;
       }
@@ -161,6 +215,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nowVerified = user.emailVerified;
         setIsEmailVerified(nowVerified);
         
+        console.log(`📧 [Email Status] User: ${user.uid}, Verified: ${nowVerified}, Provider: ${user.providerData[0]?.providerId || 'unknown'}`);
+
+        // 🪙 GRANT WELCOME BONUS for verified users
+        // grantWelcomeBonus has multi-layer dedup (session ref → Firestore flag → server checks)
+        if (nowVerified) {
+          await grantWelcomeBonus(user);
+        }
+        
         // ✅ AUTOMATIC USER DOCUMENT CREATION & COUNT UPDATE
         try {
           const userDocRef = doc(db, 'users', user.uid);
@@ -181,8 +243,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: user.email,
               displayName: user.displayName || null,
               photoURL: user.photoURL || null,
-              coins: (isGoogleUser || isGitHubUser) ? 5 : 0,
-              welcomeBonusGranted: (isGoogleUser || isGitHubUser), // Social users get bonus on signup
               status: 'Other',
               provider: provider,
               createdAt: new Date().toISOString(),
@@ -191,7 +251,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('✅ User document created');
             
             // ✅ FIXED: Pass user.uid to updateUserCount
-            if (!userCountUpdated) {
+            if (!userCountUpdatedRef.current) {
+              userCountUpdatedRef.current = true;
               setUserCountUpdated(true);
               updateUserCount(user.uid).catch(err => 
                 console.error('Failed to update user count:', err)
@@ -199,94 +260,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
           }
           
-          // 🎉 WELCOME BONUS FOR EMAIL VERIFICATION
-          // Check Firestore for whether bonus was already granted (survives page reloads)
-          const bonusAlreadyGranted = userData?.welcomeBonusGranted === true;
-          const isManualSignup = !user.isAnonymous && 
-                                !user.providerData.some(p => p.providerId === 'google.com' || p.providerId === 'github.com');
-          
-          if (nowVerified && isManualSignup && !bonusAlreadyGranted && !welcomeBonusGranted) {
-            setWelcomeBonusGranted(true);
-            
-            // 🔒 Optimistically mark bonus as granted in Firestore FIRST to prevent race condition
-            // across multiple tabs/sessions
-            await setDoc(userDocRef, { welcomeBonusGranted: true }, { merge: true });
-            
-            try {
-              console.log('🎯 Granting welcome bonus for verified email user...');
-              
-              // 🔒 Get Firebase ID token for authentication
-              const idToken = await user.getIdToken();
-              
-              const response = await fetchWithRetry('/api/coins/add', {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${idToken}`
-                },
-                body: JSON.stringify({
-                  userId: user.uid,
-                  amount: 5,
-                  reason: 'welcome_bonus',
-                  description: 'Welcome bonus - Email verified! 🎉'
-                }),
-                maxRetries: 3,
-                retryDelay: 1000
-              });
-
-              const result = await response.json();
-              
-              if (result.success) {
-                console.log('🎉 Welcome bonus successfully granted!');
-                
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('coinBalanceUpdated', { 
-                    detail: { newBalance: result.newBalance } 
-                  }));
-                }
-              } else {
-                console.error('❌ Welcome bonus transaction failed:', result.error);
-                setWelcomeBonusGranted(false);
-                // Revert the optimistic Firestore flag on failure
-                await setDoc(userDocRef, { welcomeBonusGranted: false }, { merge: true });
-                
-                fetch('/api/log-error', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    error: `Welcome bonus failed: ${result.error}`,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString(),
-                    url: window.location.href,
-                    endpoint: '/api/coins/add',
-                    userId: user.uid
-                  })
-                }).catch(() => {});
-              }
-            } catch (error: any) {
-              console.error('❌ Failed to process welcome bonus:', error);
-              setWelcomeBonusGranted(false);
-              // Revert the optimistic Firestore flag on failure
-              try {
-                await setDoc(userDocRef, { welcomeBonusGranted: false }, { merge: true });
-              } catch {
-                // Best-effort revert
-              }
-              
-              fetch('/api/log-error', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  error: `Welcome bonus exception: ${error.message}`,
-                  userAgent: navigator.userAgent,
-                  timestamp: new Date().toISOString(),
-                  url: window.location.href,
-                  endpoint: '/api/coins/add',
-                  userId: user.uid
-                })
-              }).catch(() => {});
-            }
-          }
         } catch (error) {
           console.error('❌ Failed to create user document:', error);
         }
@@ -294,8 +267,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('🔍 User email verified:', nowVerified);
       } else {
         setIsEmailVerified(false);
-        setWelcomeBonusGranted(false);
         setUserCountUpdated(false);
+        userCountUpdatedRef.current = false;
       }
       
       // Don't set loading to false here directly — we gate it below
@@ -305,7 +278,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [isEmailVerified, welcomeBonusGranted, userCountUpdated]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ✅ Loading is only false when BOTH Firebase auth state AND redirect result are settled.
   // This prevents the "bounce" — briefly showing the login page before the redirect
@@ -337,12 +310,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nowVerified = user.emailVerified;
         setIsEmailVerified(nowVerified);
         
-        if (nowVerified && typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('coinBalanceUpdated'));
-          console.log('🎉 Email verified! Coin balance refreshed');
-        }
-        
         console.log('🔄 Refreshed verification status:', nowVerified);
+
+        // 🪙 Grant welcome bonus if just verified
+        if (nowVerified) {
+          await grantWelcomeBonus(user);
+        }
       } catch (error) {
         console.error('❌ Failed to refresh verification status:', error);
       }
@@ -359,8 +332,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await signOut(auth);
       setUser(null);
       setIsEmailVerified(false);
-      setWelcomeBonusGranted(false);
       setUserCountUpdated(false);
+      userCountUpdatedRef.current = false;
       router.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);

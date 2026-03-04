@@ -848,16 +848,16 @@ export default function SimulatorTradePage() {
                 );
               })()}
 
-              <p className="text-blue-200 text-[10px] mb-4">*Simulated with Fake BDT (virtual currency for educational purposes)</p>
+              <p className="text-blue-200 text-[10px] mb-4">*Simulated with Coins (1 Coin = 1 BDT, virtual currency for educational purposes)</p>
               
               {/* Add Credit Button */}
-              <a
-                href={`mailto:alshahoriar.hossain@gmail.com?subject=SkillDash%20-%20Request%20of%20Adding%20Balance&body=Please%20add%20some%20balance%20into%20my%20account,%20my%20email%20is%20-%20${user?.email || 'your-email@example.com'}`}
+              <button
+                onClick={() => router.push('/coins')}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-lg font-semibold text-sm transition-all duration-200 border border-white/30 hover:border-white/50"
               >
                 <span>+</span>
                 <span>Add Credit</span>
-              </a>
+              </button>
             </div>
 
             {/* Market Calendar Widget */}
@@ -1124,7 +1124,14 @@ export default function SimulatorTradePage() {
                     const holding = simulatorState.portfolio.find(p => p.symbol === selectedStock);
                     const holdingQty = holding?.quantity || 0;
                     const canSellQty = qty <= holdingQty;
-                    const canSell = !holding || (new Date(holding.purchaseDate).toDateString() !== new Date().toDateString());
+                    // T+1 check using Bangladesh timezone (consistent with hook logic)
+                    const canSell = !holding || (() => {
+                      if (!holding.purchaseDate) return true;
+                      const bdOpts = { timeZone: 'Asia/Dhaka' } as const;
+                      const purchaseStr = new Date(holding.purchaseDate).toLocaleDateString('en-CA', bdOpts);
+                      const todayStr = new Date().toLocaleDateString('en-CA', bdOpts);
+                      return purchaseStr !== todayStr;
+                    })();
                     
                     const isDisabled = transactionStatus === 'processing' || !marketOpen || qty <= 0 ||
                       (tradeType === 'buy' && !canAfford) || 

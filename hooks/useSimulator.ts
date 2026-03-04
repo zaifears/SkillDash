@@ -81,7 +81,7 @@ export interface MarketInfo {
 
 /**
  * DSE Stock Simulator Hook
- * Note: This simulator uses fake virtual currency (Fake BDT) for educational purposes only.
+ * Note: This simulator uses virtual Coins (1 Coin = 1 BDT) for educational purposes only.
  * No real money or actual stocks are involved.
  */
 export const useSimulator = () => {
@@ -89,7 +89,7 @@ export const useSimulator = () => {
   const db = getFirestore();
   
   // Market state
-  // NOTE: Initial balance is 10,000 Fake BDT (virtual currency for simulator)
+  // NOTE: Initial balance is 10,000 Coins (1 Coin = 1 BDT)
   const [marketInfo, setMarketInfo] = useState<MarketInfo | null>(null);
   const [simulatorState, setSimulatorState] = useState<SimulatorState>({
     balance: 10000,
@@ -266,8 +266,9 @@ export const useSimulator = () => {
     };
   }, [user, db, marketInfo]);
 
-  // Initialize simulator state for new users (only once per user)
-  // New users start with 10,000 Fake BDT (virtual currency)
+  // Initialize simulator state document for new users
+  // Balance starts at 0 — the 10k welcome bonus is granted via server API.
+  // This creates the doc shell so onSnapshot has something to listen to.
   const initializeSimulatorState = async () => {
     if (!user) return;
 
@@ -275,13 +276,11 @@ export const useSimulator = () => {
       const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
       const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
       
-      // Get current state to check if already initialized
       const existingDoc = await getDoc(stateRef);
       
-      // Only initialize if document doesn't exist yet
       if (!existingDoc.exists()) {
         const initialState: SimulatorState = {
-          balance: 10000,
+          balance: 0,
           portfolio: [],
           totalInvested: 0,
           totalCurrentValue: 0,
@@ -290,9 +289,9 @@ export const useSimulator = () => {
           realizedGainLoss: 0
         };
         
-        // Use merge: true to ensure we only set initial values, never overwrite
         await setDoc(stateRef, initialState, { merge: true });
         setSimulatorState(initialState);
+        console.log('📊 Initialized simulator state for user:', user.uid);
       }
     } catch (err) {
       console.error('Error initializing simulator state:', err);

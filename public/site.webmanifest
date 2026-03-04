@@ -1,9 +1,9 @@
 {
-  "name": "SkillDash Simulator",
-  "short_name": "Simulator",
-  "description": "Master the market with the SkillDash Stock Simulator. Trade virtual stocks, analyze trends, and compete with friends in a risk-free environment.",
-  "id": "/simulator",
-  "start_url": "/simulator",
+  "name": "SkillDash - DSE Simulator & Utilities",
+  "short_name": "SkillDash",
+  "description": "Master the DSE market with SkillDash. Trade virtual stocks with live data, shorten links with Go, manage your profile, and track your coins. All-in-one platform for financial simulation and digital utilities.",
+  "id": "/",
+  "start_url": "/simulator/trade",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -15,7 +15,8 @@
     "education",
     "finance",
     "simulation",
-    "productivity"
+    "productivity",
+    "utilities"
   ],
   "prefer_related_applications": false,
   "icons": [
@@ -68,7 +69,8 @@
   ],
   "shortcuts": [
     {
-      "name": "Trade Now",
+      "name": "Trade Stocks",
+      "short_name": "Trade",
       "url": "/simulator/trade",
       "description": "Go directly to the trading floor",
       "icons": [
@@ -80,9 +82,36 @@
       ]
     },
     {
-      "name": "Leaderboard",
-      "url": "/simulator/leaderboard",
-      "description": "Check your ranking",
+      "name": "Create Short Links",
+      "short_name": "Go",
+      "url": "/go",
+      "description": "Create smart short links with delays & expiration",
+      "icons": [
+        {
+          "src": "/web-app-manifest-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Manage Coins",
+      "short_name": "Coins",
+      "url": "/coins",
+      "description": "View and manage your virtual coins",
+      "icons": [
+        {
+          "src": "/web-app-manifest-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "My Profile",
+      "short_name": "Profile",
+      "url": "/profile",
+      "description": "Manage your account and preferences",
       "icons": [
         {
           "src": "/web-app-manifest-192x192.png",

@@ -101,10 +101,13 @@ export const getActionCodeSettings = () => ({
     handleCodeInApp: true,
 });
 
-// 🎯 Social login result: coins: 5 (no verification needed)
+// 🎯 Social login result: Create user doc if needed
+// Welcome bonus is handled centrally by AuthContext.grantWelcomeBonus() via onAuthStateChanged
 export const handleSocialSignInResult = async (user: any) => {
     const userDocRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userDocRef);
+    
+    // Create user doc if it doesn't exist (merge to avoid race with onAuthStateChanged)
     if (!docSnap.exists()) {
         await setDoc(userDocRef, {
             name: user.displayName || user.email?.split('@')[0] || 'User', 
@@ -114,18 +117,15 @@ export const handleSocialSignInResult = async (user: any) => {
             age: null, 
             status: 'Other', 
             phone: '',
-            coins: 5, // ✅ Social users get coins immediately
-            welcomeBonusGranted: true, // ✅ Mark bonus as granted to prevent duplicate from AuthContext
             provider: user.providerData[0]?.providerId || 'unknown',
             createdAt: new Date().toISOString()
-        });
-    } else {
-        // Handle existing users without coins field
-        const userData = docSnap.data();
-        if (userData.coins === undefined) {
-            await setDoc(userDocRef, { coins: 5, welcomeBonusGranted: true }, { merge: true });
-        }
+        }, { merge: true });
+        console.log('✅ Social user document created');
     }
+    
+    // Welcome bonus is granted by AuthContext.grantWelcomeBonus() via onAuthStateChanged
+    // This ensures a single, centralized bonus path for all user types
+    
     return user;
 };
 
@@ -209,7 +209,7 @@ export const signUpWithEmailPasswordAndProfile = async (profileData: SignUpProfi
         status: profileData.status,
         phone: profileData.phone || null,
         email: profileData.email,
-        coins: 0, // ✅ Manual signup users get coins after email verification
+        provider: 'password',
         createdAt: new Date().toISOString()
     });
     await sendEmailVerification(user);

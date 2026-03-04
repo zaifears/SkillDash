@@ -74,11 +74,7 @@ export function humanizeAuthError(error: any): string {
     return '📡 Network error. Please check your internet connection and try again.';
   }
   
-  // Generic fallback
-  if (error?.message) {
-    return error.message;
-  }
-  
+  // Generic fallback — don't expose raw error messages to users
   return 'An error occurred during sign-in. Please try again.';
 }
 

@@ -77,10 +77,9 @@ const InsufficientCoinsModal: React.FC<InsufficientCoinsModalProps> = ({
             💡 How to get more coins:
           </h3>
           <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-            <li>• Create a new account (5 coins)</li>
-            <li>• Login daily bonus (coming soon)</li>
-            <li>• Complete profile setup (coming soon)</li>
-            <li>• Referral rewards (coming soon)</li>
+            <li>• Trade stocks profitably in the simulator</li>
+            <li>• Recharge via bKash (10 BDT = 10,000 Coins)</li>
+            <li>• New accounts start with 10,000 free Coins</li>
           </ul>
         </div>
 

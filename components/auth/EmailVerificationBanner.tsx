@@ -101,7 +101,7 @@ export default function EmailVerificationBanner() {
           {/* Email and message */}
           <div className="mb-4">
             <p className="text-sm opacity-90 leading-relaxed">
-              Verify <strong className="text-yellow-200">{user.email}</strong> to get your <strong>5 welcome coins</strong> 🪙 and unlock all features.
+              Verify <strong className="text-yellow-200">{user.email}</strong> to get your <strong>10,000 welcome coins</strong> 🪙 and unlock all features.
             </p>
             {countdown > 0 && (
               <p className="text-xs opacity-75 mt-2 bg-red-800/50 px-2 py-1 rounded">
@@ -162,7 +162,7 @@ export default function EmailVerificationBanner() {
             <div>
               <p className="font-bold text-lg">Email Verification Required</p>
               <p className="text-sm opacity-90">
-                Please verify your email <strong>{user.email}</strong> to get your 5 welcome coins and access SkillDash features.
+                Please verify your email <strong>{user.email}</strong> to get your 10,000 welcome coins and access SkillDash features.
               </p>
               {countdown > 0 && (
                 <p className="text-xs opacity-75 mt-1">

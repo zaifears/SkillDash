@@ -52,14 +52,13 @@ export const sanitizeError = (error: any): string => {
     case 'auth/internal-error':
       return 'An internal error occurred. Please try again.';
     default:
-      // Return the actual error message for debugging
-      if (errorMessage) {
-        return `Error: ${errorMessage}`;
-      }
+      // Security: Don't expose raw error messages to users
       return 'Authentication failed. Please try again.';
   }
 };
 
+// Defense-in-depth only: client-side sessionStorage rate limiting is trivially
+// bypassable. Server-side reCAPTCHA v3 is the primary bot protection.
 export const rateLimit = (() => {
   const MAX_ATTEMPTS = 5;
   const WINDOW_MS = 15 * 60 * 1000; // 15 minutes

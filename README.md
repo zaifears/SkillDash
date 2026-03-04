@@ -61,7 +61,9 @@ SkillDash Simulator is a **state-of-the-art, risk-free environment** designed to
 
 <br/>
 
-## 📈 Flagship Product: Stock Simulator
+## 📈 Main Features
+
+### Stock Trading Simulator
 
 <table>
   <tr>
@@ -75,11 +77,6 @@ SkillDash Simulator is a **state-of-the-art, risk-free environment** designed to
     <td>Integrated holiday and market-hour tracking specific to Bangladesh for realistic trading sessions.</td>
   </tr>
   <tr>
-    <td><strong>🤖</strong></td>
-    <td><strong>Maira AI Assistant</strong></td>
-    <td>Context-aware AI financial advisor providing personalized insights, portfolio reviews, and market sentiment analysis.</td>
-  </tr>
-  <tr>
     <td><strong>🏆</strong></td>
     <td><strong>Gamified Leaderboards</strong></td>
     <td>Compete with peers, climb the ranks, and earn prestige through smart virtual investing.</td>
@@ -91,23 +88,11 @@ SkillDash Simulator is a **state-of-the-art, risk-free environment** designed to
   </tr>
 </table>
 
-<br/>
+### Additional Tools
 
----
-
-<br/>
-
-## ✨ Additional Ecosystem Features
-
-While the Simulator is our core product, SkillDash continues to provide essential career readiness tools:
-
-| | Feature | Description |
-|:-:|---|---|
-| 🔍 | **AI Skill Quest** | Discover your career path through interactive, AI-driven aptitude analysis. |
-| 📄 | **AI Resume Feedback** | Get instant, actionable critiques of your resume optimized for modern ATS systems. |
-| 🎓 | **Curated Learning** | Access targeted pathways to bridge the gap between academic knowledge and industry skills. |
-| 💼 | **Opportunity Portal** | A vetted pipeline of internships and freelance gigs for the modern professional. |
-| 🪙 | **Coin System** | Strategic resource management balancing platform sustainability with user accessibility. |
+| Tool | Description |
+|---|---|
+| **Link Shortener (Go)** | Create smart short links with custom delays and expiration. Track and manage your links easily. |
 
 <br/>
 
@@ -177,31 +162,6 @@ pnpm dev
 | `pnpm lint` | Run ESLint |
 | `pnpm analyze` | Analyze bundle size |
 | `pnpm apk` | Build Android APK |
-
-<br/>
-
----
-
-<br/>
-
-## 🌟 Mission
-
-<div align="center">
-
-**Empowering the next generation of investors.**
-
-*From classroom to market — bridging the gap with AI-powered simulation.*
-
-</div>
-
-<br/>
-
-| Pillar | Description |
-|---|---|
-| **Accessible** | Risk-free market education for everyone |
-| **Intelligent** | Multi-model AI insights tailored to DSE dynamics |
-| **Practical** | Real market data, real strategies, zero risk |
-| **Gamified** | Compete, learn, and grow through leaderboards and achievements |
 
 <br/>
 

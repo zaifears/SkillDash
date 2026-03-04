@@ -129,42 +129,6 @@ const nextConfig = {
       },
     ];
   },
-
-  // Domain-based redirects for multi-domain support
-  async redirects() {
-    const hrDomain = process.env.NEXT_PUBLIC_HR_DOMAIN || 'https://hr.skilldash.live';
-    return [
-      // Redirect /opportunities/hiring to /hr (same domain)
-      {
-        source: '/opportunities/hiring/:path*',
-        destination: '/hr/:path*',
-        permanent: true,
-      },
-      // Redirect /opportunities/hiring to /hr on main domain (for backward compatibility)
-      {
-        source: '/opportunities/hiring/:path*',
-        destination: `${hrDomain}/:path*`,
-        permanent: false,
-        has: [
-          {
-            type: 'host',
-            value: 'skilldash.live',
-          },
-        ],
-      },
-      {
-        source: '/opportunities/hiring/:path*',
-        destination: `${hrDomain}/:path*`,
-        permanent: false,
-        has: [
-          {
-            type: 'host',
-            value: 'www.skilldash.live',
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

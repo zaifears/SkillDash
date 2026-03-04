@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 
 interface CoinDisplayProps {
   className?: string;
@@ -20,25 +19,25 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Size variants
+  // Size variants - smaller text for large numbers
   const sizeClasses = {
     small: {
       container: 'gap-1',
       coin: 'w-4 h-4',
-      number: 'text-xs',
-      label: 'text-[9px]'
+      number: 'text-[10px]',
+      label: 'text-[8px]'
     },
     default: {
       container: 'gap-1.5',
-      coin: 'w-6 h-6',
-      number: 'text-sm',
-      label: 'text-[10px]'
+      coin: 'w-5 h-5',
+      number: 'text-xs',
+      label: 'text-[9px]'
     },
     large: {
       container: 'gap-2',
-      coin: 'w-8 h-8',
-      number: 'text-base',
-      label: 'text-xs'
+      coin: 'w-7 h-7',
+      number: 'text-sm',
+      label: 'text-[10px]'
     }
   };
 
@@ -53,7 +52,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
     }
   };
 
-  // Real-time coin updates using Firestore listener
+  // Real-time coin updates from simulator state (balance = coins)
   useEffect(() => {
     if (!user?.uid) {
       setCoins(0);
@@ -63,16 +62,18 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
 
     setLoading(true);
     
-    // Set up real-time listener for user's coin balance
-    const userDocRef = doc(db, 'users', user.uid);
+    // Read balance from simulator state (BDT is now Coin)
+    const db = getFirestore();
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
     const unsubscribe = onSnapshot(
-      userDocRef,
-      (doc) => {
-        if (doc.exists()) {
-          const userData = doc.data();
-          setCoins(userData.coins || 0);
+      stateRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setCoins(Math.floor(data.balance || 0));
         } else {
-          setCoins(0);
+          setCoins(0); // No state yet — bonus will create it
         }
         setLoading(false);
       },
@@ -93,7 +94,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
       <div 
         className={`flex items-center ${currentSize.container} cursor-pointer hover:scale-105 transition-transform duration-200 ${className}`}
         onClick={handleCoinClick}
-        title="Join SkillDash to use Coins"
+        title="Join SkillDash to start trading"
       >
         <div className="relative">
           <Image
@@ -117,7 +118,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
     <div 
       className={`flex items-center ${currentSize.container} cursor-pointer hover:scale-105 transition-transform duration-200 ${className}`}
       onClick={handleCoinClick}
-      title={`You have ${coins.toLocaleString()} coins - Click to manage`}
+      title={`You have ${coins.toLocaleString()} Coins - Click to manage`}
     >
       {/* Coin Icon */}
       <div className="relative flex-shrink-0">
@@ -134,14 +135,18 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
         <div className="absolute inset-0 bg-amber-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
       </div>
       
-      {/* Coin Count - Modern Style */}
+      {/* Coin Count - Compact for large numbers */}
       {showLabel ? (
         <div className="flex flex-col min-w-0">
-          <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white transition-colors duration-200`}>
+          <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white transition-colors duration-200 tabular-nums`}>
             {loading ? (
               <div className="w-8 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             ) : (
-              coins.toLocaleString()
+              coins >= 1000000 
+                ? `${(coins / 1000000).toFixed(1)}M`
+                : coins >= 10000 
+                  ? `${(coins / 1000).toFixed(1)}K`
+                  : coins.toLocaleString()
             )}
           </span>
           <span className={`${currentSize.label} text-gray-500 dark:text-gray-400 -mt-0.5 font-medium`}>
@@ -149,11 +154,15 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
           </span>
         </div>
       ) : (
-        <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white min-w-0 transition-colors duration-200`}>
+        <span className={`${currentSize.number} font-bold text-gray-800 dark:text-white min-w-0 transition-colors duration-200 tabular-nums`}>
           {loading ? (
             <div className="w-6 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
           ) : (
-            coins.toLocaleString()
+            coins >= 1000000 
+              ? `${(coins / 1000000).toFixed(1)}M`
+              : coins >= 10000 
+                ? `${(coins / 1000).toFixed(1)}K`
+                : coins.toLocaleString()
           )}
         </span>
       )}

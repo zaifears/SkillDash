@@ -18,20 +18,15 @@ const ModernNavbar = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Mobile bottom nav items (includes Home) - Discover and Resume Feedback removed (under maintenance)
+  // Mobile bottom nav items - Only simulator and home
   const bottomNavItems = [
     { name: 'Home', href: '/', icon: 'home', label: 'Home' },
-    { name: 'Learn', href: '/learn-skill', icon: 'learn', label: 'Learn' },
-    { name: 'Opportunities', href: '/opportunities', icon: 'opportunities', label: 'Oportu' },
     { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' }
   ]
 
-  // Desktop nav items (excludes Home - logo links to home)
+  // Desktop nav items - Only simulator (home is logo)
   const desktopNavItems = [
-    { name: 'Discover', href: '/discover', icon: 'discover', label: 'Discover', hasAI: true },
-    { name: 'Learn', href: '/learn-skill', icon: 'learn', label: 'Learn' },
-    { name: 'Resume Feedback', href: '/resume-feedback', icon: 'resume', label: 'Resume', hasAI: true },
-    { name: 'Opportunities', href: '/opportunities', icon: 'opportunities', label: 'Opps' },
+    { name: 'About Us', href: '/about-us', icon: 'about', label: 'About Us' },
     { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' }
   ]
 

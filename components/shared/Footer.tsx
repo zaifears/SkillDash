@@ -17,10 +17,7 @@ interface FooterSection {
 
 const FOOTER_LINKS: FooterSection = {
   useful: [
-    { label: 'Discover', href: '/discover' },
-    { label: 'AI Resume Feedback', href: '/resume-feedback' },
-    { label: 'Find Opportunities', href: '/opportunities' },
-    { label: 'About Us', href: '/about-us' },  // ✅ NEW: About Us link
+    { label: 'About Us', href: '/about-us' },
     { label: 'Privacy Policy', href: '/policy' }
   ],
 };

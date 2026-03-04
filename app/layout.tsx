@@ -7,7 +7,6 @@ import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import SparkEffectInitializer from '@/components/SparkEffectInitializer'
 import CookieConsent from '@/components/CookieConsent'
 import SentryInitializer from '@/components/SentryInitializer'
-import HRRedirectProvider from '@/components/HRRedirectProvider'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import IOSInstallGuide from '@/components/iOSInstallGuide'
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -160,6 +159,20 @@ export default function RootLayout({
           }}
         />
 
+        {/* Microsoft Clarity Tracking */}
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(c,l,a,r,i,t,y){
+                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "vq8u27fhik");
+            `
+          }}
+        />
+
         {/* Enhanced Structured Data */}
         <script
           type="application/ld+json"
@@ -244,19 +257,17 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <IOSInstallGuide />
         <AuthProvider>
-          <HRRedirectProvider>
-            <EmailVerificationBanner />
-            <SparkEffectInitializer />
-            <SentryInitializer />
-            <ServiceWorkerCleanup />
-            
-            <div className="relative min-h-screen">
-              <NavbarWrapper />
-              <main role="main" className="lg:pb-0 pb-16">{children}</main>
-            </div>
-            
-            <CookieConsent />
-          </HRRedirectProvider>
+          <EmailVerificationBanner />
+          <SparkEffectInitializer />
+          <SentryInitializer />
+          <ServiceWorkerCleanup />
+          
+          <div className="relative min-h-screen">
+            <NavbarWrapper />
+            <main role="main" className="lg:pb-0 pb-16">{children}</main>
+          </div>
+          
+          <CookieConsent />
         </AuthProvider>
         
         <SpeedInsights />

@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (!data.success) {
       console.error('reCAPTCHA verification failed:', data['error-codes']);
       return NextResponse.json(
-        { success: false, error: 'reCAPTCHA verification failed', errorCodes: data['error-codes'] },
+        { success: false, error: 'Security verification failed. Please try again.' },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     if (score < threshold) {
       console.warn(`reCAPTCHA score too low: ${score} (threshold: ${threshold})`);
       return NextResponse.json(
-        { success: false, error: 'Suspicious activity detected. Please try again.', score },
+        { success: false, error: 'Suspicious activity detected. Please try again.' },
         { status: 400 }
       );
     }

@@ -1,65 +1,29 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getFirestore, doc, getDoc, updateDoc, increment, Timestamp } from 'firebase/firestore';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { Link2, Clock, AlertTriangle, ExternalLink, BookOpen, Briefcase, FileText, MessageSquare, Sparkles } from 'lucide-react';
+import { doc, getDoc, updateDoc, increment, Timestamp } from 'firebase/firestore';
+import { Link2, Clock, AlertTriangle, ExternalLink, BarChart3, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// Firebase configuration using HR Firebase environment variables
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_HR_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_HR_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_HR_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_HR_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_HR_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_HR_FIREBASE_APP_ID,
-};
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { dbGo } from '@/lib/firebase/firebaseGo';
 
 // Services to showcase during redirect
 const SERVICES = [
   {
-    name: 'Learn Skills',
-    description: 'Master new skills with AI-powered learning paths',
-    href: '/learn-skill',
-    icon: BookOpen,
-    color: 'bg-purple-500',
-    iconColor: 'text-purple-600',
-  },
-  {
-    name: 'Discover Careers',
-    description: 'Find your perfect career path with AI guidance',
-    href: '/discover',
-    icon: Sparkles,
+    name: 'Stock Simulator',
+    description: 'Practice trading DSE stocks with virtual Coins',
+    href: '/simulator',
+    icon: BarChart3,
     color: 'bg-blue-500',
     iconColor: 'text-blue-600',
   },
   {
-    name: 'Opportunities',
-    description: 'Browse internships and job openings',
-    href: '/opportunities',
-    icon: Briefcase,
+    name: 'Go Links',
+    description: 'Create short links and track analytics',
+    href: '/go',
+    icon: LinkIcon,
     color: 'bg-green-500',
     iconColor: 'text-green-600',
-  },
-  {
-    name: 'Resume Feedback',
-    description: 'Get AI-powered resume analysis and tips',
-    href: '/resume-feedback',
-    icon: FileText,
-    color: 'bg-orange-500',
-    iconColor: 'text-orange-600',
-  },
-  {
-    name: 'Interview Simulator',
-    description: 'Practice with AI mock interviews',
-    href: '/simulator',
-    icon: MessageSquare,
-    color: 'bg-pink-500',
-    iconColor: 'text-pink-600',
   },
 ];
 
@@ -90,7 +54,7 @@ export default function RedirectPage({ params }: { params: Promise<{ code: strin
 
     const fetchLink = async () => {
       try {
-        const docRef = doc(db, 'short_links', resolvedParams.code);
+        const docRef = doc(dbGo, 'short_links', resolvedParams.code);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
