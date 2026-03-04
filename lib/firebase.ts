@@ -144,40 +144,42 @@ export const signInWithSocialProviderAndCreateProfile = async (
     provider: GoogleAuthProvider | GithubAuthProvider
 ) => {
     try {
-        // Check if we're on mobile/tablet
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-        
-        // Use redirect on mobile (more reliable), popup on desktop
-        if (isMobile) {
-            console.log('📱 Mobile detected - using redirect for OAuth');
-            await signInWithRedirect(auth, provider);
-            return null;
-        } else {
-            console.log('🖥️ Desktop detected - attempting popup OAuth');
-            const result = await signInWithPopup(auth, provider);
-            return await handleSocialSignInResult(result.user);
-        }
+        // Always prefer popup — signInWithRedirect is unreliable due to
+        // third-party cookie deprecation in Chrome 115+ and Safari.
+        // Popup works on both desktop AND mobile browsers.
+        console.log('🔐 Attempting popup OAuth...');
+        const result = await signInWithPopup(auth, provider);
+        return await handleSocialSignInResult(result.user);
     } catch (error: any) {
-        // Comprehensive fallback for all popup failure scenarios
-        const popupErrorCodes = [
-            'auth/popup-blocked',              // Browser blocked the popup
-            'auth/popup-closed-by-user',       // User closed the popup
-            'auth/cancelled-popup-request',    // Firebase cancelled the request
-            'auth/operation-not-supported-in-this-environment', // In-app browser (Instagram, LinkedIn, TikTok)
+        // Only fall back to redirect for environments where popups truly cannot work
+        const redirectFallbackCodes = [
+            'auth/popup-blocked',                                  // Browser/extension blocked the popup
+            'auth/operation-not-supported-in-this-environment',    // In-app browser (Instagram, LinkedIn, TikTok)
         ];
 
-        if (popupErrorCodes.includes(error.code)) {
-            console.warn(`⚠️ Popup failed (${error.code}) - Falling back to redirect OAuth`, error.message);
+        if (redirectFallbackCodes.includes(error.code)) {
+            console.warn(`⚠️ Popup failed (${error.code}) — falling back to redirect OAuth`);
             try {
+                // Mark that we're doing an OAuth redirect so we can detect failures on return
+                if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+                }
                 await signInWithRedirect(auth, provider);
-                console.log('✅ Redirect OAuth initiated successfully');
-                return null;
+                return null; // Page will navigate away
             } catch (redirectError: any) {
                 console.error('❌ Redirect OAuth also failed:', redirectError);
-                throw new Error(`OAuth failed: Popup unavailable and redirect failed. ${redirectError.message}`);
+                if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('skilldash_oauth_redirect');
+                }
+                throw new Error('Sign-in failed. Please try again or use email/password.');
             }
         }
-        
+
+        // User closed popup or cancelled — re-throw for caller to handle
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+            throw error;
+        }
+
         // Re-throw unexpected errors
         console.error('❌ Unexpected OAuth error:', error);
         throw error;

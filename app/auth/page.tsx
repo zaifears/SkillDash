@@ -76,6 +76,13 @@ function AuthPageContent() {
       sessionStorage.removeItem('redirectMessage')
     }
 
+    // Check if user returned from a failed OAuth redirect
+    const oauthError = sessionStorage.getItem('skilldash_oauth_error')
+    if (oauthError) {
+      setError(oauthError)
+      sessionStorage.removeItem('skilldash_oauth_error')
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/profile'
@@ -218,23 +225,18 @@ function AuthPageContent() {
     setIsLoading(true)
     setError('')
     setShowSignupSuccess(false)
-    // ✅ NEW: Give immediate feedback to user
-    setMessage('Connecting to Google... If a popup does not appear, check your popup blocker.')
+    setMessage('Connecting to Google...')
 
     try {
-      // ✅ NEW: Increased to 45 second timeout for slower networks
-      const googleSignInPromise = signInWithSocialProviderAndCreateProfile(googleProvider)
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Connection timed out. Network might be slow or popup blocked.')), 45000)
-      )
-      
-      await Promise.race([googleSignInPromise, timeoutPromise])
+      await signInWithSocialProviderAndCreateProfile(googleProvider)
+      // If popup was used, the result is handled here.
+      // If redirect was used (popup blocked), the page navigates away.
     } catch (err: any) {
       setError(humanizeAuthError(err))
       console.error('Google sign-in error:', err)
     } finally {
       setIsLoading(false)
-      setMessage('') // Clear message
+      setMessage('')
     }
   }
 

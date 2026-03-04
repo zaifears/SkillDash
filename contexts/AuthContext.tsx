@@ -58,17 +58,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // This MUST resolve before we allow `loading` to become `false`.
   useEffect(() => {
     const handleRedirectResult = async () => {
+      const hadPendingRedirect = typeof window !== 'undefined'
+        && !!sessionStorage.getItem('skilldash_oauth_redirect');
+
       try {
         const result = await getRedirectResult(auth);
         if (result && result.user) {
           console.log('✅ User authenticated via redirect OAuth');
           await handleSocialSignInResult(result.user);
+          // Clear the redirect flag on success
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('skilldash_oauth_redirect');
+          }
           // onAuthStateChanged will pick up the user from here
+        } else if (hadPendingRedirect) {
+          // Redirect was initiated but getRedirectResult returned null.
+          // This usually means third-party cookies are blocked (Chrome 115+/Safari)
+          // or the redirect session was lost.
+          console.warn('⚠️ OAuth redirect returned no result — redirect may have failed silently');
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('skilldash_oauth_redirect');
+            sessionStorage.setItem('skilldash_oauth_error',
+              'Google sign-in didn\u2019t complete. Your browser may be blocking the redirect. Please try again \u2014 a popup will be used instead.'
+            );
+          }
         }
       } catch (error: any) {
         // auth/no-auth-event is expected when the page loads normally (no redirect)
         if (error.code !== 'auth/no-auth-event') {
           console.error('❌ Failed to handle OAuth redirect:', error.message);
+          // Surface the error so the auth page can display it
+          if (hadPendingRedirect && typeof window !== 'undefined') {
+            sessionStorage.removeItem('skilldash_oauth_redirect');
+            sessionStorage.setItem('skilldash_oauth_error',
+              'Sign-in failed after redirect. Please try again.'
+            );
+          }
         }
       } finally {
         // Signal that redirect resolution is complete
