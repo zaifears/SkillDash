@@ -73,7 +73,7 @@ export default function SimulatorLandingPage() {
                 </p>
               </div>
             </div>
-            <div className="bg-slate-900/50 rounded-xl sm:rounded-2xl p-5 sm:p-8 border border-slate-700">
+            <div className="bg-slate-900/50 rounded-xl sm:rounded-2xl p-5 sm:p-8 border-y sm:border border-slate-700 -mx-4 sm:mx-0">
               <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-orange-400">Why Practice First?</h3>
               <ul className="space-y-3 sm:space-y-4">
                 {[

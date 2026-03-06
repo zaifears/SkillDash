@@ -65,7 +65,7 @@ export default function MarketCalendar({ holidays }: MarketCalendarProps) {
   const monthName = currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-gray-900 rounded-none sm:rounded-xl border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm -mx-4 sm:mx-0">
       {/* Header Widget */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
         <div className="flex justify-between items-center mb-2">

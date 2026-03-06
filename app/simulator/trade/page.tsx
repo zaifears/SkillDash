@@ -302,8 +302,8 @@ export default function SimulatorTradePage() {
           {/* LEFT COLUMN: Main Ticker (8 cols) - Shows second on mobile */}
           <div className="lg:col-span-8 space-y-4 order-last lg:order-first">
             
-            {/* Toolbar - Professional Console Layout */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-white dark:bg-[#15191E] p-2 sm:p-2.5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+            {/* Toolbar - Professional Console Layout - Sticky on Mobile */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-white/95 dark:bg-[#15191E]/95 backdrop-blur-xl p-3 sm:p-2.5 -mx-4 sm:mx-0 px-4 sm:px-2.5 rounded-none sm:rounded-2xl border-y sm:border border-gray-200 dark:border-gray-800 shadow-md sm:shadow-sm sticky top-[60px] z-40 sm:z-30">
               {/* Top Row on Mobile: Tabs + Status */}
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 {/* Tabs Group */}
@@ -360,8 +360,8 @@ export default function SimulatorTradePage() {
               </div>
             </div>
 
-            {/* Data Table - Desktop | Cards - Mobile */}
-            <div className="bg-white dark:bg-[#15191E] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm min-h-[500px]">
+            {/* Data Table - Desktop | Cards - Mobile (Edge-to-edge) */}
+            <div className="bg-white dark:bg-[#15191E] rounded-none sm:rounded-xl border-y sm:border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm min-h-[500px] -mx-4 sm:mx-0">
               
               {/* === PORTFOLIO TAB === */}
               {activeTab === 'portfolio' ? (
@@ -773,30 +773,39 @@ export default function SimulatorTradePage() {
           <div className="lg:col-span-4 space-y-6 order-first lg:order-last">
             
             {/* Account Card */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg relative overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-none sm:rounded-xl p-4 sm:p-6 text-white shadow-md sm:shadow-lg relative overflow-hidden -mx-4 sm:mx-0">
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
               
               {/* Title and Brand */}
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-blue-100 text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h3 className="text-blue-100 text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2">
+                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   DSE Terminal
                 </h3>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${marketOpen ? 'bg-emerald-500/30 text-emerald-200' : 'bg-rose-500/30 text-rose-200'}`}>
+                <span className={`text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full ${marketOpen ? 'bg-emerald-500/30 text-emerald-200' : 'bg-rose-500/30 text-rose-200'}`}>
                   {marketOpen ? '● Live' : '○ Closed'}
                 </span>
               </div>
 
               {/* Net Equity (Total Account Value) */}
-              <div className="mb-4">
-                <div className="text-blue-200 text-[10px] uppercase mb-1">Net Equity</div>
-                <div className="text-3xl font-bold font-mono tracking-tight">
-                  ৳{(simulatorState.balance + simulatorState.totalCurrentValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div className="mb-3 sm:mb-4 flex sm:block items-end justify-between">
+                <div>
+                  <div className="text-blue-200 text-[10px] uppercase mb-0.5 sm:mb-1">Net Equity</div>
+                  <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight">
+                    ৳{(simulatorState.balance + simulatorState.totalCurrentValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+                {/* On mobile, show Buying Power directly here */}
+                <div className="sm:hidden text-right">
+                  <div className="text-blue-200 text-[10px] uppercase mb-0.5">Buying Power</div>
+                  <div className="font-mono font-semibold text-lg text-emerald-300">
+                    ৳{simulatorState.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </div>
                 </div>
               </div>
               
               {/* Key Stats Grid */}
-              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/20 mb-4">
+              <div className="hidden sm:grid grid-cols-2 gap-3 pt-4 border-t border-white/20 mb-4">
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-blue-200 text-[10px] uppercase">Buying Power</div>
                   <div className="font-mono font-semibold text-lg">৳{simulatorState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
@@ -824,7 +833,7 @@ export default function SimulatorTradePage() {
                 const unrealized = simulatorState.totalGainLoss;
                 const net = realized + unrealized;
                 return (
-                  <div className="space-y-2 mb-4">
+                  <div className="hidden sm:block space-y-2 mb-4">
                     <div className="bg-white/10 rounded-lg px-3 py-2.5 flex justify-between items-center">
                       <span className="text-blue-200 text-[10px] uppercase">Realized P&L</span>
                       <span className={`font-mono font-bold text-sm ${realized >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
@@ -895,7 +904,7 @@ export default function SimulatorTradePage() {
 
       {/* Modern Trade Modal */}
       {showTradeModal && selectedStock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`${
             transactionStatus === 'success'
               ? 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
@@ -904,8 +913,13 @@ export default function SimulatorTradePage() {
               : tradeType === 'buy'
               ? 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800/50'
               : 'bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-950/30 dark:to-rose-900/20 border-rose-200 dark:border-rose-800/50'
-          } w-full max-w-sm rounded-2xl shadow-2xl border transform transition-all overflow-hidden flex flex-col`}>
+          } w-full max-w-md rounded-t-[32px] sm:rounded-2xl shadow-2xl shadow-black/50 border-t sm:border transform transition-all overflow-hidden flex flex-col mt-auto sm:mt-0 pb-0 sm:pb-0 max-h-[90vh] sm:max-h-none`}>
             
+            {/* Drag Handle for Mobile */}
+            <div className="w-full flex justify-center pt-4 pb-2 sm:hidden cursor-grab active:cursor-grabbing">
+              <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-700/80 rounded-full"></div>
+            </div>
+
             {/* Transaction Result View */}
             {(transactionStatus === 'success' || transactionStatus === 'error') ? (
               <div className="p-5 sm:p-6 text-center">
@@ -1112,7 +1126,7 @@ export default function SimulatorTradePage() {
                 </div>
 
                 {/* Submit Button - Fixed at Bottom */}
-                <div className="px-4 sm:px-5 py-3 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/20">
+                <div className="px-4 sm:px-5 py-4 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/20 pb-8 sm:pb-3">
                   {(() => {
                     const qty = typeof tradeQuantity === 'number' && tradeQuantity > 0 ? tradeQuantity : 0;
                     const stockPrice = marketInfo?.stocks.find(s => s.symbol === selectedStock)?.ltp || 0;
