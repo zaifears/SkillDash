@@ -80,6 +80,7 @@ const GoPreview = () => {
 
             <Link
               href="/go"
+              aria-label="Go to SkillDash Go short links"
               className="inline-block bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-full hover:shadow-xl hover:scale-105 transform transition-all duration-300 shadow-md shadow-pink-500/20 max-w-full break-words text-center"
             >
               Start Shortening →

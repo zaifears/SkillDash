@@ -1,19 +1,6 @@
-'use client';
-
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import TypingHeroSection from '../components/TypingHeroSection';
-import CoreFeaturesSection from '../components/CoreFeaturesSection';
-import LoadingSpinner from '../components/LoadingSpinner';
-import Footer from '@/components/shared/Footer';
-
-// Optimized lazy loading with better error handling
-const ContentSections = lazy(() => 
-  import('../components/ContentSections').then(module => ({
-    default: module.default
-  })).catch(() => ({
-    default: () => <div className="text-center py-20">Content temporarily unavailable</div>
-  }))
-);
+import HomeDeferredSections from '@/components/HomeDeferredSections';
 
 export default function HomePage() {
   return (
@@ -35,9 +22,7 @@ export default function HomePage() {
         </section>
         
         {/* Core Features Section */}
-        <section className="relative z-10">
-          <CoreFeaturesSection />
-        </section>
+        <HomeDeferredSections section="core" />
         
       </div>
       
@@ -50,22 +35,13 @@ export default function HomePage() {
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl"></div>
         </div>
         
-        {/* Content Sections with improved loading */}
-        <section className="relative z-10">
-          <Suspense fallback={
-            <div className="min-h-[400px] flex items-center justify-center" role="status" aria-label="Loading content">
-              <LoadingSpinner />
-              <span className="sr-only">Loading additional content...</span>
-            </div>
-          }>
-            <ContentSections />
-          </Suspense>
-        </section>
+        {/* Content Sections loaded only when near viewport */}
+        <HomeDeferredSections section="content" />
         
       </div>
       
       {/* ✅ FOOTER SECTION */}
-      <Footer />
+      <HomeDeferredSections section="footer" />
       
     </div>
   );

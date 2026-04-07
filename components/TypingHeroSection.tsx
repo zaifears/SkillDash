@@ -1,66 +1,23 @@
-'use client';
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
-
-// Typing animation component (same as before)
-const TypingAnimation = () => {
-    const [skillIndex, setSkillIndex] = useState(0);
-    const [displayedText, setDisplayedText] = useState('');
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const skills = useMemo(() => [
-        'Potential',
-        'Creativity',
-        'Skills',
-        'Talents',
-        'Future',
-        'Public Speaking',
-        'Excel',
-        'PowerBI',
-        'Data Analysis',
-        'Project Management',
-        'Digital Marketing',
-        'Financial Modeling',
-        'Leadership',
-        'Business Strategy'
-    ], []);
-
-    useEffect(() => {
-        const handleTyping = () => {
-            const currentSkill = skills[skillIndex];
-            
-            if (isDeleting) {
-                if (displayedText.length > 0) {
-                    setDisplayedText(currentSkill.substring(0, displayedText.length - 1));
-                } else {
-                    setIsDeleting(false);
-                    setSkillIndex((prev) => (prev + 1) % skills.length);
-                }
-            } else {
-                if (displayedText.length < currentSkill.length) {
-                    setDisplayedText(currentSkill.substring(0, displayedText.length + 1));
-                } else {
-                    setTimeout(() => setIsDeleting(true), 2000);
-                }
-            }
-        };
-
-        const typingTimeout = setTimeout(handleTyping, isDeleting ? 75 : 150);
-        return () => clearTimeout(typingTimeout);
-    }, [displayedText, isDeleting, skillIndex, skills]);
-
-    return (
-        <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent font-bold">
-            {displayedText}
-            <span className="opacity-75 animate-pulse">|</span>
-        </span>
-    );
-};
+import Image from 'next/image';
+import TypingWordRotator from './TypingWordRotator';
 
 const TypingHeroSection = () => {
     return (
         <section className="hero-background-container relative py-16 sm:py-18 md:py-6 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[450px] sm:min-h-[550px] md:min-h-[700px] flex items-center justify-center">
+            <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+                <Image
+                    src="/homepage/discover-talent.png"
+                    alt="SkillDash hero illustration"
+                    fill
+                    priority={true}
+                    fetchPriority="high"
+                    sizes="100vw"
+                    className="object-cover object-center opacity-20 dark:opacity-25"
+                />
+            </div>
+
             {/* Dark overlay for light mode and gradient for dark mode */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/60 dark:from-black/70 dark:via-black/60 dark:to-black/50 pointer-events-none"></div>
 
@@ -108,7 +65,7 @@ const TypingHeroSection = () => {
                 {/* Typing Animation */}
                 <div className="text-gray-500 dark:text-gray-400 text-lg sm:text-xl font-medium pb-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
                     <span>Build skills in</span>
-                    <TypingAnimation />
+                    <TypingWordRotator initialWord="Potential" />
                 </div>
             </div>
         </section>

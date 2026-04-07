@@ -9,6 +9,7 @@ interface AuthFormProps {
   isLoading: boolean;
   error: string;
   message: string;
+  recaptchaEnabled?: boolean;
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({
@@ -18,7 +19,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
   handleSubmit,
   isLoading,
   error,
-  message
+  message,
+  recaptchaEnabled = true
 }) => {
   const inputClass = "w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors";
   
@@ -125,9 +127,15 @@ const AuthForm: React.FC<AuthFormProps> = ({
         </div>
       )}
 
+      {!recaptchaEnabled && (
+        <div className="bg-amber-100 dark:bg-amber-900/20 border border-amber-400 text-amber-800 dark:text-amber-300 px-4 py-3 rounded">
+          Security verification is currently unavailable. Please try again later.
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || !recaptchaEnabled}
         className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-all duration-200"
       >
         {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}

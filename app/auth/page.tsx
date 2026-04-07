@@ -9,10 +9,11 @@ import { humanizeAuthError } from '../../lib/authErrorHandler'
 import OptimizedImage from '../../components/shared/OptimizedImage'
 import SocialAuth from '../../components/SocialAuth'
 import { Eye, EyeOff } from 'lucide-react'
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
+import { useRecaptcha } from '@/hooks/useRecaptcha'
 
 // Inner component that uses reCAPTCHA
-function AuthPageContent() {
+function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -33,7 +34,7 @@ function AuthPageContent() {
   const [inAppBrowser, setInAppBrowser] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
   const router = useRouter()
-  const { executeRecaptcha } = useGoogleReCaptcha()
+  const { verifyRecaptcha: verifyRecaptchaToken, isReady: isRecaptchaReady, isConfigured } = useRecaptcha()
 
   // Detect in-app browser on mount
   useEffect(() => {
@@ -42,23 +43,10 @@ function AuthPageContent() {
 
   // reCAPTCHA verification helper
   const verifyRecaptcha = async (action: string): Promise<boolean> => {
-    if (!executeRecaptcha) {
-      console.warn('reCAPTCHA not ready yet')
-      setError('Security verification loading. Please wait a moment and try again.')
-      return false
-    }
-
     try {
-      const token = await executeRecaptcha(action)
-      const response = await fetch('/api/verify-recaptcha', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, action }),
-      })
-      const data = await response.json()
-      
-      if (!data.success) {
-        setError(data.error || 'Security verification failed. Please try again.')
+      const result = await verifyRecaptchaToken(action)
+      if (!result.success) {
+        setError(result.error || 'Security verification failed. Please try again.')
         return false
       }
       return true
@@ -297,6 +285,14 @@ function AuthPageContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!recaptchaEnabled || !isConfigured) {
+      setError('Security verification is unavailable right now. Please try again later.')
+      return
+    }
+    if (!isRecaptchaReady) {
+      setError('Security verification is loading. Please wait a moment and try again.')
+      return
+    }
     if (isLoading) return
     isSignUp ? handleSignUp() : handleSignIn()
   }
@@ -331,6 +327,14 @@ function AuthPageContent() {
                 <>
                   <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back!</h1>
                   <p className="text-slate-400 mb-6 text-sm">Sign in to your account</p>
+
+                  {!recaptchaEnabled && (
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+                      <p className="text-amber-200 text-sm">
+                        Security verification is currently unavailable. Authentication is temporarily disabled.
+                      </p>
+                    </div>
+                  )}
                   
                   {error && (
                     <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
@@ -392,7 +396,7 @@ function AuthPageContent() {
                       <button
                         type="button"
                         onClick={handleForgotPassword}
-                        disabled={isLoading}
+                        disabled={isLoading || !recaptchaEnabled}
                         className="text-xs text-blue-400 hover:text-blue-300 transition disabled:opacity-50"
                       >
                         Forgot password?
@@ -402,7 +406,7 @@ function AuthPageContent() {
                     {/* Log In Button */}
                     <button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || !recaptchaEnabled}
                       className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
@@ -577,7 +581,7 @@ function AuthPageContent() {
                     {/* Sign Up Button */}
                     <button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || !recaptchaEnabled}
                       className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
@@ -671,7 +675,7 @@ function AuthPageContent() {
               <div className="space-y-3">
                 <button
                   onClick={handleGoogleSignIn}
-                  disabled={isLoading}
+                  disabled={isLoading || !recaptchaEnabled}
                   className="w-full py-2 px-3 rounded-lg bg-white text-slate-900 font-semibold text-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900 transition flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -685,7 +689,7 @@ function AuthPageContent() {
 
                 <button
                   onClick={handleGitHubSignIn}
-                  disabled={isLoading}
+                  disabled={isLoading || !recaptchaEnabled}
                   className="w-full py-2 px-3 rounded-lg bg-slate-700 text-white font-semibold text-sm hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500 transition flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -734,7 +738,7 @@ function AuthPageContent() {
             <SocialAuth 
               handleGoogleSignIn={handleGoogleSignIn}
               handleGitHubSignIn={handleGitHubSignIn}
-              isLoading={isLoading}
+              isLoading={isLoading || !recaptchaEnabled}
               isInAppBrowser={inAppBrowser}
             />
           </div>
@@ -788,15 +792,16 @@ class AuthErrorBoundary extends Component<
 
 // Main component wrapped with reCAPTCHA provider
 export default function AuthPage() {
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  const siteKey = (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '').trim()
+  const hasValidSiteKey = siteKey.length > 0
 
   // If site key is missing, render without reCAPTCHA provider
   // (verifyRecaptcha will show a user-facing error when executeRecaptcha is unavailable)
-  if (!siteKey) {
+  if (!hasValidSiteKey) {
     console.warn('reCAPTCHA site key not found — auth reCAPTCHA unavailable.')
     return (
       <AuthErrorBoundary>
-        <AuthPageContent />
+        <AuthPageContent recaptchaEnabled={false} />
       </AuthErrorBoundary>
     )
   }
@@ -806,12 +811,12 @@ export default function AuthPage() {
       <GoogleReCaptchaProvider
         reCaptchaKey={siteKey}
         scriptProps={{
-          async: false,
-          defer: false,
+          async: true,
+          defer: true,
           appendTo: 'head',
         }}
       >
-        <AuthPageContent />
+        <AuthPageContent recaptchaEnabled={true} />
       </GoogleReCaptchaProvider>
     </AuthErrorBoundary>
   )

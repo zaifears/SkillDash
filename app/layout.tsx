@@ -12,8 +12,14 @@ import IOSInstallGuide from '@/components/iOSInstallGuide'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import ServiceWorkerCleanup from '@/components/ServiceWorkerCleanup'
+import Script from 'next/script'
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
 
 const GTM_ID = 'GTM-MT2LDFM3'
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY?.trim()
+const LINKEDIN_PARTNER_ID = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID?.trim()
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() || 'vq8u27fhik'
 // Optimize font loading with display swap
 const inter = Inter({ 
   subsets: ['latin'],
@@ -126,13 +132,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+        {RECAPTCHA_SITE_KEY && <link rel="dns-prefetch" href="//www.google.com" />}
+        {RECAPTCHA_SITE_KEY && <link rel="dns-prefetch" href="//www.gstatic.com" />}
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        {RECAPTCHA_SITE_KEY && <link rel="preconnect" href="https://www.google.com" crossOrigin="anonymous" />}
+        {RECAPTCHA_SITE_KEY && <link rel="preconnect" href="https://www.gstatic.com" crossOrigin="anonymous" />}
         
-        {/* SAFE FIX: CSS preload for performance */}
-        <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
-
         {/* Enhanced Favicon Links */}
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
@@ -144,35 +151,6 @@ export default function RootLayout({
         {/* Sitemap Link for Search Engines */}
         <link rel="sitemap" type="application/xml" href="https://skilldash.live/sitemap.xml" />
         
-        {/* 🚀 DEFERRED GTM - Loads AFTER page loads (MOBILE FIX) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('load', function() {
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','${GTM_ID}');
-              });
-            `
-          }}
-        />
-
-        {/* Microsoft Clarity Tracking */}
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(c,l,a,r,i,t,y){
-                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-              })(window, document, "clarity", "script", "vq8u27fhik");
-            `
-          }}
-        />
-
         {/* Enhanced Structured Data */}
         <script
           type="application/ld+json"
@@ -256,6 +234,37 @@ export default function RootLayout({
         
         <ServiceWorkerRegistration />
         <IOSInstallGuide />
+        <GoogleTagManager gtmId={GTM_ID} />
+        {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
+
+        <Script id="microsoft-clarity" strategy="lazyOnload">
+          {`
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");
+          `}
+        </Script>
+
+        {LINKEDIN_PARTNER_ID && (
+          <>
+            <Script id="linkedin-insight-init" strategy="lazyOnload">
+              {`
+                window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+                window._linkedin_data_partner_ids.push('${LINKEDIN_PARTNER_ID}');
+                window.lintrk = window.lintrk || function(a,b){window.lintrk.q.push([a,b])};
+                window.lintrk.q = window.lintrk.q || [];
+              `}
+            </Script>
+            <Script
+              id="linkedin-insight-src"
+              src="https://snap.licdn.com/li.lms-analytics/insight.min.js"
+              strategy="lazyOnload"
+            />
+          </>
+        )}
+
         <AuthProvider>
           <EmailVerificationBanner />
           <SparkEffectInitializer />

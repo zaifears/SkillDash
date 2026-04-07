@@ -9,10 +9,42 @@ import {
 const Footer = dynamic(() => import('@/components/shared/Footer'), { loading: () => <div className="h-20" /> });
 
 export default function SimulatorLandingPage() {
+  const webAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': ['WebApplication', 'SoftwareApplication'],
+    name: 'SkillDash DSE Stock Market Simulator',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web Browser',
+    url: 'https://skilldash.live/simulator',
+    description:
+      'Practice Dhaka Stock Exchange trading with real-time market behavior, T+1 settlement simulation, and risk-free virtual capital.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'BDT',
+      availability: 'https://schema.org/InStock',
+    },
+    featureList: [
+      'Real-time DSE data simulation',
+      'T+1 settlement rules simulation',
+      'Risk-free paper trading with virtual money',
+    ],
+    publisher: {
+      '@type': 'Organization',
+      name: 'SkillDash',
+      url: 'https://skilldash.live',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+
       {/* Hero Section */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="pt-16 sm:pt-20 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500/20 border border-orange-500/30 rounded-full text-orange-400 text-xs sm:text-sm font-medium mb-6 sm:mb-8">
@@ -22,7 +54,10 @@ export default function SimulatorLandingPage() {
 
           {/* Main Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6">
-            Learn Stock Trading
+            DSE Stock Market Simulator
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 mt-2">
+              Learn Stock Trading
+            </span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 mt-2">
               Without Risking Real Money
             </span>
@@ -38,6 +73,7 @@ export default function SimulatorLandingPage() {
           {/* CTA Button */}
           <Link 
             href="/simulator/trade"
+            prefetch
             className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white text-lg sm:text-xl font-bold rounded-xl sm:rounded-2xl shadow-2xl shadow-orange-500/30 transform hover:scale-105 transition-all duration-300 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto"
           >
             Start Trading Now

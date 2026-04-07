@@ -21,13 +21,15 @@ const ModernNavbar = () => {
   // Mobile bottom nav items - Only simulator and home
   const bottomNavItems = [
     { name: 'Home', href: '/', icon: 'home', label: 'Home' },
-    { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' }
+    { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' },
+    { name: 'Blog', href: '/blog', icon: 'blog', label: 'Blog' }
   ]
 
   // Desktop nav items - Only simulator (home is logo)
   const desktopNavItems = [
     { name: 'About Us', href: '/about-us', icon: 'about', label: 'About Us' },
-    { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' }
+    { name: 'Simulator', href: '/simulator', icon: 'simulator', label: 'Simulator' },
+    { name: 'Blog', href: '/blog', icon: 'blog', label: 'Blog' }
   ]
 
   const isActive = (href) => pathname === href

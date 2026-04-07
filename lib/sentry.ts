@@ -1,63 +1,65 @@
-// ✅ NEW: Sentry Error Monitoring Configuration
-import * as Sentry from '@sentry/nextjs';
-
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 let sentryInitialized = false;
+type SentryLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug';
 
-export function initSentry() {
-  // ✅ OPTIMIZATION: Skip if already initialized or no DSN
-  if (sentryInitialized || !SENTRY_DSN) {
-    if (!SENTRY_DSN) {
-      console.warn('⚠️ Sentry DSN not configured. Error monitoring disabled.');
-    }
+async function loadSentryBrowser() {
+  const sentry = await import('@sentry/browser');
+  return sentry;
+}
+
+export async function initSentry() {
+  if (process.env.NODE_ENV !== 'production') {
+    return;
+  }
+
+  if (sentryInitialized || !SENTRY_DSN || typeof window === 'undefined') {
     return;
   }
 
   sentryInitialized = true;
 
-  // ✅ OPTIMIZATION: Defer Sentry init to avoid blocking
-  if (typeof window !== 'undefined') {
-    requestIdleCallback?.(() => {
-      Sentry.init({
-        dsn: SENTRY_DSN,
-        environment: process.env.NODE_ENV || 'development',
-        tracesSampleRate: 0.05, // Reduced from 0.1 to 5% for better performance
-        
-        // ✅ Reduce noise: Only capture errors in production
-        maxBreadcrumbs: 30, // Reduced from 50
-        attachStacktrace: true,
-        
-        // ✅ PII protection: Don't capture sensitive data
-        beforeSend(event, hint) {
-          // Filter out network errors that are expected
-          if (hint.originalException instanceof TypeError && 
-              hint.originalException.message?.includes('fetch')) {
-            return null;
-          }
-          return event;
-        },
+  const start = async () => {
+    const Sentry = await loadSentryBrowser();
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      tracesSampleRate: 0.05,
+      maxBreadcrumbs: 30,
+      attachStacktrace: true,
+      beforeSend(event, hint) {
+        if (
+          hint.originalException instanceof TypeError &&
+          hint.originalException.message?.includes('fetch')
+        ) {
+          return null;
+        }
+        return event;
+      },
+      ignoreErrors: [
+        'chrome-extension://',
+        'moz-extension://',
+        'Network request failed',
+        'timeout',
+        'cancelled',
+        'aborted',
+      ],
+    });
+  };
 
-        // ✅ Ignore known harmless errors
-        ignoreErrors: [
-          // Chrome extension errors
-          'chrome-extension://',
-          'moz-extension://',
-          
-          // Network timeouts (expected)
-          'Network request failed',
-          'timeout',
-          
-          // User cancelled
-          'cancelled',
-          'aborted',
-        ],
-      });
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => {
+      void start();
     }, { timeout: 5000 });
+  } else {
+    setTimeout(() => {
+      void start();
+    }, 250);
   }
 }
 
-export function captureException(error: unknown, context?: Record<string, any>) {
+export async function captureException(error: unknown, context?: Record<string, unknown>) {
   if (process.env.NODE_ENV === 'production') {
+    const Sentry = await loadSentryBrowser();
     Sentry.captureException(error, {
       contexts: context ? { custom: context } : undefined,
     });
@@ -66,8 +68,9 @@ export function captureException(error: unknown, context?: Record<string, any>) 
   }
 }
 
-export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info') {
+export async function captureMessage(message: string, level: SentryLevel = 'info') {
   if (process.env.NODE_ENV === 'production') {
+    const Sentry = await loadSentryBrowser();
     Sentry.captureMessage(message, level);
   } else {
     console.log(`🔵 [Sentry] ${level.toUpperCase()}: ${message}`);

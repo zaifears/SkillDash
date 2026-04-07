@@ -1,10 +1,10 @@
     'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { auth, db } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, limit } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, limit, where, startAfter, getDocs, getCountFromServer, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -33,37 +33,73 @@ const NAV_ITEMS: { label: string; href: string; filter: StatusFilter; color: str
 export default function RechargeList({ statusFilter }: { statusFilter: StatusFilter }) {
   const { user } = useAuth();
 
+  const PAGE_SIZE = 30;
   const [requests, setRequests] = useState<RechargeRequest[]>([]);
   const [processing, setProcessing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
 
-  // Fetch recharge requests
+  // Build Firestore query with proper server-side status filtering
+  const buildQuery = useCallback((cursor?: QueryDocumentSnapshot<DocumentData>) => {
+    const constraints: any[] = [];
+    if (statusFilter !== 'all') {
+      constraints.push(where('status', '==', statusFilter));
+    }
+    constraints.push(orderBy('createdAt', 'desc'));
+    if (cursor) {
+      constraints.push(startAfter(cursor));
+    }
+    constraints.push(limit(PAGE_SIZE + 1));
+    return query(collection(db, 'recharge_requests'), ...constraints);
+  }, [statusFilter]);
+
+  // Real-time listener for the first page
   useEffect(() => {
-    const baseQuery = query(
-      collection(db, 'recharge_requests'),
-      orderBy('createdAt', 'desc'),
-      limit(21)
-    );
+    setRequests([]);
+    setLastDoc(null);
+    setHasMore(false);
 
-    const unsubscribe = onSnapshot(baseQuery, (snapshot) => {
-      let requestsData = snapshot.docs
+    const q = buildQuery();
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs;
+      const requestsData = docs.slice(0, PAGE_SIZE)
         .map(d => ({ id: d.id, ...d.data() })) as RechargeRequest[];
 
-      if (statusFilter !== 'all') {
-        requestsData = requestsData.filter(req => req.status === statusFilter);
-      }
-
-      setRequests(requestsData.slice(0, 20));
-      setHasMore(requestsData.length > 20);
+      setRequests(requestsData);
+      setHasMore(docs.length > PAGE_SIZE);
+      setLastDoc(docs.length > 0 ? docs[Math.min(docs.length - 1, PAGE_SIZE - 1)] : null);
     }, (error) => {
       console.error('Error fetching requests:', error);
     });
 
     return () => unsubscribe();
-  }, [statusFilter]);
+  }, [buildQuery]);
+
+  // Load more pages (non-realtime fetch)
+  const loadMore = async () => {
+    if (!lastDoc || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const q = buildQuery(lastDoc);
+      const snapshot = await getDocs(q);
+      const docs = snapshot.docs;
+      const moreData = docs.slice(0, PAGE_SIZE)
+        .map(d => ({ id: d.id, ...d.data() })) as RechargeRequest[];
+
+      setRequests(prev => [...prev, ...moreData]);
+      setHasMore(docs.length > PAGE_SIZE);
+      setLastDoc(docs.length > 0 ? docs[Math.min(docs.length - 1, PAGE_SIZE - 1)] : null);
+    } catch (error) {
+      console.error('Error loading more requests:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -161,19 +197,38 @@ export default function RechargeList({ statusFilter }: { statusFilter: StatusFil
   };
 
   const filteredRequests = requests
-    .filter(req => statusFilter === 'all' ? true : req.status === statusFilter)
     .filter(req =>
-      req.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      req.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      req.trxId.toLowerCase().includes(searchTerm.toLowerCase())
+      !searchTerm ||
+      req.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.trxId?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-  const stats = {
-    all: requests.length,
-    pending: requests.filter(r => r.status === 'pending').length,
-    approved: requests.filter(r => r.status === 'approved').length,
-    rejected: requests.filter(r => r.status === 'rejected').length
-  };
+  const [stats, setStats] = useState({ all: 0, pending: 0, approved: 0, rejected: 0 });
+
+  // Fetch accurate counts from server
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const col = collection(db, 'recharge_requests');
+        const [allSnap, pendingSnap, approvedSnap, rejectedSnap] = await Promise.all([
+          getCountFromServer(col),
+          getCountFromServer(query(col, where('status', '==', 'pending'))),
+          getCountFromServer(query(col, where('status', '==', 'approved'))),
+          getCountFromServer(query(col, where('status', '==', 'rejected'))),
+        ]);
+        setStats({
+          all: allSnap.data().count,
+          pending: pendingSnap.data().count,
+          approved: approvedSnap.data().count,
+          rejected: rejectedSnap.data().count,
+        });
+      } catch (e) {
+        console.error('Error fetching counts:', e);
+      }
+    };
+    fetchCounts();
+  }, [requests]); // Re-fetch when requests change (approve/reject updates snapshot)
 
   return (
     <div className="min-h-screen pt-24 px-4 pb-12 bg-gray-50/50 dark:bg-[#0a0a0a]">
@@ -365,6 +420,29 @@ export default function RechargeList({ statusFilter }: { statusFilter: StatusFil
                 </div>
               </div>
             ))
+          )}
+
+          {/* Load More Button */}
+          {hasMore && !searchTerm && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl text-sm font-medium transition-colors shadow-sm disabled:opacity-50"
+              >
+                {loadingMore ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading...
+                  </>
+                ) : (
+                  <>Load More Requests</>
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>

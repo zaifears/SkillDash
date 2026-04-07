@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef, useCallback, startTransition } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useTransition, useDeferredValue } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useSimulator } from '@/hooks/useSimulator';
 import { useAuth } from '@/contexts/AuthContext';
-import MarketCalendar from '@/components/simulator/MarketCalendar';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getUpcomingHolidays } from '@/lib/bangladeshHolidays';
 import { getCompanyName, searchByNameOrSymbol } from '@/lib/dseCompanyNames';
@@ -15,7 +14,15 @@ import {
   Plus, Minus, AlertCircle, Clock
 } from 'lucide-react';
 
-const Footer = dynamic(() => import('@/components/shared/Footer'), { loading: () => <div className="h-20" /> });
+const MarketCalendar = dynamic(() => import('@/components/simulator/MarketCalendar'), {
+  ssr: false,
+  loading: () => <div className="h-48 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />,
+});
+
+const Footer = dynamic(() => import('@/components/shared/Footer'), {
+  ssr: false,
+  loading: () => <div className="h-20" />,
+});
 
 type TabType = 'market' | 'portfolio';
 
@@ -86,6 +93,7 @@ export default function SimulatorTradePage() {
   // Scroll to top button state
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [isPending, startTransition] = useTransition();
   
   // Periodic tick to keep dataAge fresh (re-renders every 30s)
   const [tick, setTick] = useState(0);
@@ -124,10 +132,12 @@ export default function SimulatorTradePage() {
   };
   
   const [holidays, setHolidays] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('market');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [tradeQuantity, setTradeQuantity] = useState<number | ''>(1);
+  const [tradeQuantityInput, setTradeQuantityInput] = useState('1');
   const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy');
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(50);
@@ -139,6 +149,36 @@ export default function SimulatorTradePage() {
       setVisibleCount(50);
     });
   }, []);
+
+  // Debounce search updates to keep typing responsive on large stock lists.
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      startTransition(() => {
+        setSearchQuery(searchInput);
+        setVisibleCount(50);
+      });
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchInput, startTransition]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (tradeQuantityInput === '') {
+        startTransition(() => setTradeQuantity(''));
+        return;
+      }
+
+      const parsed = parseInt(tradeQuantityInput, 10);
+      startTransition(() => {
+        if (!isNaN(parsed) && parsed >= 0) {
+          setTradeQuantity(parsed || '');
+        }
+      });
+    }, 120);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [tradeQuantityInput, startTransition]);
 
   // Load holidays on component mount
   useEffect(() => {
@@ -157,6 +197,17 @@ export default function SimulatorTradePage() {
   }, []);
 
   const marketOpen = isMarketOpen();
+  const deferredTradeQuantity = useDeferredValue(tradeQuantity);
+
+  const stockBySymbol = useMemo(
+    () => new Map((marketInfo?.stocks || []).map(stock => [stock.symbol, stock])),
+    [marketInfo?.stocks]
+  );
+
+  const portfolioBySymbol = useMemo(
+    () => new Map(simulatorState.portfolio.map(item => [item.symbol, item])),
+    [simulatorState.portfolio]
+  );
 
   // --- Optimized Filtering Logic with Company Name Search ---
   // Memoize search query for efficient filtering
@@ -207,11 +258,54 @@ export default function SimulatorTradePage() {
   }, [filteredData, visibleCount]);
   const hasMore = filteredData.length > visibleCount;
 
+  const tradeSummary = useMemo(() => {
+    const qty = typeof deferredTradeQuantity === 'number' && deferredTradeQuantity > 0 ? deferredTradeQuantity : 0;
+    const selectedStockData = selectedStock ? stockBySymbol.get(selectedStock) : undefined;
+    const stockPrice = selectedStockData?.ltp || 0;
+    const subtotal = stockPrice * qty;
+    const commission = Math.round(subtotal * 0.003 * 100) / 100;
+    const total = Math.round((tradeType === 'buy' ? subtotal + commission : subtotal - commission) * 100) / 100;
+    const availableBalance = Math.round(simulatorState.balance * 100) / 100;
+    const canAfford = total <= availableBalance + 0.01;
+    const holding = selectedStock ? portfolioBySymbol.get(selectedStock) : undefined;
+    const holdingQty = holding?.quantity || 0;
+    const canSellQty = qty <= holdingQty;
+    const shortage = Math.max(0, Math.round((total - availableBalance) * 100) / 100);
+    const canSell = !holding || (() => {
+      if (!holding.purchaseDate) return true;
+      const bdOpts = { timeZone: 'Asia/Dhaka' } as const;
+      const purchaseStr = new Date(holding.purchaseDate).toLocaleDateString('en-CA', bdOpts);
+      const todayStr = new Date().toLocaleDateString('en-CA', bdOpts);
+      return purchaseStr !== todayStr;
+    })();
+
+    return {
+      qty,
+      stockPrice,
+      subtotal,
+      commission,
+      total,
+      availableBalance,
+      canAfford,
+      holdingQty,
+      canSellQty,
+      shortage,
+      canSell,
+      isDisabled:
+        transactionStatus === 'processing' ||
+        !marketOpen ||
+        qty <= 0 ||
+        (tradeType === 'buy' && !canAfford) ||
+        (tradeType === 'sell' && (!canSellQty || !canSell)),
+    };
+  }, [deferredTradeQuantity, selectedStock, stockBySymbol, tradeType, simulatorState.balance, portfolioBySymbol, transactionStatus, marketOpen]);
+
   // --- Handlers ---
   const openTradeModal = (symbol: string, type: 'buy' | 'sell') => {
     setSelectedStock(symbol);
     setTradeType(type);
     setTradeQuantity(1);
+    setTradeQuantityInput('1');
     resetTransaction();
     setShowTradeModal(true);
   };
@@ -353,10 +447,15 @@ export default function SimulatorTradePage() {
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search companies..."
-                  value={searchQuery}
-                  onChange={e => { setSearchQuery(e.target.value); setVisibleCount(50); }}
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
                   className="w-full h-full pl-9 sm:pl-10 pr-3 sm:pr-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-gray-400"
                 />
+                {isPending && (
+                  <div className="absolute inset-y-0 right-3 flex items-center text-[10px] font-semibold text-blue-500">
+                    Updating...
+                  </div>
+                )}
               </div>
             </div>
 
@@ -384,7 +483,7 @@ export default function SimulatorTradePage() {
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {visibleData.length > 0 ? visibleData.map((stock) => {
                           const isUp = stock.change >= 0;
-                          const portfolioItem = simulatorState.portfolio.find(p => p.symbol === stock.symbol);
+                          const portfolioItem = portfolioBySymbol.get(stock.symbol);
                           if (!portfolioItem) return null;
                           const avgCost = portfolioItem.averageBuyPrice;
                           const currentValue = stock.ltp * portfolioItem.quantity;
@@ -486,7 +585,7 @@ export default function SimulatorTradePage() {
                   <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
                     {visibleData.length > 0 ? visibleData.map((stock) => {
                       const isUp = stock.change >= 0;
-                      const portfolioItem = simulatorState.portfolio.find(p => p.symbol === stock.symbol);
+                      const portfolioItem = portfolioBySymbol.get(stock.symbol);
                       if (!portfolioItem) return null;
                       const avgCost = portfolioItem.averageBuyPrice;
                       const currentValue = stock.ltp * portfolioItem.quantity;
@@ -968,7 +1067,7 @@ export default function SimulatorTradePage() {
                         tradeType === 'buy' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
                       }`}>{selectedStock}</h3>
                       <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                        ৳{marketInfo?.stocks.find(s => s.symbol === selectedStock)?.ltp.toFixed(2)}
+                        ৳{tradeSummary.stockPrice.toFixed(2)}
                       </p>
                     </div>
                     {/* Inline balance/holdings badge */}
@@ -978,7 +1077,7 @@ export default function SimulatorTradePage() {
                       </span>
                     ) : (
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
-                        Holding: {(simulatorState.portfolio.find(p => p.symbol === selectedStock)?.quantity || 0).toLocaleString()} shares
+                        Holding: {tradeSummary.holdingQty.toLocaleString()} shares
                       </span>
                     )}
                   </div>
@@ -1018,7 +1117,7 @@ export default function SimulatorTradePage() {
 
                   {/* T+1 Warning (sell only, compact) */}
                   {tradeType === 'sell' && (() => {
-                    const holding = simulatorState.portfolio.find(p => p.symbol === selectedStock);
+                    const holding = selectedStock ? portfolioBySymbol.get(selectedStock) : undefined;
                     const canSell = !holding || (new Date(holding.purchaseDate).toDateString() !== new Date().toDateString());
                     if (canSell) return null;
                     return (
@@ -1034,7 +1133,12 @@ export default function SimulatorTradePage() {
                     <label className="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Quantity</label>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setTradeQuantity(prev => Math.max(1, (typeof prev === 'number' ? prev : 1) - 1))}
+                        onClick={() => {
+                          const currentQty = typeof tradeQuantity === 'number' ? tradeQuantity : 1;
+                          const nextQty = Math.max(1, currentQty - 1);
+                          setTradeQuantity(nextQty);
+                          setTradeQuantityInput(String(nextQty));
+                        }}
                         disabled={tradeQuantity !== '' && tradeQuantity <= 1}
                         className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                       >
@@ -1044,24 +1148,28 @@ export default function SimulatorTradePage() {
                       <input 
                         type="number" 
                         min="1"
-                        value={tradeQuantity}
+                        value={tradeQuantityInput}
                         onChange={(e) => {
                           const raw = e.target.value;
-                          if (raw === '') {
-                            setTradeQuantity('');
-                            return;
-                          }
-                          const val = parseInt(raw, 10);
-                          if (!isNaN(val) && val >= 0) setTradeQuantity(val || '');
+                          if (raw === '') return setTradeQuantityInput('');
+                          const normalized = raw.replace(/[^0-9]/g, '');
+                          setTradeQuantityInput(normalized);
                         }}
                         onBlur={() => {
-                          if (tradeQuantity === '' || tradeQuantity <= 0) setTradeQuantity(1);
+                          if (tradeQuantity === '' || tradeQuantity <= 0) {
+                            setTradeQuantity(1);
+                            setTradeQuantityInput('1');
+                          }
                         }}
                         className="flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-center text-lg font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       
                       <button
-                        onClick={() => setTradeQuantity(prev => (typeof prev === 'number' && prev > 0 ? prev : 0) + 1)}
+                        onClick={() => {
+                          const nextQty = (typeof tradeQuantity === 'number' && tradeQuantity > 0 ? tradeQuantity : 0) + 1;
+                          setTradeQuantity(nextQty);
+                          setTradeQuantityInput(String(nextQty));
+                        }}
                         className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
                       >
                         <Plus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
@@ -1070,31 +1178,18 @@ export default function SimulatorTradePage() {
                   </div>
 
                   {/* Cost Breakdown - Compact */}
-                  {(() => {
-                    const qty = typeof tradeQuantity === 'number' && tradeQuantity > 0 ? tradeQuantity : 0;
-                    const stockPrice = marketInfo?.stocks.find(s => s.symbol === selectedStock)?.ltp || 0;
-                    const subtotal = stockPrice * qty;
-                    const commission = Math.round(subtotal * 0.003 * 100) / 100;
-                    const total = Math.round((tradeType === 'buy' ? subtotal + commission : subtotal - commission) * 100) / 100;
-                    const availableBalance = Math.round(simulatorState.balance * 100) / 100;
-                    const canAfford = total <= availableBalance + 0.01;
-                    const holding = simulatorState.portfolio.find(p => p.symbol === selectedStock);
-                    const holdingQty = holding?.quantity || 0;
-                    const canSellQty = qty <= holdingQty;
-                    const shortage = Math.max(0, Math.round((total - availableBalance) * 100) / 100);
-                    
-                    return (
+                  {(
                       <div className="space-y-1.5 pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between text-xs">
-                          <span className="text-gray-500 dark:text-gray-400">৳{stockPrice.toFixed(2)} × {qty}</span>
+                          <span className="text-gray-500 dark:text-gray-400">৳{tradeSummary.stockPrice.toFixed(2)} × {tradeSummary.qty}</span>
                           <span className="font-mono text-gray-900 dark:text-white">
-                            ৳{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ৳{tradeSummary.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
                           <span className="text-gray-500 dark:text-gray-400">Commission (0.3%)</span>
                           <span className="font-mono text-amber-600 dark:text-amber-400">
-                            {tradeType === 'buy' ? '+' : '-'}৳{commission.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {tradeType === 'buy' ? '+' : '-'}৳{tradeSummary.commission.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div className="flex justify-between pt-1.5 border-t border-gray-200 dark:border-gray-700">
@@ -1104,60 +1199,35 @@ export default function SimulatorTradePage() {
                           <span className={`text-base font-bold font-mono ${
                             tradeType === 'buy' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                           }`}>
-                            ৳{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ৳{tradeSummary.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
 
                         {/* Warnings */}
-                        {tradeType === 'buy' && !canAfford && shortage > 0 && (
+                        {tradeType === 'buy' && !tradeSummary.canAfford && tradeSummary.shortage > 0 && (
                           <div className="text-[11px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded border border-red-200 dark:border-red-800/50">
-                            Insufficient balance. Need ৳{shortage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more.
+                            Insufficient balance. Need ৳{tradeSummary.shortage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more.
                           </div>
                         )}
                         
-                        {tradeType === 'sell' && !canSellQty && qty > 0 && (
+                        {tradeType === 'sell' && !tradeSummary.canSellQty && tradeSummary.qty > 0 && (
                           <div className="text-[11px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded border border-red-200 dark:border-red-800/50">
-                            You only have {holdingQty} shares available.
+                            You only have {tradeSummary.holdingQty} shares available.
                           </div>
                         )}
                       </div>
-                    );
-                  })()}
+                    )}
                 </div>
 
                 {/* Submit Button - Fixed at Bottom */}
                 <div className="px-4 sm:px-5 py-4 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/20 pb-8 sm:pb-3">
-                  {(() => {
-                    const qty = typeof tradeQuantity === 'number' && tradeQuantity > 0 ? tradeQuantity : 0;
-                    const stockPrice = marketInfo?.stocks.find(s => s.symbol === selectedStock)?.ltp || 0;
-                    const subtotal = stockPrice * qty;
-                    const commission = Math.round(subtotal * 0.003 * 100) / 100;
-                    const total = Math.round((tradeType === 'buy' ? subtotal + commission : subtotal - commission) * 100) / 100;
-                    const availableBalance = Math.round(simulatorState.balance * 100) / 100;
-                    const canAfford = total <= availableBalance + 0.01;
-                    const holding = simulatorState.portfolio.find(p => p.symbol === selectedStock);
-                    const holdingQty = holding?.quantity || 0;
-                    const canSellQty = qty <= holdingQty;
-                    // T+1 check using Bangladesh timezone (consistent with hook logic)
-                    const canSell = !holding || (() => {
-                      if (!holding.purchaseDate) return true;
-                      const bdOpts = { timeZone: 'Asia/Dhaka' } as const;
-                      const purchaseStr = new Date(holding.purchaseDate).toLocaleDateString('en-CA', bdOpts);
-                      const todayStr = new Date().toLocaleDateString('en-CA', bdOpts);
-                      return purchaseStr !== todayStr;
-                    })();
-                    
-                    const isDisabled = transactionStatus === 'processing' || !marketOpen || qty <= 0 ||
-                      (tradeType === 'buy' && !canAfford) || 
-                      (tradeType === 'sell' && (!canSellQty || !canSell));
-
-                    return (
+                  {(
                       <button
                         onClick={executeTrade}
-                        disabled={isDisabled}
+                        disabled={tradeSummary.isDisabled}
                         className={`w-full py-2.5 rounded-xl text-white font-bold text-sm shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 ${
                           !marketOpen ? 'bg-gray-400 cursor-not-allowed' :
-                          isDisabled ? 'bg-gray-400 cursor-not-allowed opacity-60' :
+                          tradeSummary.isDisabled ? 'bg-gray-400 cursor-not-allowed opacity-60' :
                           tradeType === 'buy' 
                           ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-emerald-500/30' 
                           : 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500 shadow-rose-500/30'
@@ -1168,8 +1238,7 @@ export default function SimulatorTradePage() {
                           : tradeType === 'buy' ? 'Confirm Buy' : 'Confirm Sell'
                         }
                       </button>
-                    );
-                  })()}
+                    )}
                 </div>
               </>
             )}
@@ -1183,8 +1252,9 @@ export default function SimulatorTradePage() {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-50 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
           aria-label="Scroll to top"
+          title="Scroll to top"
         >
-          <ChevronUp className="w-6 h-6" />
+          <ChevronUp className="w-6 h-6" aria-hidden="true" />
         </button>
       )}
 

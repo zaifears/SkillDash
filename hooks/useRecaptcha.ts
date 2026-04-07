@@ -11,8 +11,17 @@ interface VerifyRecaptchaResult {
 
 export function useRecaptcha() {
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY?.trim();
+  const isConfigured = Boolean(siteKey);
 
   const verifyRecaptcha = useCallback(async (action: string): Promise<VerifyRecaptchaResult> => {
+    if (!isConfigured) {
+      return {
+        success: false,
+        error: 'Security verification is temporarily unavailable. Please try again later.',
+      };
+    }
+
     // If reCAPTCHA is not available, block the action
     if (!executeRecaptcha) {
       console.warn('reCAPTCHA not ready yet');
@@ -57,7 +66,7 @@ export function useRecaptcha() {
         error: 'Failed to verify reCAPTCHA. Please try again.',
       };
     }
-  }, [executeRecaptcha]);
+  }, [executeRecaptcha, isConfigured]);
 
-  return { verifyRecaptcha, isReady: !!executeRecaptcha };
+  return { verifyRecaptcha, isReady: !!executeRecaptcha, isConfigured };
 }

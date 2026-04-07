@@ -18,6 +18,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 }) => {
   const [imgSrc, setImgSrc] = useState(src)
   const [isLoading, setIsLoading] = useState(true)
+  const isPriority = Boolean(props.priority)
 
   return (
     <div className={`relative overflow-hidden ${isLoading ? 'animate-pulse bg-gray-200 dark:bg-gray-700' : ''}`}>
@@ -25,6 +26,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         {...props}
         src={imgSrc}
         alt={alt}
+        loading={isPriority ? 'eager' : props.loading}
+        fetchPriority={isPriority ? 'high' : props.fetchPriority}
         className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
         onLoad={() => setIsLoading(false)}
         onError={() => {
@@ -33,7 +36,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         }}
         placeholder="blur"
         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-        priority={props.priority}
+        priority={isPriority}
       />
     </div>
   )

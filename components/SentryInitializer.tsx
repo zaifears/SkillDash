@@ -7,7 +7,7 @@ export default function SentryInitializer() {
   useEffect(() => {
     // ✅ OPTIMIZATION: Defer initialization to avoid blocking page load
     const timer = setTimeout(() => {
-      initSentry()
+      void initSentry()
     }, 100)
 
     return () => clearTimeout(timer)

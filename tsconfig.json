@@ -23,11 +23,10 @@
     "incremental": true,
     "module": "esnext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
@@ -43,6 +42,7 @@
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/dev/types/**/*.ts"
