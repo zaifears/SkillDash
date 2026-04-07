@@ -165,13 +165,20 @@ const CoinsPage: React.FC = () => {
       const db = getFirestore();
 
       // Check for duplicate TrxID (prevent re-submission of same transaction)
-      const duplicateQuery = query(
-        collection(db, 'recharge_requests'),
-        where('trxId', '==', trimmedTrxId),
-        limit(1)
-      );
-      const duplicateSnap = await getDocs(duplicateQuery);
-      if (!duplicateSnap.empty) {
+      const [duplicateByTrxIdSnap, duplicateByTransactionIdSnap] = await Promise.all([
+        getDocs(query(
+          collection(db, 'recharge_requests'),
+          where('trxId', '==', trimmedTrxId),
+          limit(1)
+        )),
+        getDocs(query(
+          collection(db, 'recharge_requests'),
+          where('transactionId', '==', trimmedTrxId),
+          limit(1)
+        ))
+      ]);
+
+      if (!duplicateByTrxIdSnap.empty || !duplicateByTransactionIdSnap.empty) {
         setRechargeError('This Transaction ID has already been submitted. Each bKash TrxID can only be used once.');
         setIsSubmitting(false);
         return;
@@ -183,6 +190,7 @@ const CoinsPage: React.FC = () => {
         userEmail: user.email,
         amount: rechargeAmount,
         coins: coinsToReceive,
+        transactionId: trimmedTrxId,
         trxId: trimmedTrxId,
         bkashNumber: BKASH_NUMBER,
         status: 'pending',

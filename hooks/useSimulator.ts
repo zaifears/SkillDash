@@ -340,6 +340,12 @@ export const useSimulator = () => {
         return;
       }
 
+      if (!isMarketOpen()) {
+        setTransactionStatus('error');
+        setTransactionMessage('Market is closed. Buy orders are only allowed during market hours.');
+        return;
+      }
+
       // FIX #3: Refresh token before critical financial operation
       const freshToken = await getFreshToken(true);
       if (!freshToken) {
@@ -444,7 +450,7 @@ export const useSimulator = () => {
         setTransactionMessage(err instanceof Error ? err.message : 'Failed to execute buy order');
       }
     },
-    [user, marketInfo, simulatorState.balance, db]
+    [user, marketInfo, simulatorState.balance, db, isMarketOpen]
   );
 
   // Handle sell transaction
@@ -453,6 +459,12 @@ export const useSimulator = () => {
       if (!user || !marketInfo) {
         setTransactionStatus('error');
         setTransactionMessage('User not authenticated or market data not loaded');
+        return;
+      }
+
+      if (!isMarketOpen()) {
+        setTransactionStatus('error');
+        setTransactionMessage('Market is closed. Sell orders are only allowed during market hours.');
         return;
       }
 
@@ -573,7 +585,7 @@ export const useSimulator = () => {
         setTransactionMessage(err instanceof Error ? err.message : 'Failed to execute sell order');
       }
     },
-    [user, marketInfo, simulatorState.portfolio, db]
+    [user, marketInfo, simulatorState.portfolio, db, isMarketOpen]
   );
 
   // Check if market is open (10:00 AM - 2:15 PM Dhaka Time)
