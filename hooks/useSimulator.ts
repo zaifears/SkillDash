@@ -331,6 +331,36 @@ export const useSimulator = () => {
   // Handle buy transaction
   // Commission rate: 0.3% on all transactions
   const COMMISSION_RATE = 0.003;
+
+  // Check if market is open (10:00 AM - 2:15 PM Dhaka Time)
+  const isMarketOpen = useCallback(() => {
+    // Create a date in Bangladesh timezone (UTC+6)
+    const now = new Date();
+    const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
+    
+    const hour = bdTime.getHours();
+    const minute = bdTime.getMinutes();
+    const dayOfWeek = bdTime.getDay();
+    
+    // Format date as YYYY-MM-DD without timezone conversion issues
+    const year = bdTime.getFullYear();
+    const month = String(bdTime.getMonth() + 1).padStart(2, '0');
+    const day = String(bdTime.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+
+    // Market is closed on Friday and Saturday
+    if (dayOfWeek === 5 || dayOfWeek === 6) {
+      return false;
+    }
+
+    // Market is closed on national holidays
+    if (bangladeshHolidays.includes(dateStr)) {
+      return false;
+    }
+
+    // Market hours: 10:00 AM to 2:15 PM (14:15)
+    return (hour >= 10 && (hour < 14 || (hour === 14 && minute <= 15)));
+  }, [bangladeshHolidays]);
   
   const handleBuyTrade = useCallback(
     async (symbol: string, quantity: number) => {
@@ -587,36 +617,6 @@ export const useSimulator = () => {
     },
     [user, marketInfo, simulatorState.portfolio, db, isMarketOpen]
   );
-
-  // Check if market is open (10:00 AM - 2:15 PM Dhaka Time)
-  const isMarketOpen = useCallback(() => {
-    // Create a date in Bangladesh timezone (UTC+6)
-    const now = new Date();
-    const bdTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
-    
-    const hour = bdTime.getHours();
-    const minute = bdTime.getMinutes();
-    const dayOfWeek = bdTime.getDay();
-    
-    // Format date as YYYY-MM-DD without timezone conversion issues
-    const year = bdTime.getFullYear();
-    const month = String(bdTime.getMonth() + 1).padStart(2, '0');
-    const day = String(bdTime.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
-
-    // Market is closed on Friday and Saturday
-    if (dayOfWeek === 5 || dayOfWeek === 6) {
-      return false;
-    }
-
-    // Market is closed on national holidays
-    if (bangladeshHolidays.includes(dateStr)) {
-      return false;
-    }
-
-    // Market hours: 10:00 AM to 2:15 PM (14:15)
-    return (hour >= 10 && (hour < 14 || (hour === 14 && minute <= 15)));
-  }, [bangladeshHolidays]);
 
   // Cleanup
   useEffect(() => {
