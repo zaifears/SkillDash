@@ -35,6 +35,15 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
   const [linkCopied, setLinkCopied] = useState(false)
   const router = useRouter()
   const { verifyRecaptcha: verifyRecaptchaToken, isReady: isRecaptchaReady, isConfigured } = useRecaptcha()
+  const enforceRecaptcha = recaptchaEnabled && process.env.NODE_ENV === 'production'
+
+  const canUseSocialOAuthHere = () => {
+    if (typeof window === 'undefined') return true
+    const { protocol, hostname } = window.location
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
+    const isSecure = protocol === 'https:'
+    return isSecure || isLocalhost
+  }
 
   // Detect in-app browser on mount
   useEffect(() => {
@@ -124,9 +133,11 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
       return
     }
 
-    // Verify reCAPTCHA first
-    const isHuman = await verifyRecaptcha('signup')
-    if (!isHuman) return
+    // Enforce reCAPTCHA only in production for credential flows.
+    if (enforceRecaptcha) {
+      const isHuman = await verifyRecaptcha('signup')
+      if (!isHuman) return
+    }
 
     if (!validateEmail(formData.email)) {
       setError('Please enter a valid email address.')
@@ -178,9 +189,11 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
       return
     }
 
-    // Verify reCAPTCHA first
-    const isHuman = await verifyRecaptcha('signin')
-    if (!isHuman) return
+    // Enforce reCAPTCHA only in production for credential flows.
+    if (enforceRecaptcha) {
+      const isHuman = await verifyRecaptcha('signin')
+      if (!isHuman) return
+    }
 
     if (!validateEmail(formData.email)) {
       setError('Please enter a valid email address.')
@@ -201,14 +214,10 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
   }
 
   const handleGoogleSignIn = async () => {
-    if (!rateLimit('google:signin')) {
-      setError('Too many attempts. Please try again later.')
+    if (!canUseSocialOAuthHere()) {
+      setError('Google/GitHub sign-in requires HTTPS (or localhost). On phone over LAN IP, use an HTTPS tunnel (for example ngrok) and add that domain to Firebase Authorized Domains.')
       return
     }
-
-    // Verify reCAPTCHA first
-    const isHuman = await verifyRecaptcha('google_signin')
-    if (!isHuman) return
 
     setIsLoading(true)
     setError('')
@@ -221,7 +230,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
       // If redirect was used (popup blocked), the page navigates away.
     } catch (err: any) {
       setError(humanizeAuthError(err))
-      console.error('Google sign-in error:', err)
+      console.warn('Google sign-in handled error:', err?.code || err?.message || err)
     } finally {
       setIsLoading(false)
       setMessage('')
@@ -229,14 +238,10 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
   }
 
   const handleGitHubSignIn = async () => {
-    if (!rateLimit('github:signin')) {
-      setError('Too many attempts. Please try again later.')
+    if (!canUseSocialOAuthHere()) {
+      setError('Google/GitHub sign-in requires HTTPS (or localhost). On phone over LAN IP, use an HTTPS tunnel (for example ngrok) and add that domain to Firebase Authorized Domains.')
       return
     }
-
-    // Verify reCAPTCHA first
-    const isHuman = await verifyRecaptcha('github_signin')
-    if (!isHuman) return
 
     setIsLoading(true)
     setError('')
@@ -266,9 +271,11 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
       return
     }
 
-    // Verify reCAPTCHA to prevent bot spam of password reset emails
-    const isHuman = await verifyRecaptcha('forgot_password')
-    if (!isHuman) return
+    // Enforce reCAPTCHA only in production for credential flows.
+    if (enforceRecaptcha) {
+      const isHuman = await verifyRecaptcha('forgot_password')
+      if (!isHuman) return
+    }
 
     setIsLoading(true)
     setError('')
@@ -285,11 +292,11 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!recaptchaEnabled || !isConfigured) {
+    if (enforceRecaptcha && !isConfigured) {
       setError('Security verification is unavailable right now. Please try again later.')
       return
     }
-    if (!isRecaptchaReady) {
+    if (enforceRecaptcha && !isRecaptchaReady) {
       setError('Security verification is loading. Please wait a moment and try again.')
       return
     }
@@ -331,7 +338,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                   {!recaptchaEnabled && (
                     <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
                       <p className="text-amber-200 text-sm">
-                        Security verification is currently unavailable. Authentication is temporarily disabled.
+                        Security verification is currently unavailable. Social sign-in remains available, and email/password auth is allowed in development.
                       </p>
                     </div>
                   )}
@@ -396,7 +403,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                       <button
                         type="button"
                         onClick={handleForgotPassword}
-                        disabled={isLoading || !recaptchaEnabled}
+                        disabled={isLoading || (enforceRecaptcha && !isRecaptchaReady)}
                         className="text-xs text-blue-400 hover:text-blue-300 transition disabled:opacity-50"
                       >
                         Forgot password?
@@ -406,7 +413,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                     {/* Log In Button */}
                     <button
                       type="submit"
-                      disabled={isLoading || !recaptchaEnabled}
+                      disabled={isLoading || (enforceRecaptcha && !isRecaptchaReady)}
                       className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
@@ -581,7 +588,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                     {/* Sign Up Button */}
                     <button
                       type="submit"
-                      disabled={isLoading || !recaptchaEnabled}
+                      disabled={isLoading || (enforceRecaptcha && !isRecaptchaReady)}
                       className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isLoading ? (
@@ -675,7 +682,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
               <div className="space-y-3">
                 <button
                   onClick={handleGoogleSignIn}
-                  disabled={isLoading || !recaptchaEnabled}
+                  disabled={isLoading}
                   className="w-full py-2 px-3 rounded-lg bg-white text-slate-900 font-semibold text-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900 transition flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -689,7 +696,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
 
                 <button
                   onClick={handleGitHubSignIn}
-                  disabled={isLoading || !recaptchaEnabled}
+                  disabled={isLoading}
                   className="w-full py-2 px-3 rounded-lg bg-slate-700 text-white font-semibold text-sm hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500 transition flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -738,7 +745,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
             <SocialAuth 
               handleGoogleSignIn={handleGoogleSignIn}
               handleGitHubSignIn={handleGitHubSignIn}
-              isLoading={isLoading || !recaptchaEnabled}
+              isLoading={isLoading}
               isInAppBrowser={inAppBrowser}
             />
           </div>

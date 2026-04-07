@@ -48,12 +48,12 @@ const nextConfig = {
       "base-uri 'self'",
       "frame-ancestors 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://snap.licdn.com https://www.google.com https://www.gstatic.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://snap.licdn.com https://www.google.com https://www.gstatic.com https://apis.google.com https://accounts.google.com https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' ws: wss: https://*.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://www.clarity.ms https://region1.google-analytics.com",
-      "frame-src 'self' https://www.google.com https://www.gstatic.com",
+      "connect-src 'self' ws: wss: https://*.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://www.clarity.ms https://region1.google-analytics.com https://accounts.google.com https://va.vercel-scripts.com",
+      "frame-src 'self' https://www.google.com https://www.gstatic.com https://accounts.google.com https://*.firebaseapp.com https://*.web.app",
       "worker-src 'self' blob:",
     ];
 
@@ -70,15 +70,19 @@ const nextConfig = {
     const csp = cspDirectives.join('; ');
 
     return [
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
+      ...(isProduction
+        ? [
+            {
+              source: '/_next/static/:path*',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'public, max-age=31536000, immutable',
+                },
+              ],
+            },
+          ]
+        : []),
       {
         source: '/:path*',
         headers: [
@@ -100,7 +104,7 @@ const nextConfig = {
           },
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
+            value: 'same-origin-allow-popups',
           },
           {
             key: 'Cross-Origin-Resource-Policy',

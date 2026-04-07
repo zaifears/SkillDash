@@ -140,49 +140,124 @@ export const isInAppBrowser = (): boolean => {
         || (ua.includes('android') && !ua.includes('chrome'));
 };
 
+const getAuthErrorCode = (error: any): string => {
+  if (typeof error?.code === 'string' && error.code.startsWith('auth/')) {
+    return error.code;
+  }
+
+  const message = String(error?.message || '');
+  const match = message.match(/auth\/[a-z-]+/i);
+  return match ? match[0].toLowerCase() : '';
+};
+
+const hasAuthErrorCode = (error: any, code: string): boolean => {
+  return getAuthErrorCode(error) === code;
+};
+
 export const signInWithSocialProviderAndCreateProfile = async (
     provider: GoogleAuthProvider | GithubAuthProvider
 ) => {
+  if (!auth) {
+    const configError = new Error('Firebase Auth is not initialized.') as Error & { code?: string };
+    configError.code = 'auth/configuration-not-found';
+    throw configError;
+  }
+
+    // Redirect is only used for in-app browsers where popup is often unsupported.
+    if (isInAppBrowser()) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+      }
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+
     try {
-        // Always prefer popup — signInWithRedirect is unreliable due to
-        // third-party cookie deprecation in Chrome 115+ and Safari.
-        // Popup works on both desktop AND mobile browsers.
-        console.log('🔐 Attempting popup OAuth...');
-        const result = await signInWithPopup(auth, provider);
-        return await handleSocialSignInResult(result.user);
+      // Strict stable path: popup-only for normal browsers.
+      console.log('🔐 Attempting popup OAuth...');
+      const result = await signInWithPopup(auth, provider);
+      return await handleSocialSignInResult(result.user);
     } catch (error: any) {
-        // Only fall back to redirect for environments where popups truly cannot work
-        const redirectFallbackCodes = [
-            'auth/popup-blocked',                                  // Browser/extension blocked the popup
-            'auth/operation-not-supported-in-this-environment',    // In-app browser (Instagram, LinkedIn, TikTok)
-        ];
-
-        if (redirectFallbackCodes.includes(error.code)) {
-            console.warn(`⚠️ Popup failed (${error.code}) — falling back to redirect OAuth`);
+      if (hasAuthErrorCode(error, 'auth/internal-error')) {
+        try {
+          console.warn('⚠️ Popup OAuth hit auth/internal-error, retrying once...');
+          const retryResult = await signInWithPopup(auth, provider);
+          return await handleSocialSignInResult(retryResult.user);
+        } catch (retryError: any) {
+          if (
+            hasAuthErrorCode(retryError, 'auth/internal-error') ||
+            hasAuthErrorCode(retryError, 'auth/popup-blocked') ||
+            hasAuthErrorCode(retryError, 'auth/network-request-failed')
+          ) {
             try {
-                // Mark that we're doing an OAuth redirect so we can detect failures on return
-                if (typeof window !== 'undefined') {
-                    sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
-                }
-                await signInWithRedirect(auth, provider);
-                return null; // Page will navigate away
+              console.warn(`⚠️ Popup OAuth still failing (${getAuthErrorCode(retryError) || 'unknown'}). Switching to redirect fallback...`);
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+              }
+              await signInWithRedirect(auth, provider);
+              return null;
             } catch (redirectError: any) {
-                console.error('❌ Redirect OAuth also failed:', redirectError);
-                if (typeof window !== 'undefined') {
-                    sessionStorage.removeItem('skilldash_oauth_redirect');
-                }
-                throw new Error('Sign-in failed. Please try again or use email/password.');
+              if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('skilldash_oauth_redirect');
+              }
+              const wrappedError = new Error('Sign-in could not be completed using popup or redirect.') as Error & { code?: string };
+              wrappedError.code = 'auth/redirect-failed';
+              throw wrappedError;
             }
+          }
+          throw retryError;
         }
+      }
 
-        // User closed popup or cancelled — re-throw for caller to handle
-        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-            throw error;
+      if (hasAuthErrorCode(error, 'auth/popup-blocked')) {
+        try {
+          console.warn('⚠️ Popup blocked in standard browser. Switching to redirect fallback...');
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+          }
+          await signInWithRedirect(auth, provider);
+          return null;
+        } catch (redirectError: any) {
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('skilldash_oauth_redirect');
+          }
+          const wrappedError = new Error('Popup and redirect sign-in were both blocked.') as Error & { code?: string };
+          wrappedError.code = 'auth/redirect-failed';
+          throw wrappedError;
         }
+      }
 
-        // Re-throw unexpected errors
-        console.error('❌ Unexpected OAuth error:', error);
+      if (hasAuthErrorCode(error, 'auth/network-request-failed')) {
+        try {
+          console.warn('⚠️ Popup OAuth network handoff failed. Switching to redirect fallback...');
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+          }
+          await signInWithRedirect(auth, provider);
+          return null;
+        } catch (redirectError: any) {
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('skilldash_oauth_redirect');
+          }
+          const wrappedError = new Error('Social sign-in failed due to network issues in popup and redirect flows.') as Error & { code?: string };
+          wrappedError.code = 'auth/redirect-failed';
+          throw wrappedError;
+        }
+      }
+
+      if (hasAuthErrorCode(error, 'auth/operation-not-supported-in-this-environment')) {
+        const envError = new Error('Popup sign-in is not supported in this browser environment.') as Error & { code?: string };
+        envError.code = 'auth/operation-not-supported-in-this-environment';
+        throw envError;
+      }
+
+      // User closed popup or cancelled — re-throw for caller to handle
+      if (hasAuthErrorCode(error, 'auth/popup-closed-by-user') || hasAuthErrorCode(error, 'auth/cancelled-popup-request')) {
         throw error;
+      }
+
+      console.warn('⚠️ Social OAuth failed:', error?.code || error?.message || error);
+      throw error;
     }
 };
 
@@ -193,9 +268,15 @@ export const handleRedirectResult = async () => {
             return await handleSocialSignInResult(result.user);
         }
         return null;
-    } catch (error) {
-        console.error('Redirect result error:', error);
-        throw error;
+  } catch (error: any) {
+    const nonFatalRedirectCodes = new Set(['auth/no-auth-event', 'auth/internal-error']);
+    const resolvedCode = getAuthErrorCode(error);
+    if (nonFatalRedirectCodes.has(resolvedCode)) {
+      console.warn(`ℹ️ Non-fatal redirect auth error ignored: ${resolvedCode}`);
+      return null;
+    }
+    console.error('Redirect result error:', error);
+    throw error;
     }
 };
 

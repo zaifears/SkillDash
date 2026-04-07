@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { memo } from 'react';
 import Image from 'next/image';
 
 // FIXED: Proper TypeScript interface with optional properties
@@ -22,7 +22,7 @@ const FOOTER_LINKS: FooterSection = {
   ],
 };
 
-const Footer = React.memo(() => {
+const Footer = memo(function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -75,5 +75,4 @@ const Footer = React.memo(() => {
   );
 });
 
-Footer.displayName = 'Footer';
 export default Footer;

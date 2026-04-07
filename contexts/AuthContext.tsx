@@ -61,6 +61,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const hadPendingRedirect = typeof window !== 'undefined'
         && !!sessionStorage.getItem('skilldash_oauth_redirect');
 
+      // Strict popup-first: only attempt redirect result handling
+      // if this session explicitly initiated redirect OAuth.
+      if (!hadPendingRedirect) {
+        setRedirectChecked(true);
+        return;
+      }
+
       try {
         const result = await getRedirectResult(auth);
         if (result && result.user) {
@@ -84,16 +91,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (error: any) {
-        // auth/no-auth-event is expected when the page loads normally (no redirect)
-        if (error.code !== 'auth/no-auth-event') {
-          console.error('❌ Failed to handle OAuth redirect:', error.message);
-          // Surface the error so the auth page can display it
+        // These can occur when there is no valid redirect result to consume.
+        // Treat as non-fatal to avoid noisy console errors for normal page loads.
+        const nonFatalRedirectCodes = new Set(['auth/no-auth-event', 'auth/internal-error']);
+        if (nonFatalRedirectCodes.has(error?.code)) {
           if (hadPendingRedirect && typeof window !== 'undefined') {
             sessionStorage.removeItem('skilldash_oauth_redirect');
             sessionStorage.setItem('skilldash_oauth_error',
-              'Sign-in failed after redirect. Please try again.'
+              'Social sign-in redirect did not complete. Please try again. If it still fails, use popup sign-in or email/password.'
             );
+          } else {
+            console.warn(`ℹ️ Ignoring non-fatal redirect auth error: ${error?.code}`);
           }
+          return;
+        }
+
+        console.error('❌ Failed to handle OAuth redirect:', error.message);
+        // Surface the error so the auth page can display it
+        if (hadPendingRedirect && typeof window !== 'undefined') {
+          sessionStorage.removeItem('skilldash_oauth_redirect');
+          sessionStorage.setItem('skilldash_oauth_error',
+            'Sign-in failed after redirect. Please try again.'
+          );
         }
       } finally {
         // Signal that redirect resolution is complete

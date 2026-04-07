@@ -64,6 +64,14 @@ export function humanizeAuthError(error: any): string {
   if (code.includes('auth/credential-already-in-use')) {
     return 'This account is already linked to another user.';
   }
+
+  if (code.includes('auth/internal-error')) {
+    return 'Authentication could not be completed due to a browser/session issue. Try again, disable strict privacy blockers for this site, or use email/password.';
+  }
+
+  if (code.includes('auth/redirect-failed')) {
+    return 'Redirect sign-in failed. Please try popup sign-in again, or use email/password.';
+  }
   
   // Network errors
   if (code.includes('timed out') || code.includes('timeout')) {
