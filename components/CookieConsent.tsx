@@ -3,12 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import CookieConsent from 'react-cookie-consent';
 
-declare global {
-  interface Window {
-    dataLayer?: any[];
-    [key: string]: any;
-  }
-}
+
 
 const CookieConsentBanner = () => {
   const [mounted, setMounted] = useState(false);
@@ -63,10 +58,6 @@ const CookieConsentBanner = () => {
       containerClasses="cookie-consent-container dark"
       onAccept={() => {
         try {
-          // ✅ NEW: Enable GTM when user accepts
-          if (typeof window !== 'undefined' && window.dataLayer) {
-            window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-          }
           console.log('✅ Cookies accepted');
         } catch (error) {
           console.error('Error in onAccept:', error);
@@ -74,10 +65,6 @@ const CookieConsentBanner = () => {
       }}
       onDecline={() => {
         try {
-          // ✅ NEW: Disable GTM if user declines
-          if (typeof window !== 'undefined') {
-            (window as any)['ga-disable-GTM-MT2LDFM3'] = true;
-          }
           console.log('❌ Cookies declined');
         } catch (error) {
           console.error('Error in onDecline:', error);
