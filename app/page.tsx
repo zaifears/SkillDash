@@ -1,4 +1,5 @@
 import React from 'react';
+import TypingHeroSection from '../components/TypingHeroSection';
 import HomeDeferredSections from '@/components/HomeDeferredSections';
 
 export default function HomePage() {
@@ -16,6 +17,7 @@ export default function HomePage() {
         </div>
         
         {/* Hero Section */}
+        <TypingHeroSection />
         <section className="relative z-10" role="banner">
         </section>
         
