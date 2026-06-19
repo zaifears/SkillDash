@@ -6,6 +6,7 @@
  */
 
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -60,11 +61,24 @@ export async function verifyAdminAccess(req: NextRequest): Promise<
     }
 
     // Check for admin custom claim.
-    // Custom claims are cryptographically signed by Google – if the token
-    // passes verifyIdToken and contains `admin: true`, it is trustworthy.
-    // No secondary Firestore lookup needed (saves ~100-200 ms per request).
     if (decodedToken.admin !== true) {
-      console.warn(`⚠️ User ${decodedToken.uid} attempted admin access without admin claim`);
+      
+      // Fallback: Check the Firestore Database for role == 'admin'
+      try {
+        const db = getFirestore(adminApp);
+        const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+        
+        if (userDoc.exists && userDoc.data()?.role === 'admin') {
+          return {
+            isAdmin: true,
+            uid: decodedToken.uid,
+          };
+        }
+      } catch (dbError) {
+        console.error('Error checking Firestore for admin role:', dbError);
+      }
+
+      console.warn(`⚠️ User ${decodedToken.uid} attempted admin access without admin claim or database role`);
       return {
         isAdmin: false,
         error: 'User does not have admin privileges',
