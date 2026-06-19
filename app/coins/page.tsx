@@ -209,7 +209,6 @@ const CoinsPage: React.FC = () => {
               bkashNumber: BKASH_NUMBER,
               createdAt: new Date().toISOString(),
             },
-            recaptchaToken: recaptchaResult.token, // Optional: send token for additional verification
           }),
         });
         console.log('✅ Admin notification email queued');
