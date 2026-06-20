@@ -11,8 +11,8 @@ export const LoadingScreen = () => (
 
 export const BotIcon = () => (
   <Image 
-    src="/skilldash-logo.png" 
-    alt="SkillDash AI" 
+    src="/favicon.svg" 
+    alt="StockSimulatorBD" 
     width={40}
     height={40}
     className="rounded-full shadow-md object-cover" 

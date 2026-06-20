@@ -174,9 +174,9 @@ export default function UrlShortener() {
         {JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'SoftwareApplication',
-          name: 'SkillDash URL Shortener',
+          name: 'StockSimulatorBD URL Shortener',
           description: 'Free URL shortener with custom delays and expiration. Shorten links with custom delays and expiration. Free, no limits. Track clicks.',
-          url: 'https://skilldash.live/go',
+          url: 'https://www.stocksimulator.tech/go',
           applicationCategory: 'Utility',
           operatingSystem: 'Web',
           offers: {
@@ -192,8 +192,8 @@ export default function UrlShortener() {
           },
           author: {
             '@type': 'Organization',
-            name: 'SkillDash',
-            url: 'https://skilldash.live'
+            name: 'StockSimulatorBD',
+            url: 'https://www.stocksimulator.tech'
           },
           featureList: [
             'Create custom short links',
@@ -211,9 +211,9 @@ export default function UrlShortener() {
         {JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          name: 'SkillDash URL Shortener',
+          name: 'StockSimulatorBD URL Shortener',
           description: 'Free URL shortener with custom aliases, countdown timers, and flexible expiration',
-          url: 'https://skilldash.live/go',
+          url: 'https://www.stocksimulator.tech/go',
           applicationCategory: 'Utility',
           offers: {
             '@type': 'Offer',
@@ -228,7 +228,7 @@ export default function UrlShortener() {
           },
           potentialAction: {
             '@type': 'CreateAction',
-            target: 'https://skilldash.live/go'
+            target: 'https://www.stocksimulator.tech/go'
           }
         })}
       </script>
@@ -301,6 +301,7 @@ export default function UrlShortener() {
                     value={delay}
                     onChange={(e) => setDelay(Number(e.target.value))}
                     disabled={!user}
+                    title="Redirect Timer"
                     className={`w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none appearance-none text-slate-700 dark:text-slate-300 ${
                       !user ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -378,6 +379,8 @@ export default function UrlShortener() {
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <input
+                  aria-label="Generated short URL"
+                  title="Generated short URL"
                   readOnly
                   value={shortUrl}
                   className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-green-200 dark:border-green-800/30 rounded-xl text-slate-600 dark:text-slate-300 font-mono text-sm"

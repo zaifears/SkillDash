@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const ALLOWED_ORIGINS = [
-  'https://skilldash.live',
-  'https://www.skilldash.live',
+  'https://stocksimulator.tech',
+  'https://www.stocksimulator.tech',
   ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3000', 'http://127.0.0.1:3000'] : []),
 ];
 

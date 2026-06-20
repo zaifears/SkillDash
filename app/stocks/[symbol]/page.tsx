@@ -33,15 +33,15 @@ export async function generateMetadata({ params }: StockPageProps): Promise<Meta
 
   if (!stock) {
     return {
-      title: 'Stock Not Found | SkillDash DSE Simulator',
+      title: 'Stock Not Found | StockSimulatorBD DSE Simulator',
       description: 'This DSE stock page is not available right now.',
     };
   }
 
-  const baseUrl = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skilldash.live').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://www.stocksimulator.tech').replace(/\/$/, '');
   const pageUrl = `${baseUrl}/stocks/${encodeURIComponent(stock.symbol.toLowerCase())}`;
-  const title = `${stock.symbol} Stock Price, Share History & Analysis | SkillDash`;
-  const description = `Track ${stock.name} (${stock.symbol}) with historical context and market insights. Practice trading ${stock.symbol} risk-free on the SkillDash DSE Simulator.`;
+  const title = `${stock.symbol} Stock Price, Share History & Analysis | StockSimulatorBD`;
+  const description = `Track ${stock.name} (${stock.symbol}) with historical context and market insights. Practice trading ${stock.symbol} risk-free on the StockSimulatorBD DSE Simulator.`;
 
   return {
     title,
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: StockPageProps): Promise<Meta
       title,
       description,
       url: pageUrl,
-      siteName: 'SkillDash',
+      siteName: 'StockSimulatorBD',
       type: 'article',
     },
     twitter: {
@@ -111,7 +111,7 @@ export default async function StockDetailsPage({ params }: StockPageProps) {
             Practice {stock.symbol} Trading Risk-Free
           </h2>
           <p className="text-blue-50 text-base sm:text-lg leading-relaxed mb-5">
-            Want to trade {stock.symbol} without risking real money? Practice on the SkillDash DSE Simulator for free.
+            Want to trade {stock.symbol} without risking real money? Practice on the StockSimulatorBD DSE Simulator for free.
           </p>
           <Link
             href="/simulator"

@@ -345,9 +345,9 @@ export default function SimulatorTradePage() {
         {JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'SoftwareApplication',
-          name: 'SkillDash DSE Stock Market Simulator',
+          name: 'StockSimulatorBD DSE Stock Market Simulator',
           description: 'Practice buying & selling DSE stocks with real-time data. Zero risk, real learning. Perfect for beginners.',
-          url: 'https://skilldash.live/simulator',
+          url: 'https://www.stocksimulator.tech/simulator',
           applicationCategory: 'FinanceApplication',
           operatingSystem: 'Web',
           offers: {
@@ -363,8 +363,8 @@ export default function SimulatorTradePage() {
           },
           author: {
             '@type': 'Organization',
-            name: 'SkillDash',
-            url: 'https://skilldash.live'
+            name: 'StockSimulatorBD',
+            url: 'https://www.stocksimulator.tech'
           },
           featureList: [
             'Real-time DSE stock data',
@@ -1083,6 +1083,8 @@ export default function SimulatorTradePage() {
                   </div>
                   <button 
                     onClick={() => setShowTradeModal(false)}
+                    aria-label="Close modal"
+                    title="Close"
                     className="p-1.5 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-full transition-colors flex-shrink-0"
                   >
                     <X className="w-4 h-4 text-gray-500" />
@@ -1130,7 +1132,7 @@ export default function SimulatorTradePage() {
 
                   {/* Quantity Input - Compact */}
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Quantity</label>
+                    <label htmlFor="trade-quantity" className="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1.5">Quantity</label>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
@@ -1140,12 +1142,17 @@ export default function SimulatorTradePage() {
                           setTradeQuantityInput(String(nextQty));
                         }}
                         disabled={tradeQuantity !== '' && tradeQuantity <= 1}
+                        aria-label="Decrease quantity"
+                        title="Decrease quantity"
                         className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                       >
                         <Minus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                       </button>
                       
                       <input 
+                        id="trade-quantity"
+                        aria-label="Trade quantity"
+                        title="Trade quantity"
                         type="number" 
                         min="1"
                         value={tradeQuantityInput}
@@ -1170,6 +1177,8 @@ export default function SimulatorTradePage() {
                           setTradeQuantity(nextQty);
                           setTradeQuantityInput(String(nextQty));
                         }}
+                        aria-label="Increase quantity"
+                        title="Increase quantity"
                         className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
                       >
                         <Plus className="w-4 h-4 text-gray-600 dark:text-gray-300" />

@@ -171,7 +171,7 @@ async function handleStockSync(request: NextRequest) {
     getFirebaseAdmin();
     const db = admin.firestore();
     
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     
     // Path: artifacts/{appId}/public/data/market_info/latest (6 segments - even ✓)
     const docRef = db.collection('artifacts').doc(appId)

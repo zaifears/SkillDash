@@ -18,11 +18,11 @@ export const ROUTES = {
   SIMULATOR: '/simulator',
 } as const;
 
-// Domain Configuration - Works across skill-dash.vercel.app and skilldash.live
+// Domain Configuration - Works across skill-dash.vercel.app and stocksimulatorbd.vercel.app
 // Note: skill-dash.vercel.app is the primary default (Vercel is maintained indefinitely)
-// skilldash.live is kept as fallback but could expire
+// stocksimulatorbd.vercel.app is kept as fallback but could expire
 export const DOMAINS = {
-  MAIN: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://skill-dash.vercel.app',
+  MAIN: process.env.NEXT_PUBLIC_MAIN_DOMAIN || 'https://stocksimulatorbd.vercel.app',
 } as const;
 
 /**

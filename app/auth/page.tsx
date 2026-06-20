@@ -74,10 +74,10 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
     }
 
     // Check if user returned from a failed OAuth redirect
-    const oauthError = sessionStorage.getItem('skilldash_oauth_error')
+    const oauthError = sessionStorage.getItem('stocksimulatorbd_oauth_error')
     if (oauthError) {
       setError(oauthError)
-      sessionStorage.removeItem('skilldash_oauth_error')
+      sessionStorage.removeItem('stocksimulatorbd_oauth_error')
     }
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -436,14 +436,14 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
               {isSignUp && (
                 <>
                   <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Create account</h1>
-                  <p className="text-slate-400 mb-6 text-sm">Join SkillDash today</p>
+                  <p className="text-slate-400 mb-6 text-sm">Join StockSimulatorBD today</p>
                   
                   {showSignupSuccess && (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-6">
                       <div className="flex items-start gap-2">
                         <span className="text-lg">🎉</span>
                         <div className="flex-1 text-xs">
-                          <h4 className="font-semibold text-green-300 mb-1">Welcome to SkillDash!</h4>
+                          <h4 className="font-semibold text-green-300 mb-1">Welcome to StockSimulatorBD!</h4>
                           <div className="text-green-200 space-y-1">
                             <p>📧 Check your email and click the verification link</p>
                             <p>🪙 After verification, your 10,000 welcome coins will be credited automatically</p>
@@ -647,7 +647,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                     Create Your Account
                   </button>
                   <p className="text-slate-400 text-xs text-center mt-4">
-                    Join SkillDash
+                    Join StockSimulatorBD
                   </p>
                 </div>
               ) : (
@@ -727,7 +727,7 @@ function AuthPageContent({ recaptchaEnabled }: { recaptchaEnabled: boolean }) {
                   Create Your Account
                 </button>
                 <p className="text-slate-400 text-xs text-center mt-3">
-                  Join SkillDash
+                  Join StockSimulatorBD
                 </p>
               </div>
             )}

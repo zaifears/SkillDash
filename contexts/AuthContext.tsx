@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleRedirectResult = async () => {
       const hadPendingRedirect = typeof window !== 'undefined'
-        && !!sessionStorage.getItem('skilldash_oauth_redirect');
+        && !!sessionStorage.getItem('stocksimulatorbd_oauth_redirect');
 
       // Strict popup-first: only attempt redirect result handling
       // if this session explicitly initiated redirect OAuth.
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           await handleSocialSignInResult(result.user);
           // Clear the redirect flag on success
           if (typeof window !== 'undefined') {
-            sessionStorage.removeItem('skilldash_oauth_redirect');
+            sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
           }
           // onAuthStateChanged will pick up the user from here
         } else if (hadPendingRedirect) {
@@ -84,8 +84,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // or the redirect session was lost.
           console.warn('⚠️ OAuth redirect returned no result — redirect may have failed silently');
           if (typeof window !== 'undefined') {
-            sessionStorage.removeItem('skilldash_oauth_redirect');
-            sessionStorage.setItem('skilldash_oauth_error',
+            sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
+            sessionStorage.setItem('stocksimulatorbd_oauth_error',
               'Google sign-in didn\u2019t complete. Your browser may be blocking the redirect. Please try again \u2014 a popup will be used instead.'
             );
           }
@@ -96,8 +96,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const nonFatalRedirectCodes = new Set(['auth/no-auth-event', 'auth/internal-error']);
         if (nonFatalRedirectCodes.has(error?.code)) {
           if (hadPendingRedirect && typeof window !== 'undefined') {
-            sessionStorage.removeItem('skilldash_oauth_redirect');
-            sessionStorage.setItem('skilldash_oauth_error',
+            sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
+            sessionStorage.setItem('stocksimulatorbd_oauth_error',
               'Social sign-in redirect did not complete. Please try again. If it still fails, use popup sign-in or email/password.'
             );
           } else {
@@ -109,8 +109,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('❌ Failed to handle OAuth redirect:', error.message);
         // Surface the error so the auth page can display it
         if (hadPendingRedirect && typeof window !== 'undefined') {
-          sessionStorage.removeItem('skilldash_oauth_redirect');
-          sessionStorage.setItem('skilldash_oauth_error',
+          sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
+          sessionStorage.setItem('stocksimulatorbd_oauth_error',
             'Sign-in failed after redirect. Please try again.'
           );
         }
@@ -186,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cached = localStorage.getItem('skilldash_user_cache');
+        const cached = localStorage.getItem('stocksimulatorbd_user_cache');
         if (cached) {
           const cachedData: CachedUserData = JSON.parse(cached);
           const now = Date.now();
@@ -198,7 +198,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('✅ Loaded user from localStorage cache');
           } else {
             // Cache expired
-            localStorage.removeItem('skilldash_user_cache');
+            localStorage.removeItem('stocksimulatorbd_user_cache');
           }
         }
       } catch (error) {
@@ -249,7 +249,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         
         try {
-          localStorage.setItem('skilldash_user_cache', JSON.stringify(cachedData));
+          localStorage.setItem('stocksimulatorbd_user_cache', JSON.stringify(cachedData));
         } catch (error) {
           console.warn('Failed to cache user to localStorage:', error);
         }
@@ -370,7 +370,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // ✅ Clear localStorage cache on logout
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('skilldash_user_cache');
+        localStorage.removeItem('stocksimulatorbd_user_cache');
       }
       
       await signOut(auth);

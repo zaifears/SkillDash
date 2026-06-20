@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-	title: 'SkillDash Blog | DSE Trading Guides and Insights',
+	title: 'StockSimulatorBD Blog | DSE Trading Guides and Insights',
 	description:
-		'Professional guides on Dhaka Stock Exchange investing, broker comparisons, and risk-free paper trading with SkillDash.',
+		'Professional guides on Dhaka Stock Exchange investing, broker comparisons, and risk-free paper trading with StockSimulatorBD.',
 	alternates: {
-		canonical: 'https://skilldash.live/blog',
+		canonical: 'https://www.stocksimulator.tech/blog',
 	},
 };
 
@@ -33,7 +33,7 @@ export default function BlogPage() {
 			<section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 				<header className="mb-12 md:mb-16">
 					<p className="text-sm font-semibold tracking-wide uppercase text-indigo-600 dark:text-indigo-400 mb-3">
-						SkillDash Journal
+						StockSimulatorBD Journal
 					</p>
 					<h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
 						Ideas, Guides, and Market Notes

@@ -56,7 +56,7 @@ export default function ProfilePage() {
                 {/* Left side - Title */}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2">
-                    Your SkillDash Coins
+                    Your StockSimulatorBD Coins
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     Manage your AI feature usage

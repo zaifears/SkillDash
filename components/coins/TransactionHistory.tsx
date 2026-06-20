@@ -126,7 +126,7 @@ const EmptyState: React.FC = () => (
     </div>
     <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">No Transactions Yet</h3>
     <p className="text-gray-500 dark:text-gray-500 text-sm max-w-sm mx-auto">
-      Your coin transaction history will appear here once you start using SkillDash features.
+      Your coin transaction history will appear here once you start using StockSimulatorBD features.
     </p>
   </div>
 );

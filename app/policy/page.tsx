@@ -1,8 +1,8 @@
 import React from "react";
 
 export const metadata = {
-  title: "Privacy Policy | SkillDash",
-  description: "SkillDash Privacy Policy: Learn how we store, use, and protect your personal information when using our platform.",
+  title: "Privacy Policy | StockSimulatorBD",
+  description: "StockSimulatorBD Privacy Policy: Learn how we store, use, and protect your personal information when using our platform.",
 };
 
 export default function PolicyPage() {
@@ -15,7 +15,7 @@ export default function PolicyPage() {
       </p>
 
       <p className="mb-4">
-        SkillDash is committed to protecting your privacy. This policy outlines how we collect, use, store, and protect your personal information while using our platform.
+        StockSimulatorBD is committed to protecting your privacy. This policy outlines how we collect, use, store, and protect your personal information while using our platform.
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-2">Information We Collect</h2>
@@ -28,7 +28,7 @@ export default function PolicyPage() {
 
       <h2 className="text-xl font-semibold mt-8 mb-2">How We Use Your Information</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>To provide and improve SkillDash services</li>
+        <li>To provide and improve StockSimulatorBD services</li>
         <li>To personalize your experience (recommendations, dashboard, notifications)</li>
         <li>To communicate updates, offers or critical information</li>
         <li>For analytics and troubleshooting</li>
@@ -50,10 +50,10 @@ export default function PolicyPage() {
 
       <h2 className="text-xl font-semibold mt-8 mb-2">Contact</h2>
       <p className="mb-2">
-        For any questions or concerns about our privacy policy, please email us at <a href="mailto:hello@skilldash.live" className="underline text-indigo-600">hello@skilldash.live</a>.
+        For any questions or concerns about our privacy policy, please email us at <a href="mailto:alshahoriar.hossain@gmail.com" className="underline text-indigo-600">alshahoriar.hossain@gmail.com</a>.
       </p>
       <p>
-        Your continued use of SkillDash means you agree to this policy and any updates posted on this page.
+        Your continued use of StockSimulatorBD means you agree to this policy and any updates posted on this page.
       </p>
     </main>
   );

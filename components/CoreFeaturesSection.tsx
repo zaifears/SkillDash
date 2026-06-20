@@ -41,7 +41,7 @@ const CoreFeaturesSection = memo(() => (
           {/* Go Card */}
           <Link 
             href="/go"
-            aria-label="Go to SkillDash Go short links"
+            aria-label="Go to StockSimulatorBD Go short links"
             className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 p-6 sm:p-8 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
           >
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />

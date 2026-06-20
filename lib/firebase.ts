@@ -166,7 +166,7 @@ export const signInWithSocialProviderAndCreateProfile = async (
     // Redirect is only used for in-app browsers where popup is often unsupported.
     if (isInAppBrowser()) {
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+        sessionStorage.setItem('stocksimulatorbd_oauth_redirect', Date.now().toString());
       }
       await signInWithRedirect(auth, provider);
       return null;
@@ -192,13 +192,13 @@ export const signInWithSocialProviderAndCreateProfile = async (
             try {
               console.warn(`⚠️ Popup OAuth still failing (${getAuthErrorCode(retryError) || 'unknown'}). Switching to redirect fallback...`);
               if (typeof window !== 'undefined') {
-                sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+                sessionStorage.setItem('stocksimulatorbd_oauth_redirect', Date.now().toString());
               }
               await signInWithRedirect(auth, provider);
               return null;
             } catch (redirectError: any) {
               if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('skilldash_oauth_redirect');
+                sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
               }
               const wrappedError = new Error('Sign-in could not be completed using popup or redirect.') as Error & { code?: string };
               wrappedError.code = 'auth/redirect-failed';
@@ -213,13 +213,13 @@ export const signInWithSocialProviderAndCreateProfile = async (
         try {
           console.warn('⚠️ Popup blocked in standard browser. Switching to redirect fallback...');
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+            sessionStorage.setItem('stocksimulatorbd_oauth_redirect', Date.now().toString());
           }
           await signInWithRedirect(auth, provider);
           return null;
         } catch (redirectError: any) {
           if (typeof window !== 'undefined') {
-            sessionStorage.removeItem('skilldash_oauth_redirect');
+            sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
           }
           const wrappedError = new Error('Popup and redirect sign-in were both blocked.') as Error & { code?: string };
           wrappedError.code = 'auth/redirect-failed';
@@ -231,13 +231,13 @@ export const signInWithSocialProviderAndCreateProfile = async (
         try {
           console.warn('⚠️ Popup OAuth network handoff failed. Switching to redirect fallback...');
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem('skilldash_oauth_redirect', Date.now().toString());
+            sessionStorage.setItem('stocksimulatorbd_oauth_redirect', Date.now().toString());
           }
           await signInWithRedirect(auth, provider);
           return null;
         } catch (redirectError: any) {
           if (typeof window !== 'undefined') {
-            sessionStorage.removeItem('skilldash_oauth_redirect');
+            sessionStorage.removeItem('stocksimulatorbd_oauth_redirect');
           }
           const wrappedError = new Error('Social sign-in failed due to network issues in popup and redirect flows.') as Error & { code?: string };
           wrappedError.code = 'auth/redirect-failed';

@@ -12,19 +12,19 @@ export const metadata: Metadata = {
     'CDBL BO account', 'DSE stock market'
   ],
   alternates: {
-    canonical: 'https://skilldash.live/blog/how-to-open-bo-account-bangladesh',
+    canonical: 'https://www.stocksimulator.tech/blog/how-to-open-bo-account-bangladesh',
   },
   openGraph: {
     title: 'How to Open a BO Account in Bangladesh (2026) | Complete Guide',
     description: 'Learn the exact steps and requirements to open a BO account in Bangladesh and start trading on the DSE safely.',
-    url: 'https://skilldash.live/blog/how-to-open-bo-account-bangladesh',
+    url: 'https://www.stocksimulator.tech/blog/how-to-open-bo-account-bangladesh',
     type: 'article',
   }
 };
 
 export default function OpenBoAccountArticle() {
-  const pageUrl = 'https://skilldash.live/blog/how-to-open-bo-account-bangladesh';
-  const coverImage = 'https://skilldash.live/blog/stock-market.png';
+  const pageUrl = 'https://www.stocksimulator.tech/blog/how-to-open-bo-account-bangladesh';
+  const coverImage = 'https://www.stocksimulator.tech/blog/stock-market.png';
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -39,16 +39,16 @@ export default function OpenBoAccountArticle() {
     url: pageUrl,
     author: {
       '@type': 'Organization',
-      name: 'SkillDash',
-      url: 'https://skilldash.live',
+      name: 'StockSimulatorBD',
+      url: 'https://www.stocksimulator.tech',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'SkillDash',
-      url: 'https://skilldash.live',
+      name: 'StockSimulatorBD',
+      url: 'https://www.stocksimulator.tech',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://skilldash.live/skilldash-logo.png',
+        url: 'https://www.stocksimulator.tech/stocksimulatorbd-logo.png',
         width: 512,
         height: 512,
       }
@@ -66,13 +66,13 @@ export default function OpenBoAccountArticle() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://skilldash.live',
+        item: 'https://www.stocksimulator.tech',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Blog',
-        item: 'https://skilldash.live/blog',
+        item: 'https://www.stocksimulator.tech/blog',
       },
       {
         '@type': 'ListItem',
@@ -215,7 +215,7 @@ export default function OpenBoAccountArticle() {
             Practice Trading For Free First
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-lg mb-8 max-w-2xl mx-auto">
-            Use the SkillDash DSE Trading Simulator to practice. It is a 100% free platform that gives you 10,000 virtual BDT to trade real Dhaka Stock Exchange stocks using live market data. Test your strategies before opening a real BO account!
+            Use the StockSimulatorBD DSE Trading Simulator to practice. It is a 100% free platform that gives you 10,000 virtual BDT to trade real Dhaka Stock Exchange stocks using live market data. Test your strategies before opening a real BO account!
           </p>
           <Link 
             href="/simulator"

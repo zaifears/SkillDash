@@ -162,7 +162,7 @@ export default function EmailVerificationBanner() {
             <div>
               <p className="font-bold text-lg">Email Verification Required</p>
               <p className="text-sm opacity-90">
-                Please verify your email <strong>{user.email}</strong> to get your 10,000 welcome coins and access SkillDash features.
+                Please verify your email <strong>{user.email}</strong> to get your 10,000 welcome coins and access StockSimulatorBD features.
               </p>
               {countdown > 0 && (
                 <p className="text-xs opacity-75 mt-1">

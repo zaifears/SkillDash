@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     const simulatorStateRef = db.doc(`artifacts/${appId}/users/${userId}/simulator/state`);
 
     // Run as a Firestore transaction — either both writes succeed or neither does

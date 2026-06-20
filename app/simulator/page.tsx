@@ -12,10 +12,10 @@ export default function SimulatorLandingPage() {
   const webAppSchema = {
     '@context': 'https://schema.org',
     '@type': ['WebApplication', 'SoftwareApplication'],
-    name: 'SkillDash DSE Stock Market Simulator',
+    name: 'StockSimulatorBD DSE Stock Market Simulator',
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Web Browser',
-    url: 'https://skilldash.live/simulator',
+    url: 'https://www.stocksimulator.tech/simulator',
     description:
       'Practice Dhaka Stock Exchange trading with real-time market behavior, T+1 settlement simulation, and risk-free virtual capital.',
     offers: {
@@ -31,8 +31,8 @@ export default function SimulatorLandingPage() {
     ],
     publisher: {
       '@type': 'Organization',
-      name: 'SkillDash',
-      url: 'https://skilldash.live',
+      name: 'StockSimulatorBD',
+      url: 'https://www.stocksimulator.tech',
     },
   };
 
@@ -98,7 +98,7 @@ export default function SimulatorLandingPage() {
               <p className="text-base sm:text-lg text-slate-300 mb-4 sm:mb-6 leading-relaxed">
                 It&apos;s called &quot;paper trading&quot; because traditionally, traders would write down 
                 their hypothetical trades on paper to track performance without actually executing them. 
-                Today, digital platforms like SkillDash automate this process with real-time data.
+                Today, digital platforms like StockSimulatorBD automate this process with real-time data.
               </p>
               <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                 <AlertTriangle className="w-6 h-6 text-amber-400 flex-shrink-0 mt-0.5" />
@@ -135,7 +135,7 @@ export default function SimulatorLandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
-              Why Choose <span className="text-orange-400">SkillDash</span> Simulator?
+              Why Choose <span className="text-orange-400">StockSimulatorBD</span> Simulator?
             </h2>
             <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto">
               One of the very few paper trading platforms built specifically for the 
@@ -212,7 +212,7 @@ export default function SimulatorLandingPage() {
             <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7" />
           </Link>
           <p className="mt-6 text-slate-400">
-            Join hundreds of learners practicing on SkillDash
+            Join hundreds of learners practicing on StockSimulatorBD
           </p>
         </div>
       </section>

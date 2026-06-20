@@ -67,7 +67,7 @@ export const rateLimit = (() => {
   const loadAttempts = (): { [key: string]: number[] } => {
     if (typeof window === 'undefined') return {};
     try {
-      const stored = sessionStorage.getItem('skilldash_rate_limit');
+      const stored = sessionStorage.getItem('stocksimulatorbd_rate_limit');
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};
@@ -77,7 +77,7 @@ export const rateLimit = (() => {
   const saveAttempts = (attempts: { [key: string]: number[] }) => {
     if (typeof window === 'undefined') return;
     try {
-      sessionStorage.setItem('skilldash_rate_limit', JSON.stringify(attempts));
+      sessionStorage.setItem('stocksimulatorbd_rate_limit', JSON.stringify(attempts));
     } catch {
       // sessionStorage full or unavailable - continue without persistence
     }

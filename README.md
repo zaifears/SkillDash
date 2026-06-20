@@ -9,7 +9,7 @@
   <br/>
 
   <a href="https://www.stocksimulator.tech/simulator"><img src="https://img.shields.io/badge/🚀_Live_Demo-stocksimulatorbd-8b5cf6?style=for-the-badge" alt="Live Demo"/></a>
-  <a href="https://www.stocksimulator.tech/skilldash-simulator.apk"><img src="https://img.shields.io/badge/📱_Download-APK-34D399?style=for-the-badge" alt="Download APK"/></a>
+  <a href="https://www.stocksimulator.tech/stocksimulator_bd.apk"><img src="https://img.shields.io/badge/📱_Download-APK-34D399?style=for-the-badge" alt="Download APK"/></a>
 
   <br/><br/>
 
@@ -19,7 +19,7 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
   <img src="https://img.shields.io/badge/Firebase-12-FFCA28?style=flat-square&logo=firebase&logoColor=black" alt="Firebase"/>
   <img src="https://img.shields.io/badge/PWA-Ready-FF6F00?style=flat-square&logo=pwa&logoColor=white" alt="PWA"/>
-  <img src="https://img.shields.io/github/license/zaifears/SkillDash?style=flat-square&color=green" alt="License"/>
+  <img src="https://img.shields.io/github/license/zaifears/StockSimulatorBD?style=flat-square&color=green" alt="License"/>
 
   <br/><br/>
 
@@ -43,7 +43,7 @@ Stock Simulator BD is a **state-of-the-art, risk-free environment** designed to 
 
 <div align="center">
   <br/>
-  <a href="https://www.stocksimulator.tech/skilldash-simulator.apk">
+  <a href="https://www.stocksimulator.tech/stocksimulator_bd.apk">
     <img src="https://img.shields.io/badge/📥_Download_StockSimBD-APK-8b5cf6?style=for-the-badge&logoColor=white" alt="Download APK" />
   </a>
   <br/><br/>
@@ -138,7 +138,7 @@ Stock Simulator BD is a **state-of-the-art, risk-free environment** designed to 
 ```bash
 # 1. Clone & enter
 git clone https://github.com/zaifears/StockSimulatorBD.git
-cd SkillDash
+cd StockSimulatorBD
 
 # 2. Install dependencies
 pnpm install

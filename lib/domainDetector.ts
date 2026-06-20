@@ -1,7 +1,7 @@
 /**
  * Domain Detection Utility
  * Detects which domain the app is running on and provides helper functions
- * Supports: skilldash.live, skill-dash.vercel.app, and localhost
+ * Supports: stocksimulatorbd.vercel.app, skill-dash.vercel.app, and localhost
  */
 
 export type Domain = 'main';
@@ -15,7 +15,7 @@ function getCurrentHostname(): string {
     return window.location.hostname;
   }
   // Server-side: extract from NODE_ENV or use default
-  return process.env.VERCEL_URL || 'skill-dash.vercel.app';
+  return process.env.VERCEL_URL || 'stocksimulatorbd.vercel.app';
 }
 
 /**
@@ -30,7 +30,7 @@ function getCurrentProtocol(): string {
 
 /**
  * Detects current domain
- * @returns 'main' for skilldash.live/skill-dash.vercel.app
+ * @returns 'main' for stocksimulatorbd.vercel.app
  */
 export function getDomain(): Domain {
   return 'main';
@@ -56,7 +56,7 @@ export function getBaseUrl(): string {
     return `${protocol}://${hostname}`;
   }
 
-  return process.env.NEXT_PUBLIC_MAIN_DOMAIN || `https://skill-dash.vercel.app`;
+  return process.env.NEXT_PUBLIC_MAIN_DOMAIN || `https://stocksimulatorbd.vercel.app`;
 }
 
 /**

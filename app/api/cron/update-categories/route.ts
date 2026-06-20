@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     // 2. Write categories to a SEPARATE document so the 3-minute stock-sync
     //    never overwrites them. Categories only change on Tuesdays.
     const db = getDb();
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     const categoriesRef = db.collection('artifacts').doc(appId)
       .collection('public').doc('data')
       .collection('market_info').doc('categories');

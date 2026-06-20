@@ -64,7 +64,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
     
     // Read balance from simulator state (BDT is now Coin)
     const db = getFirestore();
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
     const unsubscribe = onSnapshot(
       stateRef,
@@ -94,12 +94,12 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
       <div 
         className={`flex items-center ${currentSize.container} cursor-pointer hover:scale-105 transition-transform duration-200 ${className}`}
         onClick={handleCoinClick}
-        title="Join SkillDash to start trading"
+        title="Join StockSimulatorBD to start trading"
       >
         <div className="relative">
           <Image
             src="/coin/coin.png"
-            alt="SkillDash Coin"
+            alt="StockSimulatorBD Coin"
             width={24}
             height={24}
             className={`${currentSize.coin} object-contain`}
@@ -124,7 +124,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ className = '', showLabel = t
       <div className="relative flex-shrink-0">
         <Image
           src="/coin/coin.png"
-          alt="SkillDash Coin"
+          alt="StockSimulatorBD Coin"
           width={24}
           height={24}
           className={`${currentSize.coin} object-contain transition-transform duration-200`}

@@ -191,13 +191,13 @@ export default function RedirectPage({ params }: { params: Promise<{ code: strin
           {/* Logo */}
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <Image
-              src="/skilldash-logo.png"
-              alt="SkillDash"
+              src="/favicon.svg"
+              alt="StockSimulatorBD"
               width={40}
               height={40}
               className="w-8 h-8 sm:w-10 sm:h-10"
             />
-            <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">SkillDash</span>
+            <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">StockSimulatorBD</span>
           </Link>
 
           {status === 'counting' && countdown !== null && (
@@ -278,7 +278,7 @@ export default function RedirectPage({ params }: { params: Promise<{ code: strin
         {/* Services Showcase */}
         <div className="mb-6">
           <h2 className="text-center text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-4 sm:mb-6">
-            Explore SkillDash Services
+            Explore StockSimulatorBD Services
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {SERVICES.map((service) => (
@@ -310,7 +310,7 @@ export default function RedirectPage({ params }: { params: Promise<{ code: strin
           <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500">
             Powered by{' '}
             <Link href="/go" className="text-blue-600 hover:underline font-medium">
-              SkillDash Link Shortener
+              StockSimulatorBD Link Shortener
             </Link>
             {' '}• Free & Easy URL Shortening
           </p>

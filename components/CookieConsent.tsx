@@ -19,7 +19,7 @@ const CookieConsentBanner = () => {
       location="bottom"
       buttonText="Accept All"
       declineButtonText="Decline"
-      cookieName="skilldash_cookie_consent"
+      cookieName="stocksimulatorbd_cookie_consent"
       style={{
         background: '#1f2937',
         display: 'flex',
@@ -75,7 +75,7 @@ const CookieConsentBanner = () => {
       flipButtons
     >
       <span style={{ flex: 1, marginRight: '20px', lineHeight: '1.5' }}>
-        We use cookies to improve your experience and analyze how you use SkillDash. By continuing, you consent to our{' '}
+        We use cookies to improve your experience and analyze how you use StockSimulatorBD. By continuing, you consent to our{' '}
         <a
           href="/policy"
           style={{

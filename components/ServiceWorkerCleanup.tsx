@@ -23,7 +23,7 @@ export default function ServiceWorkerCleanup() {
 
         // In development, force a one-time hard reload after cleanup so the browser
         // boots from fresh runtime assets and stops using stale chunk references.
-        const reloadFlag = "skilldash_dev_cache_reset_done";
+        const reloadFlag = "stocksimulatorbd_dev_cache_reset_done";
         if (!sessionStorage.getItem(reloadFlag)) {
           sessionStorage.setItem(reloadFlag, "1");
           window.location.reload();

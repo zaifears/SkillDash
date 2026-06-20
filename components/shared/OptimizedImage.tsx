@@ -12,7 +12,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
 const OptimizedImage: React.FC<OptimizedImageProps> = ({ 
   src, 
   alt, 
-  fallbackSrc = '/skilldash-logo.png',
+  fallbackSrc = '/favicon.svg',
   className = '',
   ...props 
 }) => {

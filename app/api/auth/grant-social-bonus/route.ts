@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     if (userSnap.exists) {
       const userData = (userSnap.data() || {}) as Record<string, any>;
       if (userData.welcomeBonusGranted === true) {
-        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
         const stateRef = db.doc(`artifacts/${appId}/users/${userId}/simulator/state`);
         const stateSnap = await stateRef.get();
         const currentBalance = stateSnap.exists ? (stateSnap.data()?.balance || 0) : 0;
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       console.log(`ℹ️ Welcome bonus transaction exists for user ${userId}`);
       await userRef.set({ welcomeBonusGranted: true }, { merge: true });
 
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const stateRef = db.doc(`artifacts/${appId}/users/${userId}/simulator/state`);
       const stateSnap = await stateRef.get();
       const currentBalance = stateSnap.exists ? (stateSnap.data()?.balance || 0) : 0;
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 💎 Grant 10,000 to simulator/state.balance (the REAL user balance)
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     const simulatorStateRef = db.doc(`artifacts/${appId}/users/${userId}/simulator/state`);
     const timestamp = new Date();
 

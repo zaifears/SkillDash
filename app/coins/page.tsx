@@ -42,7 +42,7 @@ const CoinsPage: React.FC = () => {
     setRefreshing(true);
     try {
       const db = getFirestore();
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
       const { getDoc: gDoc } = await import('firebase/firestore');
       const snap = await gDoc(stateRef);
@@ -73,7 +73,7 @@ const CoinsPage: React.FC = () => {
     }
 
     const db = getFirestore();
-    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+    const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
     const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
 
     const unsubscribe = onSnapshot(
@@ -235,7 +235,7 @@ const CoinsPage: React.FC = () => {
             <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
               <Image
                 src="/coin/coin.png"
-                alt="SkillDash Coin"
+                alt="StockSimulatorBD Coin"
                 width={48}
                 height={48}
                 className="w-12 h-12 object-contain"
@@ -258,7 +258,7 @@ const CoinsPage: React.FC = () => {
               <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg animate-bounce-slow">
                 <Image
                   src="/coin/coin.png"
-                  alt="SkillDash Coin"
+                  alt="StockSimulatorBD Coin"
                   width={64}
                   height={64}
                   className="w-16 h-16 object-contain"

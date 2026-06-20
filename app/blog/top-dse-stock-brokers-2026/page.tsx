@@ -11,19 +11,19 @@ export const metadata: Metadata = {
     'LankaBangla Securities', 'City Brokerage', 'Dhaka Stock Exchange', 'BO account CDBL'
   ],
   alternates: {
-    canonical: 'https://skilldash.live/blog/top-dse-stock-brokers-2026',
+    canonical: 'https://www.stocksimulator.tech/blog/top-dse-stock-brokers-2026',
   },
   openGraph: {
     title: 'Compare Top DSE Stock Brokers in Bangladesh (2026)',
     description: 'Learn about BO account opening fees and practice trading risk-free before investing real money.',
-    url: 'https://skilldash.live/blog/top-dse-stock-brokers-2026',
+    url: 'https://www.stocksimulator.tech/blog/top-dse-stock-brokers-2026',
     type: 'article',
   }
 };
 
 export default function TopDseBrokersArticle() {
-  const pageUrl = 'https://skilldash.live/blog/top-dse-stock-brokers-2026';
-  const coverImage = 'https://skilldash.live/blog/19197351.jpg';
+  const pageUrl = 'https://www.stocksimulator.tech/blog/top-dse-stock-brokers-2026';
+  const coverImage = 'https://www.stocksimulator.tech/blog/19197351.jpg';
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -38,16 +38,16 @@ export default function TopDseBrokersArticle() {
     url: pageUrl,
     author: {
       '@type': 'Organization',
-      name: 'SkillDash',
-      url: 'https://skilldash.live',
+      name: 'StockSimulatorBD',
+      url: 'https://www.stocksimulator.tech',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'SkillDash',
-      url: 'https://skilldash.live',
+      name: 'StockSimulatorBD',
+      url: 'https://www.stocksimulator.tech',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://skilldash.live/skilldash-logo.png',
+        url: 'https://www.stocksimulator.tech/stocksimulatorbd-logo.png',
         width: 512,
         height: 512,
       }
@@ -65,13 +65,13 @@ export default function TopDseBrokersArticle() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://skilldash.live',
+        item: 'https://www.stocksimulator.tech',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Blog',
-        item: 'https://skilldash.live/blog',
+        item: 'https://www.stocksimulator.tech/blog',
       },
       {
         '@type': 'ListItem',
@@ -203,7 +203,7 @@ export default function TopDseBrokersArticle() {
               Don&apos;t Lose Real Money While Learning
             </h2>
             <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-              90% of new investors lose money in their first year on the DSE. Practice your trading strategies on the SkillDash Simulator with virtual currency before opening a real BO account.
+              90% of new investors lose money in their first year on the DSE. Practice your trading strategies on the StockSimulatorBD Simulator with virtual currency before opening a real BO account.
             </p>
           </div>
           <Link 

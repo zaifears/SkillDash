@@ -139,7 +139,7 @@ export const useSimulator = () => {
     }
 
     try {
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const marketRef = doc(db, 'artifacts', appId, 'public', 'data', 'market_info', 'latest');
       
       marketUnsubscribe.current = onSnapshot(
@@ -186,7 +186,7 @@ export const useSimulator = () => {
     if (!user) return;
 
     try {
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const categoriesRef = doc(db, 'artifacts', appId, 'public', 'data', 'market_info', 'categories');
 
       categoriesUnsubscribe.current = onSnapshot(
@@ -225,7 +225,7 @@ export const useSimulator = () => {
     }
 
     try {
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
       
       stateUnsubscribe.current = onSnapshot(
@@ -273,7 +273,7 @@ export const useSimulator = () => {
     if (!user) return;
 
     try {
-      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+      const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
       
       const existingDoc = await getDoc(stateRef);
@@ -413,7 +413,7 @@ export const useSimulator = () => {
       setTransactionMessage('Processing buy order...');
 
       try {
-        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
         const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
         
         await runTransaction(db, async (transaction) => {
@@ -552,7 +552,7 @@ export const useSimulator = () => {
       setTransactionMessage('Processing sell order...');
 
       try {
-        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'skilldash-dse-v1';
+        const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
         const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
         
         await runTransaction(db, async (transaction) => {
