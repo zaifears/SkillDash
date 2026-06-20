@@ -241,6 +241,26 @@ export default function RootLayout({
             })
           }}
         />
+
+        {/* Brand Rebrand Mapping Schema - Re-links Historical Footprint & Authority */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FinancialApplication",
+              "name": "Stock Simulator BD",
+              "alternateName": ["StockSimBD", "SkillDash"],
+              "url": "https://www.stocksimulator.tech",
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web",
+              "description": "Practice trading Dhaka Stock Exchange stocks risk-free with virtual currency.",
+              "sameAs": [
+                "https://www.skilldash.live/"
+              ]
+            })
+          }}
+        />
       </head>
       <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 transition-colors duration-300`} suppressHydrationWarning={true}>
         {/* Google Tag Manager (noscript) */}
@@ -249,7 +269,7 @@ export default function RootLayout({
             src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
             height="0"
             width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
+            className="hidden invisible"
           ></iframe>
         </noscript>
         {/* End Google Tag Manager (noscript) */}
