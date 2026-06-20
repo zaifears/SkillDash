@@ -1,8 +1,12 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.skilldash.simulator",
-        "sha256_cert_fingerprints": ["0A:31:A2:8F:FE:CC:67:4F:65:68:25:91:88:0F:4C:06:6D:19:F9:A3:5A:2B:CA:2F:5C:C6:3A:7D:BF:DA:35:65"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "tech.stocksimulatorbd.bd",
+      "sha256_cert_fingerprints": [
+        "94:CE:2C:14:BB:ED:84:87:69:CE:2F:BB:C1:0C:3F:BA:86:31:63:B3:17:1B:28:9F:02:4F:B3:8B:9E:2C:CB:7E"
+      ]
+    }
+  }
+]
