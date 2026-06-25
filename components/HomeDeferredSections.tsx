@@ -18,11 +18,6 @@ const SimulatorPreview = dynamic(() => import('./SimulatorPreview'), {
   loading: () => <div className="min-h-[460px]" aria-hidden="true" />,
 });
 
-const GoPreview = dynamic(() => import('./GoPreview'), {
-  ssr: false,
-  loading: () => <div className="min-h-[460px]" aria-hidden="true" />,
-});
-
 const Footer = dynamic(() => import('./shared/Footer'), {
   ssr: false,
   loading: () => <div className="min-h-[220px]" aria-hidden="true" />,
@@ -44,9 +39,6 @@ export default function HomeDeferredSections({ section }: HomeDeferredSectionsPr
       <section className="relative z-10">
         <DeferredSection minHeightClassName="min-h-[460px]" rootMargin="240px 0px">
           <SimulatorPreview />
-        </DeferredSection>
-        <DeferredSection minHeightClassName="min-h-[460px]" rootMargin="240px 0px">
-          <GoPreview />
         </DeferredSection>
       </section>
     );

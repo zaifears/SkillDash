@@ -5,7 +5,6 @@ import NavbarWrapper from '../components/NavbarWrapper'
 import { AuthProvider } from '../contexts/AuthContext'
 import EmailVerificationBanner from '../components/auth/EmailVerificationBanner'
 import SparkEffectInitializer from '@/components/SparkEffectInitializer'
-import CookieConsent from '@/components/CookieConsent'
 import SentryInitializer from '@/components/SentryInitializer'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import IOSInstallGuide from '@/components/iOSInstallGuide'
@@ -316,8 +315,6 @@ export default function RootLayout({
             <NavbarWrapper />
             <main role="main" className="lg:pb-0 pb-16">{children}</main>
           </div>
-          
-          <CookieConsent />
         </AuthProvider>
         
         <SpeedInsights />

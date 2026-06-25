@@ -62,7 +62,7 @@ const Footer = memo(function Footer() {
         <div className="flex gap-12 justify-center flex-1">
           {/* Useful Links */}
           <div>
-            <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Useful Links</h4>
+            <p className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Useful Links</p>
             <ul className="flex flex-col gap-1 text-gray-500 dark:text-gray-400 text-sm">
               {FOOTER_LINKS.useful.map((link) => (
                 <li key={link.label}>
@@ -79,7 +79,7 @@ const Footer = memo(function Footer() {
 
           {/* Social Links */}
           <div>
-            <h4 className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Connect</h4>
+            <p className="text-md font-bold text-gray-800 dark:text-white mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Connect</p>
             <ul className="flex flex-col gap-2 text-gray-500 dark:text-gray-400 text-sm">
               {FOOTER_LINKS.social.map((link) => (
                 <li key={link.label}>

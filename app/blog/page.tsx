@@ -8,6 +8,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.stocksimulator.tech/blog',
     },
+    openGraph: {
+        title: 'Stock Simulator BD Blog',
+        description: 'Professional guides on Dhaka Stock Exchange investing, broker comparisons, and risk-free paper trading.',
+        url: 'https://www.stocksimulator.tech/blog',
+        type: 'website',
+    }
 };
 
 const posts = [
@@ -65,7 +71,7 @@ export default function BlogPage() {
                                 href={post.href}
                                 className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all"
                             >
-                                Read article
+                                <span>Read <span className="sr-only">{post.title}</span></span>
                                 <span aria-hidden="true">→</span>
                             </Link>
                         </article>

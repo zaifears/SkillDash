@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const TypingHeroSection = () => {
     return (
-        <section className="hero-background-container relative py-16 sm:py-18 md:py-6 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[450px] sm:min-h-[550px] md:min-h-[700px] flex items-center justify-center">
+        <section className="hero-background-container relative text-center overflow-hidden bg-cover bg-center bg-no-repeat min-h-[85vh] sm:min-h-[550px] md:min-h-[700px] flex flex-col justify-end sm:justify-center items-center px-4 sm:px-6 pt-32 pb-24 sm:pb-16">
             {/* Dark overlay for light mode and gradient for dark mode */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white/60 dark:from-black/70 dark:via-black/60 dark:to-black/50 pointer-events-none"></div>
 
@@ -17,29 +17,31 @@ const TypingHeroSection = () => {
                 <div className="absolute bottom-20 right-24 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-optimized-bounce opacity-80 shadow-sm" style={{ animationDelay: '2.5s', animationDuration: '4.2s' }}></div>
             </div>
 
-            <div className="max-w-6xl mx-auto relative z-10 py-6 sm:py-12 md:py-8 px-4 sm:px-6">
+            {/* Content Wrapper - Pushed to the bottom on mobile for thumb ergonomics */}
+            <div className="max-w-6xl mx-auto relative z-10 w-full flex flex-col items-center mt-auto sm:mt-0">
+                
                 {/* Main Heading */}
-                <div className="relative mb-8 sm:mb-8 md:mb-10 w-full max-w-[100vw]">
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent leading-tight md:leading-relaxed transition-all duration-500 hover:scale-[1.02] cursor-default drop-shadow-sm break-words whitespace-normal">
-                        Master the Markets
+                <div className="relative mb-6 sm:mb-8 md:mb-10 w-full">
+                    <h1 className="text-[2.75rem] leading-[1.15] sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent transition-all duration-500 hover:scale-[1.02] cursor-default drop-shadow-sm whitespace-normal">
+                        Master the <br className="block sm:hidden" /> Markets
                     </h1>
                     
                     {/* Small decorative balls near the title */}
-                    <div className="absolute -top-4 -right-4 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse opacity-80"></div>
+                    <div className="absolute -top-4 -right-2 sm:-right-4 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse opacity-80"></div>
                     <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full animate-bounce opacity-60"></div>
                 </div>
 
                 {/* Subtitle */}
-                <p className="text-base sm:text-lg md:text-2xl text-gray-600 dark:text-gray-300 mb-10 sm:mb-12 md:mb-14 max-w-4xl mx-auto leading-relaxed px-2 font-medium break-words">
-                    Experience the thrill of stock trading without the risk. Learn strategies, track performance, and build your financial future today.
+                <p className="text-base sm:text-lg md:text-2xl text-gray-600 dark:text-gray-300 mb-10 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-2 font-medium break-words">
+                    Experience the thrill of <strong>Dhaka Stock Exchange paper trading</strong> without the risk. Learn investing strategies, track virtual portfolio performance, and build your financial future today.
                 </p>
 
                 {/* CTA Button */}
-                <div className="relative inline-block mb-12 sm:mb-16 md:mb-16">
+                <div className="relative inline-block mt-4 sm:mt-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur-xl opacity-50 animate-pulse"></div>
                     <Link 
                         href="/simulator" 
-                        className="relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 sm:py-5 px-6 sm:px-10 rounded-full hover:scale-105 transform transition-all duration-300 flex sm:inline-flex items-center justify-center text-center gap-2 sm:gap-3 shadow-xl hover:shadow-blue-500/25 text-sm sm:text-lg flex-wrap max-w-full"
+                        className="relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 sm:py-5 px-8 sm:px-10 rounded-full hover:scale-105 transform transition-all duration-300 flex sm:inline-flex items-center justify-center text-center gap-2 sm:gap-3 shadow-xl hover:shadow-blue-500/25 text-[15px] sm:text-lg flex-wrap w-full sm:w-auto"
                     >
                         <span>Start Trading Now - It's Free</span>
                         <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,8 +49,6 @@ const TypingHeroSection = () => {
                         </svg>
                     </Link>
                 </div>
-
-                
             </div>
         </section>
     );
