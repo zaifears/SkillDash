@@ -288,7 +288,7 @@ export const useSimulator = () => {
     try {
       const appId = process.env.NEXT_PUBLIC_SIMULATOR_APP_ID || 'stocksimulatorbd-dse-v1';
       const stateRef = doc(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state');
-      const historyColRef = collection(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'trade_history');
+      const historyColRef = collection(db, 'artifacts', appId, 'users', user.uid, 'simulator', 'state', 'trade_history');
 
       await runTransaction(db, async (transaction) => {
         const stateDoc = await transaction.get(stateRef);
